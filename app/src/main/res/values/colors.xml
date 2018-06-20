@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="colorPrimary">#3F51B5</color>
+    <color name="colorPrimaryDark">#303F9F</color>
+    <color name="colorAccent">#FF4081</color>
+
+    <color name="redC93437">#FFC93437</color>
+    <color name="blue375BF1">#FF375BF1</color>
+    <color name="yellowF7D23E">#FFF7D23E</color>
+    <color name="green34A350">#FF34A350</color>
+
+    <color name="drag_bg">#a0a0a0</color>
+    <color name="grayef">#efefef</color>
+    <color name="actionbar_bg">#069f75</color>
+    <color name="status_bar_bg">#045f46</color>
+
+    <color name="text_main">#333333</color>
+    <color name="text_second">#666666</color>
+    <color name="text_sub">#999999</color>
+
+    <color name="white">#ffffff</color>
+    <color name="white_bg">#efefef</color>
+    <color name="divider">#efefef</color>
+</resources>
