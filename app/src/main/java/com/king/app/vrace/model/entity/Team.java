@@ -56,7 +56,8 @@ public class Team {
     private transient TeamDao myDao;
 
     @Generated(hash = 561745484)
-    public Team(Long id, String province, String city, String code, int genderType, long relationshipId) {
+    public Team(Long id, String province, String city, String code, int genderType,
+            long relationshipId) {
         this.id = id;
         this.province = province;
         this.city = city;
@@ -75,6 +76,14 @@ public class Team {
 
     public void setId(Long id) {
         this.id = id;
+    }
+
+    public String getProvince() {
+        return this.province;
+    }
+
+    public void setProvince(String province) {
+        this.province = province;
     }
 
     public String getCity() {
@@ -175,6 +184,34 @@ public class Team {
     }
 
     /**
+     * To-many relationship, resolved on first access (and after reset).
+     * Changes to to-many relations are not persisted, make changes to the target entity.
+     */
+    @Generated(hash = 1861065475)
+    public List<Player> getPlayerList() {
+        if (playerList == null) {
+            final DaoSession daoSession = this.daoSession;
+            if (daoSession == null) {
+                throw new DaoException("Entity is detached from DAO context");
+            }
+            PlayerDao targetDao = daoSession.getPlayerDao();
+            List<Player> playerListNew = targetDao._queryTeam_PlayerList(id);
+            synchronized (this) {
+                if (playerList == null) {
+                    playerList = playerListNew;
+                }
+            }
+        }
+        return playerList;
+    }
+
+    /** Resets a to-many relationship, making the next get call to query for a fresh result. */
+    @Generated(hash = 1310905913)
+    public synchronized void resetPlayerList() {
+        playerList = null;
+    }
+
+    /**
      * Convenient call for {@link org.greenrobot.greendao.AbstractDao#delete(Object)}.
      * Entity must attached to an entity context.
      */
@@ -208,42 +245,6 @@ public class Team {
             throw new DaoException("Entity is detached from DAO context");
         }
         myDao.update(this);
-    }
-
-    public String getProvince() {
-        return this.province;
-    }
-
-    public void setProvince(String province) {
-        this.province = province;
-    }
-
-    /**
-     * To-many relationship, resolved on first access (and after reset).
-     * Changes to to-many relations are not persisted, make changes to the target entity.
-     */
-    @Generated(hash = 1861065475)
-    public List<Player> getPlayerList() {
-        if (playerList == null) {
-            final DaoSession daoSession = this.daoSession;
-            if (daoSession == null) {
-                throw new DaoException("Entity is detached from DAO context");
-            }
-            PlayerDao targetDao = daoSession.getPlayerDao();
-            List<Player> playerListNew = targetDao._queryTeam_PlayerList(id);
-            synchronized (this) {
-                if (playerList == null) {
-                    playerList = playerListNew;
-                }
-            }
-        }
-        return playerList;
-    }
-
-    /** Resets a to-many relationship, making the next get call to query for a fresh result. */
-    @Generated(hash = 1310905913)
-    public synchronized void resetPlayerList() {
-        playerList = null;
     }
 
     /** called by internal mechanisms, do not call yourself. */

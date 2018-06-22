@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
-    tools:context=".page.SeasonListActivity">
+    xmlns:tools="http://schemas.android.com/tools">
+
     <data>
         <variable
             name="model"
-            type="com.king.app.vrace.viewmodel.SeasonListViewModel"/>
+            type="com.king.app.vrace.viewmodel.TeamListViewModel"/>
     </data>
     <android.support.constraint.ConstraintLayout
         android:layout_width="match_parent"
@@ -18,22 +18,23 @@
             android:background="@color/actionbar_bg"
             app:maxShowIcon="4"
             app:iconColor="@color/action_icon_color"
-            app:menu="@menu/season_list"
-            app:showIconBack="false"
-            app:title="Seasons"
+            app:menu="@menu/team_list"
+            app:showIconBack="true"
+            app:title="Teams"
             app:titleColor="@color/action_title_color"
             app:actionTextColor="@color/action_icon_color"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent"/>
         <android.support.v7.widget.RecyclerView
-            android:id="@+id/rv_seasons"
+            android:id="@+id/rv_teams"
             android:layout_width="0dp"
             android:layout_height="0dp"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintTop_toBottomOf="@id/actionbar"
-            tools:listitem="@layout/adapter_season"/>
+            tools:listitem="@layout/adapter_team"/>
     </android.support.constraint.ConstraintLayout>
+
 </layout>

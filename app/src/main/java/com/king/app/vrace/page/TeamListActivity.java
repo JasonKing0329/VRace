@@ -1,22 +1,18 @@
 package com.king.app.vrace.page;
 
 import android.arch.lifecycle.ViewModelProviders;
-import android.content.Intent;
-import android.graphics.Rect;
 import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
-import android.view.View;
 
 import com.king.app.jactionbar.OnConfirmListener;
 import com.king.app.vrace.R;
 import com.king.app.vrace.base.MvvmActivity;
-import com.king.app.vrace.databinding.ActivitySeasonListBinding;
-import com.king.app.vrace.model.entity.Season;
-import com.king.app.vrace.page.adapter.SeasonListAdapter;
+import com.king.app.vrace.databinding.ActivityTeamListBinding;
+import com.king.app.vrace.page.adapter.TeamListAdapter;
 import com.king.app.vrace.utils.ScreenUtils;
 import com.king.app.vrace.view.dialog.DraggableDialogFragment;
-import com.king.app.vrace.view.dialog.content.SeasonEditor;
-import com.king.app.vrace.viewmodel.SeasonListViewModel;
+import com.king.app.vrace.view.dialog.content.TeamEditor;
+import com.king.app.vrace.viewmodel.TeamListViewModel;
+import com.king.app.vrace.viewmodel.bean.TeamListItem;
 
 import java.util.List;
 
@@ -26,33 +22,35 @@ import java.util.List;
  * @author：Jing Yang
  * @date: 2018/6/21 20:31
  */
-public class SeasonListActivity extends MvvmActivity<ActivitySeasonListBinding, SeasonListViewModel> {
+public class TeamListActivity extends MvvmActivity<ActivityTeamListBinding, TeamListViewModel> {
 
-    private SeasonListAdapter adapter;
+    private TeamListAdapter adapter;
 
     private boolean isEditMode;
 
     @Override
     protected int getContentView() {
-        return R.layout.activity_season_list;
+        return R.layout.activity_team_list;
     }
 
     @Override
     protected void initView() {
-        mBinding.rvSeasons.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false));
-        mBinding.rvSeasons.addItemDecoration(new RecyclerView.ItemDecoration() {
-            @Override
-            public void getItemOffsets(Rect outRect, View view, RecyclerView parent, RecyclerView.State state) {
-                if (parent.getChildAdapterPosition(view) > 0) {
-                    outRect.top = ScreenUtils.dp2px(10);
-                }
-            }
-        });
+        mBinding.rvTeams.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false));
+//        mBinding.rvTeams.addItemDecoration(new RecyclerView.ItemDecoration() {
+//            @Override
+//            public void getItemOffsets(Rect outRect, View view, RecyclerView parent, RecyclerView.State state) {
+//                if (parent.getChildAdapterPosition(view) > 0) {
+//                    outRect.top = ScreenUtils.dp2px(10);
+//                }
+//            }
+//        });
+
+        mBinding.actionbar.setOnBackListener(() -> onBackPressed());
 
         mBinding.actionbar.setOnMenuItemListener(menuId -> {
             switch (menuId) {
                 case R.id.menu_add:
-                    editSeason(null);
+                    editTeam(null);
                     break;
                 case R.id.menu_delete:
                     if (adapter != null) {
@@ -64,9 +62,6 @@ public class SeasonListActivity extends MvvmActivity<ActivitySeasonListBinding, 
                 case R.id.menu_edit:
                     mBinding.actionbar.showConfirmStatus(menuId);
                     isEditMode = true;
-                    break;
-                case R.id.menu_teams:
-                    goToTeamPage();
                     break;
             }
         });
@@ -107,68 +102,65 @@ public class SeasonListActivity extends MvvmActivity<ActivitySeasonListBinding, 
         });
     }
 
-    private void goToTeamPage() {
-        startActivity(new Intent(this, TeamListActivity.class));
-    }
-
     @Override
-    protected SeasonListViewModel createViewModel() {
-        return ViewModelProviders.of(this).get(SeasonListViewModel.class);
+    protected TeamListViewModel createViewModel() {
+        return ViewModelProviders.of(this).get(TeamListViewModel.class);
     }
 
     @Override
     protected void initData() {
         mBinding.setModel(mModel);
-        mModel.seasonsObserver.observe(this, seasons -> showSeasons(seasons));
+        mModel.teamsObserver.observe(this, teams -> showTeams(teams));
         mModel.deleteObserver.observe(this, deleted -> {
             mBinding.actionbar.cancelConfirmStatus();
             adapter.setSelectMode(false);
             adapter.notifyDataSetChanged();
         });
 
-        mModel.loadSeasons();
+        mModel.loadTeams();
     }
 
     private void warningDelete() {
         showConfirmCancelMessage("Delete season will delete all data related to season, continue?",
-                (dialog, which) -> mModel.deleteSeasons(), null);
+                (dialog, which) -> mModel.deleteTeams(), null);
     }
 
-    private void showSeasons(List<Season> seasons) {
+    private void showTeams(List<TeamListItem> teams) {
         if (adapter == null) {
-            adapter = new SeasonListAdapter();
-            adapter.setList(seasons);
+            adapter = new TeamListAdapter();
+            adapter.setList(teams);
             adapter.setCheckMap(mModel.getCheckMap());
             adapter.setOnItemClickListener((view, position, data) -> {
                 if (isEditMode) {
-                    editSeason(data);
+                    editTeam(data);
                 }
                 else {
-                    showSeasonPage(data);
+                    showTeamPage(data);
                 }
             });
-            mBinding.rvSeasons.setAdapter(adapter);
+            mBinding.rvTeams.setAdapter(adapter);
         }
         else {
-            adapter.setList(seasons);
+            adapter.setList(teams);
             adapter.notifyDataSetChanged();
         }
     }
 
-    private void showSeasonPage(Season data) {
+    private void showTeamPage(TeamListItem data) {
     }
 
-    private void editSeason(Season season) {
-        SeasonEditor editor = new SeasonEditor();
-        editor.setSeason(season);
+    private void editTeam(TeamListItem team) {
+        TeamEditor editor = new TeamEditor();
         DraggableDialogFragment dialogFragment = new DraggableDialogFragment();
+        dialogFragment.setMaxHeight(ScreenUtils.getScreenHeight() * 4 / 5);
         dialogFragment.setContentFragment(editor);
-        if (season == null) {
-            dialogFragment.setTitle("New season");
+        if (team == null) {
+            dialogFragment.setTitle("New team");
         }
         else {
-            dialogFragment.setTitle("Edit S" + season.getIndex());
+            editor.setTeam(team.getBean());
+            dialogFragment.setTitle("Edit " + team.getName());
         }
-        dialogFragment.show(getSupportFragmentManager(), "SeasonEditor");
+        dialogFragment.show(getSupportFragmentManager(), "TeamEditor");
     }
 }
