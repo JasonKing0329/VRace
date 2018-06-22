@@ -157,7 +157,8 @@ public class ScreenUtils
 		//设置状态栏颜色
 		window.setStatusBarColor(statusColor);
 		//设置系统状态栏处于可见状态
-		window.getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_VISIBLE);
+		window.getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_VISIBLE
+				|View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR);// 同时改变状态栏图标颜色
 		//让view不根据系统窗口来调整自己的布局
 		ViewGroup mContentView = (ViewGroup) window.findViewById(Window.ID_ANDROID_CONTENT);
 		View mChildView = mContentView.getChildAt(0);

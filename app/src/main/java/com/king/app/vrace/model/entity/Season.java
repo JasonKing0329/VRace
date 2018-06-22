@@ -32,9 +32,11 @@ public class Season {
 
     private String theme;
 
-    @Generated(hash = 2042846951)
+    private String coverUrl;
+
+    @Generated(hash = 310693589)
     public Season(Long id, int index, long dateFilming, long dateAir, int team,
-            int leg, int type, int teamType, String theme) {
+            int leg, int type, int teamType, String theme, String coverUrl) {
         this.id = id;
         this.index = index;
         this.dateFilming = dateFilming;
@@ -44,6 +46,7 @@ public class Season {
         this.type = type;
         this.teamType = teamType;
         this.theme = theme;
+        this.coverUrl = coverUrl;
     }
 
     @Generated(hash = 1022390091)
@@ -120,5 +123,13 @@ public class Season {
 
     public void setTheme(String theme) {
         this.theme = theme;
+    }
+
+    public String getCoverUrl() {
+        return this.coverUrl;
+    }
+
+    public void setCoverUrl(String coverUrl) {
+        this.coverUrl = coverUrl;
     }
 }

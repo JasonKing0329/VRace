@@ -2,6 +2,7 @@ package com.king.app.vrace.page;
 
 import android.Manifest;
 import android.arch.lifecycle.ViewModelProviders;
+import android.content.Intent;
 
 import com.king.app.vrace.R;
 import com.king.app.vrace.base.MvvmActivity;
@@ -97,8 +98,8 @@ public class LoginActivity extends MvvmActivity<ActivityLoginBinding, LoginViewM
     }
 
     private void startHome() {
-//        Intent intent = new Intent(this, HomeActivity.class);
-//        startActivity(intent);
-//        finish();
+        Intent intent = new Intent(this, SeasonListActivity.class);
+        startActivity(intent);
+        finish();
     }
 }

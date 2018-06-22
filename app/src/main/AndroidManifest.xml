@@ -32,13 +32,16 @@
         <meta-data
             android:name="com.sec.android.support.multiwindow"
             android:value="true" />
-        <activity android:name=".page.LoginActivity">
+        <activity android:name=".page.LoginActivity"
+            android:screenOrientation="portrait">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity android:name=".page.SeasonListActivity"
+            android:screenOrientation="portrait"/>
     </application>
 
 </manifest>
