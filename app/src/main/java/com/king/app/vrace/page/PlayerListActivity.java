@@ -1,6 +1,7 @@
 package com.king.app.vrace.page;
 
 import android.arch.lifecycle.ViewModelProviders;
+import android.content.Intent;
 import android.support.v7.widget.LinearLayoutManager;
 
 import com.king.app.jactionbar.OnConfirmListener;
@@ -23,6 +24,8 @@ import java.util.List;
  * @date: 2018/6/21 20:31
  */
 public class PlayerListActivity extends MvvmActivity<ActivityPlayerListBinding, PlayerListViewModel> {
+
+    public static final String RESP_PLAYER_ID = "player_id";
 
     private PlayerListAdapter adapter;
 
@@ -135,7 +138,7 @@ public class PlayerListActivity extends MvvmActivity<ActivityPlayerListBinding, 
                     editPlayer(data);
                 }
                 else {
-                    showPlayerPage(data);
+                    onSelectPlayer(data);
                 }
             });
             mBinding.rvPlayers.setAdapter(adapter);
@@ -146,7 +149,11 @@ public class PlayerListActivity extends MvvmActivity<ActivityPlayerListBinding, 
         }
     }
 
-    private void showPlayerPage(Player data) {
+    private void onSelectPlayer(Player data) {
+        Intent intent = new Intent();
+        intent.putExtra(RESP_PLAYER_ID, data.getId());
+        setResult(RESULT_OK, intent);
+        finish();
     }
 
     private void editPlayer(Player player) {

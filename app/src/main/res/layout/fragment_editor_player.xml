@@ -24,7 +24,6 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="16dp"
             android:layout_marginTop="16dp"
-            android:inputType="number"
             android:textSize="14dp"
             app:layout_constraintStart_toEndOf="@+id/tv_title_name"
             app:layout_constraintTop_toTopOf="parent" />
@@ -56,8 +55,7 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
             android:layout_marginTop="8dp"
-            android:ems="10"
-            android:inputType="textPersonName"
+            android:inputType="number"
             app:layout_constraintStart_toEndOf="@+id/tv_title_age"
             app:layout_constraintTop_toBottomOf="@+id/et_name" />
 
@@ -79,7 +77,6 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="10dp"
             android:layout_marginTop="18dp"
-            android:inputType="number"
             app:layout_constraintStart_toEndOf="@+id/tv_title_province"
             app:layout_constraintTop_toBottomOf="@+id/sp_gender" />
 
@@ -99,7 +96,6 @@
             android:layout_width="100dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="10dp"
-            android:inputType="number"
             app:layout_constraintStart_toEndOf="@+id/tv_title_city"
             app:layout_constraintTop_toTopOf="@+id/et_province" />
 
@@ -144,7 +140,6 @@
             android:layout_marginEnd="16dp"
             android:layout_marginStart="16dp"
             android:layout_marginTop="16dp"
-            android:inputType="number"
             android:textSize="14dp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toEndOf="@+id/tv_title_occupy"
@@ -169,7 +164,6 @@
             android:layout_marginEnd="16dp"
             android:layout_marginStart="16dp"
             android:layout_marginTop="16dp"
-            android:inputType="number"
             android:textSize="14dp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toEndOf="@+id/tv_title_desc"

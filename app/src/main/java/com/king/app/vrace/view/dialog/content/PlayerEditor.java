@@ -12,6 +12,7 @@ import com.king.app.vrace.model.entity.Player;
 import com.king.app.vrace.model.entity.PlayerDao;
 import com.king.app.vrace.view.dialog.DatePickerFragment;
 import com.king.app.vrace.view.dialog.DraggableContentFragment;
+import com.king.app.vrace.view.dialog.DraggableDialogFragment;
 import com.king.app.vrace.viewmodel.PlayerListViewModel;
 
 import java.text.SimpleDateFormat;
@@ -31,7 +32,7 @@ public class PlayerEditor extends DraggableContentFragment<FragmentEditorPlayerB
 
     private String mBirthday;
 
-    private long mDebuSeasonId;
+    private long mDebutSeasonId;
 
     private PlayerListViewModel listViewModel;
 
@@ -62,7 +63,7 @@ public class PlayerEditor extends DraggableContentFragment<FragmentEditorPlayerB
             if (mBirthday != null) {
                 mBinding.btnBirthday.setText(mPlayer.getBirthday());
             }
-            mDebuSeasonId = mPlayer.getDebutSeasonId();
+            mDebutSeasonId = mPlayer.getDebutSeasonId();
             mBinding.btnDebut.setText("S" + mPlayer.getDebutSeason().getIndex());
             mBinding.spGender.setSelection(mPlayer.getGender());
         }
@@ -105,7 +106,15 @@ public class PlayerEditor extends DraggableContentFragment<FragmentEditorPlayerB
     }
 
     private void selectSeason() {
-
+        SeasonSelector selector = new SeasonSelector();
+        selector.setOnSeasonSelectedListener(season -> {
+            mDebutSeasonId = season.getId();
+            mBinding.btnDebut.setText("S" + season.getIndex());
+        });
+        DraggableDialogFragment dialogFragment = new DraggableDialogFragment();
+        dialogFragment.setTitle("Select season");
+        dialogFragment.setContentFragment(selector);
+        dialogFragment.show(getChildFragmentManager(), "SeasonSelector");
     }
 
     public void setPlayer(Player mPlayer) {
@@ -119,10 +128,11 @@ public class PlayerEditor extends DraggableContentFragment<FragmentEditorPlayerB
             showMessageShort("Wrong age");
             return;
         }
-        if (mDebuSeasonId == 0) {
+        if (mDebutSeasonId == 0) {
             showMessageShort("Please select debut season");
             return;
         }
+        mPlayer.setDebutSeasonId(mDebutSeasonId);
         mPlayer.setName(mBinding.etName.getText().toString());
         mPlayer.setProvince(mBinding.etProvince.getText().toString());
         mPlayer.setCity(mBinding.etCity.getText().toString());

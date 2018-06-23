@@ -1,13 +1,12 @@
 package com.king.app.vrace.page.adapter;
 
+import android.text.TextUtils;
 import android.view.View;
 
 import com.king.app.vrace.R;
 import com.king.app.vrace.base.BaseBindingAdapter;
 import com.king.app.vrace.databinding.AdapterPlayerBinding;
-import com.king.app.vrace.databinding.AdapterTeamBinding;
 import com.king.app.vrace.model.entity.Player;
-import com.king.app.vrace.viewmodel.bean.TeamListItem;
 
 import java.util.Map;
 
@@ -35,6 +34,7 @@ public class PlayerListAdapter extends BaseBindingAdapter<AdapterPlayerBinding, 
         binding.tvGender.setText(bean.getGender() == 0 ? "男":"女");
         binding.tvSeason.setText("S" + bean.getDebutSeason().getIndex());
         binding.tvPlace.setText(bean.getProvince() + "/" + bean.getCity());
+        binding.tvOccupy.setVisibility(TextUtils.isEmpty(bean.getOccupy()) ? View.GONE:View.VISIBLE);
 
         binding.cbCheck.setVisibility(isSelectMode ? View.VISIBLE:View.GONE);
         if (isSelectMode) {
