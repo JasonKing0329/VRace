@@ -14,4 +14,11 @@
         <item>男</item>
         <item>女</item>
     </string-array>
+    <string-array name="leg_type">
+        <item>淘汰赛段</item>
+        <item>非淘汰赛段</item>
+        <item>连续赛段</item>
+        <item>双淘汰赛段</item>
+        <item>最终赛段</item>
+    </string-array>
 </resources>

@@ -10,5 +10,6 @@ public enum LegType {
     EL, // elimination leg
     NEL, // non-elimination leg
     DLL, // double-length leg
-    DEL // double-elimination leg
+    DEL, // double-elimination leg
+    FINAL
 }

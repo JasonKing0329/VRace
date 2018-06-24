@@ -117,6 +117,7 @@ public class PlayerListActivity extends MvvmActivity<ActivityPlayerListBinding, 
             mBinding.actionbar.cancelConfirmStatus();
             adapter.setSelectMode(false);
             adapter.notifyDataSetChanged();
+            mModel.loadPlayers();
         });
 
         mModel.loadPlayers();

@@ -113,7 +113,7 @@ public class SeasonTeamActivity extends MvvmActivity<ActivitySeasonTeamsBinding,
     protected void initData() {
         mModel.seasonObserver.observe(this, season -> mBinding.actionbar.setTitle("S" + season.getIndex()));
         mModel.teamsObserver.observe(this, teams -> showTeams(teams));
-        mModel.deleteObserver.observe(this, deleted -> {
+        mModel.deleteTeamsObserver.observe(this, deleted -> {
             mBinding.actionbar.cancelConfirmStatus();
             adapter.setSelectMode(false);
             adapter.notifyDataSetChanged();
@@ -132,7 +132,7 @@ public class SeasonTeamActivity extends MvvmActivity<ActivitySeasonTeamsBinding,
         if (adapter == null) {
             adapter = new SeasonTeamsAdapter();
             adapter.setList(teams);
-            adapter.setCheckMap(mModel.getCheckMap());
+            adapter.setCheckMap(mModel.getTeamCheckMap());
             adapter.setOnItemClickListener((view, position, data) -> {
                 if (isEditMode) {
                     editTeam(data);

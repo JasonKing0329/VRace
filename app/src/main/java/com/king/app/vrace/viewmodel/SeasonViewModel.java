@@ -8,10 +8,16 @@ import android.text.TextUtils;
 import com.king.app.vrace.base.BaseViewModel;
 import com.king.app.vrace.conf.AppConstants;
 import com.king.app.vrace.conf.GenderType;
+import com.king.app.vrace.model.entity.Leg;
+import com.king.app.vrace.model.entity.LegDao;
+import com.king.app.vrace.model.entity.LegPlacesDao;
+import com.king.app.vrace.model.entity.LegSpecialDao;
+import com.king.app.vrace.model.entity.LegTeamDao;
 import com.king.app.vrace.model.entity.Season;
 import com.king.app.vrace.model.entity.SeasonDao;
 import com.king.app.vrace.model.entity.TeamSeason;
 import com.king.app.vrace.model.entity.TeamSeasonDao;
+import com.king.app.vrace.viewmodel.bean.LegItem;
 import com.king.app.vrace.viewmodel.bean.SeasonTeamItem;
 
 import java.util.ArrayList;
@@ -36,52 +42,36 @@ public class SeasonViewModel extends BaseViewModel {
 
     public MutableLiveData<List<SeasonTeamItem>> teamsObserver = new MutableLiveData<>();
 
-    public MutableLiveData<Boolean> deleteObserver = new MutableLiveData<>();
+    public MutableLiveData<List<LegItem>> legsObserver = new MutableLiveData<>();
+
+    public MutableLiveData<Boolean> deleteTeamsObserver = new MutableLiveData<>();
+
+    public MutableLiveData<Boolean> deleteLegsObserver = new MutableLiveData<>();
 
     public MutableLiveData<Season> seasonObserver = new MutableLiveData<>();
 
-    private Map<Long, Boolean> mCheckMap;
+    private Map<Long, Boolean> mLegCheckMap;
+
+    private Map<Long, Boolean> mTeamCheckMap;
 
     private Season mSeason;
 
     public SeasonViewModel(@NonNull Application application) {
         super(application);
-        mCheckMap = new HashMap<>();
+        mLegCheckMap = new HashMap<>();
+        mTeamCheckMap = new HashMap<>();
     }
 
     public Season getSeason() {
         return mSeason;
     }
 
-    public Map<Long, Boolean> getCheckMap() {
-        return mCheckMap;
+    public Map<Long, Boolean> getLegCheckMap() {
+        return mLegCheckMap;
     }
 
-    public void loadSeason(long seasonId) {
-        querySeason(seasonId)
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribeOn(Schedulers.io())
-                .subscribe(new Observer<Season>() {
-                    @Override
-                    public void onSubscribe(Disposable d) {
-                        addDisposable(d);
-                    }
-
-                    @Override
-                    public void onNext(Season season) {
-                        mSeason = season;
-                    }
-
-                    @Override
-                    public void onError(Throwable e) {
-                        e.printStackTrace();
-                    }
-
-                    @Override
-                    public void onComplete() {
-
-                    }
-                });
+    public Map<Long, Boolean> getTeamCheckMap() {
+        return mTeamCheckMap;
     }
 
     public void loadTeams(long seasonId) {
@@ -181,7 +171,7 @@ public class SeasonViewModel extends BaseViewModel {
 
     public void deleteTeams() {
         Observable.create(e -> getDaoSession().runInTx(() -> {
-            executeDelete();
+            executeTeam();
             e.onNext(new Object());
         }))
                 .observeOn(AndroidSchedulers.mainThread())
@@ -195,7 +185,7 @@ public class SeasonViewModel extends BaseViewModel {
                     @Override
                     public void onNext(Object object) {
                         loadingObserver.setValue(false);
-                        deleteObserver.setValue(true);
+                        deleteTeamsObserver.setValue(true);
                     }
 
                     @Override
@@ -212,8 +202,8 @@ public class SeasonViewModel extends BaseViewModel {
                 });
     }
 
-    private void executeDelete() {
-        Iterator<Long> it = mCheckMap.keySet().iterator();
+    private void executeTeam() {
+        Iterator<Long> it = mTeamCheckMap.keySet().iterator();
         while (it.hasNext()) {
             long teamId = it.next();
             // delete from team_season
@@ -225,4 +215,145 @@ public class SeasonViewModel extends BaseViewModel {
             getDaoSession().getTeamSeasonDao().detachAll();
         }
     }
+
+    public void loadLegs(long seasonId) {
+        querySeason(seasonId)
+                .flatMap(season -> {
+                    mSeason = season;
+                    return queryLegs(mSeason.getId());
+                })
+                .flatMap(list -> toLegItems(list))
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribeOn(Schedulers.io())
+                .subscribe(new Observer<List<LegItem>>() {
+                    @Override
+                    public void onSubscribe(Disposable d) {
+                        addDisposable(d);
+                    }
+
+                    @Override
+                    public void onNext(List<LegItem> legItems) {
+                        legsObserver.setValue(legItems);
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+                        e.printStackTrace();
+                        messageObserver.setValue(e.getMessage());
+                    }
+
+                    @Override
+                    public void onComplete() {
+
+                    }
+                });
+
+    }
+
+    private Observable<List<Leg>> queryLegs(long seasonId) {
+        return Observable.create(e -> e.onNext(getDaoSession().getLegDao().queryBuilder()
+                .where(LegDao.Properties.SeasonId.eq(seasonId))
+                .orderAsc(LegDao.Properties.Index)
+                .build().list()));
+    }
+
+    private Observable<List<LegItem>> toLegItems(List<Leg> teams) {
+        return Observable.create(e -> {
+            List<LegItem> list = new ArrayList<>();
+            for (Leg leg:teams) {
+                LegItem item = new LegItem();
+                item.setBean(leg);
+                if (leg.getIndex() == 0) {
+                    item.setIndex("Start Line");
+                }
+                else {
+                    item.setIndex("Leg " + leg.getIndex());
+                }
+                if (leg.getPlayerNumber() < 4) {
+                    item.setPlayers("Final " + leg.getPlayerNumber());
+                }
+                else {
+                    item.setPlayers(leg.getPlayerNumber() + " teams");
+                }
+                StringBuffer place = new StringBuffer();
+                if (leg.getPlaceList().size() > 0) {
+                    place.append(leg.getPlaceList().get(0).getCountry()).append("/").append(leg.getPlaceList().get(0).getCity());
+                }
+                if (leg.getPlaceList().size() > 1) {
+                    place.append(" --> ").append(leg.getPlaceList().get(1).getCountry()).append("/").append(leg.getPlaceList().get(1).getCity());
+                }
+                if (leg.getPlaceList().size() > 2) {
+                    place.append(" --> ").append(leg.getPlaceList().get(2).getCountry()).append("/").append(leg.getPlaceList().get(2).getCity());
+                }
+                item.setPlace(place.toString());
+                list.add(item);
+            }
+            e.onNext(list);
+        });
+    }
+
+    public void deleteLegs() {
+        Observable.create(e -> getDaoSession().runInTx(() -> {
+            executeDeleteLeg();
+            e.onNext(new Object());
+        }))
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribeOn(Schedulers.io())
+                .subscribe(new Observer<Object>() {
+                    @Override
+                    public void onSubscribe(Disposable d) {
+                        addDisposable(d);
+                    }
+
+                    @Override
+                    public void onNext(Object object) {
+                        loadingObserver.setValue(false);
+                        deleteLegsObserver.setValue(true);
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+                        e.printStackTrace();
+                        loadingObserver.setValue(false);
+                        messageObserver.setValue(e.getMessage());
+                    }
+
+                    @Override
+                    public void onComplete() {
+
+                    }
+                });
+    }
+
+    private void executeDeleteLeg() {
+        Iterator<Long> it = mLegCheckMap.keySet().iterator();
+        while (it.hasNext()) {
+            long legId = it.next();
+            // delete from team_season
+            getDaoSession().getLegDao().queryBuilder()
+                    .where(LegDao.Properties.Id.eq(legId))
+                    .buildDelete()
+                    .executeDeleteWithoutDetachingEntities();
+            getDaoSession().getLegDao().detachAll();
+            // delete from leg_place
+            getDaoSession().getLegPlacesDao().queryBuilder()
+                    .where(LegPlacesDao.Properties.LegId.eq(legId))
+                    .buildDelete()
+                    .executeDeleteWithoutDetachingEntities();
+            getDaoSession().getLegPlacesDao().detachAll();
+            // delete from leg_place
+            getDaoSession().getLegSpecialDao().queryBuilder()
+                    .where(LegSpecialDao.Properties.LegId.eq(legId))
+                    .buildDelete()
+                    .executeDeleteWithoutDetachingEntities();
+            getDaoSession().getLegSpecialDao().detachAll();
+            // delete from leg_team
+            getDaoSession().getLegTeamDao().queryBuilder()
+                    .where(LegTeamDao.Properties.LegId.eq(legId))
+                    .buildDelete()
+                    .executeDeleteWithoutDetachingEntities();
+            getDaoSession().getLegTeamDao().detachAll();
+        }
+    }
+
 }
