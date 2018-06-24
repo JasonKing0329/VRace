@@ -19,6 +19,15 @@ public class SeasonActivity extends MvvmActivity<ActivitySeasonBinding, SeasonVi
 
     public static final String EXTRA_SEASON_ID = "season_id";
 
+    /**
+     * 不设置statusbar背景，因为该页面运用了系统statusbar浮于head图片之上的效果
+     * @return
+     */
+    @Override
+    protected boolean updateStatusBarColor() {
+        return false;
+    }
+
     @Override
     protected int getContentView() {
         return R.layout.activity_season;

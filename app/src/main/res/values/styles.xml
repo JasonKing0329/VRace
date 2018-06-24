@@ -15,6 +15,17 @@
         <item name="colorAccent">@color/colorAccent</item>
     </style>
 
+    <!--设置以下内容使SeasonActivity页面的head图片延伸到系统状态栏下，使系统通知图标浮于图片之上
+    由于BaseActivity设置了status bar背景颜色，所以SeasonActivity里要取消父类实现
+    另外，这样设置会让页面布局整体向上平移系统状态栏的高度，该页面又使用了coordinatelayout结合appbarlayout的效果，
+    为了让TitleBar不与系统通知图标重叠，在xml里对TitleBar设置一个marginTop就可以达到只将图片平移上去的效果-->
+    <style name="SeasonStatusBarTheme" parent="CustomActionBarTheme">
+        <item name="android:windowTranslucentStatus">false</item>
+        <item name="android:windowTranslucentNavigation">true</item>
+        <item name="android:statusBarColor">@android:color/transparent</item>
+        <item name="android:windowLightStatusBar">true</item>
+    </style>
+
     <!--透明Dialog-->
     <style name="BaseDialogFragment" parent="Theme.AppCompat.Dialog">
         <item name="android:windowFrame">@null</item>
