@@ -46,7 +46,12 @@ public class TeamListAdapter extends BaseBindingAdapter<AdapterTeamBinding, Team
 
     private void updateNameBg(TextView tvName, Team bean) {
         GradientDrawable drawable = (GradientDrawable) tvName.getBackground();
-        drawable.setColor(tvName.getResources().getColor(R.color.colorAccent));
+        if (bean.getSpecialColor() != 0) {
+            drawable.setColor(bean.getSpecialColor());
+        }
+        else {
+            drawable.setColor(tvName.getResources().getColor(R.color.colorAccent));
+        }
         tvName.setBackground(drawable);
     }
 

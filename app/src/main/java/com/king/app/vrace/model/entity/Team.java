@@ -1,15 +1,15 @@
 package com.king.app.vrace.model.entity;
 
+import org.greenrobot.greendao.DaoException;
 import org.greenrobot.greendao.annotation.Entity;
+import org.greenrobot.greendao.annotation.Generated;
 import org.greenrobot.greendao.annotation.Id;
 import org.greenrobot.greendao.annotation.JoinEntity;
+import org.greenrobot.greendao.annotation.NotNull;
 import org.greenrobot.greendao.annotation.ToMany;
 import org.greenrobot.greendao.annotation.ToOne;
 
 import java.util.List;
-import org.greenrobot.greendao.annotation.Generated;
-import org.greenrobot.greendao.DaoException;
-import org.greenrobot.greendao.annotation.NotNull;
 
 /**
  * Desc:
@@ -33,6 +33,8 @@ public class Team {
 
     private long relationshipId;
 
+    private int specialColor;
+
     @ToOne(joinProperty = "relationshipId")
     private Relationship relationship;
 
@@ -55,15 +57,16 @@ public class Team {
     @Generated(hash = 1539804063)
     private transient TeamDao myDao;
 
-    @Generated(hash = 561745484)
-    public Team(Long id, String province, String city, String code, int genderType,
-            long relationshipId) {
+    @Generated(hash = 1763756202)
+    public Team(Long id, String province, String city, String code, int genderType, long relationshipId,
+            int specialColor) {
         this.id = id;
         this.province = province;
         this.city = city;
         this.code = code;
         this.genderType = genderType;
         this.relationshipId = relationshipId;
+        this.specialColor = specialColor;
     }
 
     @Generated(hash = 882286361)
@@ -245,6 +248,14 @@ public class Team {
             throw new DaoException("Entity is detached from DAO context");
         }
         myDao.update(this);
+    }
+
+    public int getSpecialColor() {
+        return this.specialColor;
+    }
+
+    public void setSpecialColor(int specialColor) {
+        this.specialColor = specialColor;
     }
 
     /** called by internal mechanisms, do not call yourself. */

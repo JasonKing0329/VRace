@@ -21,7 +21,9 @@ import com.king.app.vrace.model.entity.TeamPlayers;
 import com.king.app.vrace.model.entity.TeamPlayersDao;
 import com.king.app.vrace.page.PlayerListActivity;
 import com.king.app.vrace.page.RelationshipListActivity;
+import com.king.app.vrace.utils.ScreenUtils;
 import com.king.app.vrace.view.dialog.DraggableContentFragment;
+import com.king.app.vrace.view.dialog.DraggableDialogFragment;
 import com.king.app.vrace.viewmodel.TeamListViewModel;
 
 /**
@@ -46,6 +48,8 @@ public class TeamEditor extends DraggableContentFragment<FragmentEditorTeamBindi
     private Relationship mRelationship;
 
     private TeamListViewModel listViewModel;
+
+    private int mTeamColor;
 
     @Override
     protected void bindFragmentHolder(IFragmentHolder holder) {
@@ -78,6 +82,9 @@ public class TeamEditor extends DraggableContentFragment<FragmentEditorTeamBindi
                 mRelationship = mTeam.getRelationship();
                 mBinding.btnRelationship.setText(mRelationship.getName());
             }
+            if (mTeam.getSpecialColor() != 0) {
+                mBinding.tvColor.setBackgroundColor(mTeam.getSpecialColor());
+            }
         }
         else {
             mTeam = new Team();
@@ -88,6 +95,7 @@ public class TeamEditor extends DraggableContentFragment<FragmentEditorTeamBindi
         mBinding.btnRelationship.setOnClickListener(view -> selectRelationship());
         mBinding.btnTag.setOnClickListener(view -> selectTag());
         mBinding.tvConfirm.setOnClickListener(view -> onConfirm());
+        mBinding.tvColor.setOnClickListener(view -> selectColor());
     }
 
     public void setTeam(Team mTeam) {
@@ -105,6 +113,19 @@ public class TeamEditor extends DraggableContentFragment<FragmentEditorTeamBindi
     private void selectPlayer(int requestCode) {
         Intent intent = new Intent(getActivity(), PlayerListActivity.class);
         startActivityForResult(intent, requestCode);
+    }
+
+    private void selectColor() {
+        ColorPicker picker = new ColorPicker();
+        picker.setOnColorSelectedListener(color -> {
+            mTeamColor = color;
+            mBinding.tvColor.setBackgroundColor(color);
+        });
+        DraggableDialogFragment dialogFragment = new DraggableDialogFragment();
+        dialogFragment.setContentFragment(picker);
+        dialogFragment.setMaxHeight(ScreenUtils.getScreenHeight());
+        dialogFragment.setTitle("Color picker");
+        dialogFragment.show(getChildFragmentManager(), "ColorPicker");
     }
 
     private void onConfirm() {
@@ -138,6 +159,7 @@ public class TeamEditor extends DraggableContentFragment<FragmentEditorTeamBindi
         mTeam.setCode(code);
         mTeam.setProvince(province);
         mTeam.setCity(city);
+        mTeam.setSpecialColor(mTeamColor);
         if (mPlayer1.getGender() == Gender.MALE.ordinal()) {
             if (mPlayer2.getGender() == Gender.MALE.ordinal()) {
                 mTeam.setGenderType(GenderType.MM.ordinal());
