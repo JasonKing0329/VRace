@@ -1,18 +1,18 @@
 package com.king.app.vrace.page;
 
 import android.arch.lifecycle.ViewModelProviders;
+import android.content.Intent;
 import android.support.v7.widget.LinearLayoutManager;
 
 import com.king.app.jactionbar.OnConfirmListener;
 import com.king.app.vrace.R;
 import com.king.app.vrace.base.MvvmActivity;
-import com.king.app.vrace.databinding.ActivityTeamListBinding;
-import com.king.app.vrace.page.adapter.TeamListAdapter;
-import com.king.app.vrace.utils.ScreenUtils;
-import com.king.app.vrace.view.dialog.DraggableDialogFragment;
-import com.king.app.vrace.view.dialog.content.TeamEditor;
-import com.king.app.vrace.viewmodel.TeamListViewModel;
-import com.king.app.vrace.viewmodel.bean.TeamListItem;
+import com.king.app.vrace.base.RaceApplication;
+import com.king.app.vrace.databinding.ActivityRelationshipBinding;
+import com.king.app.vrace.model.entity.Relationship;
+import com.king.app.vrace.page.adapter.RelationListAdapter;
+import com.king.app.vrace.view.dialog.SimpleDialogs;
+import com.king.app.vrace.viewmodel.RelationshipListViewModel;
 
 import java.util.List;
 
@@ -22,20 +22,22 @@ import java.util.List;
  * @author：Jing Yang
  * @date: 2018/6/21 20:31
  */
-public class TeamListActivity extends MvvmActivity<ActivityTeamListBinding, TeamListViewModel> {
+public class RelationshipListActivity extends MvvmActivity<ActivityRelationshipBinding, RelationshipListViewModel> {
 
-    private TeamListAdapter adapter;
+    public static final String RESP_RELATIONSHIP_ID = "relationship_Id";
+
+    private RelationListAdapter adapter;
 
     private boolean isEditMode;
 
     @Override
     protected int getContentView() {
-        return R.layout.activity_team_list;
+        return R.layout.activity_relationship;
     }
 
     @Override
     protected void initView() {
-        mBinding.rvTeams.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false));
+        mBinding.rvRelations.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false));
 //        mBinding.rvTeams.addItemDecoration(new RecyclerView.ItemDecoration() {
 //            @Override
 //            public void getItemOffsets(Rect outRect, View view, RecyclerView parent, RecyclerView.State state) {
@@ -50,7 +52,7 @@ public class TeamListActivity extends MvvmActivity<ActivityTeamListBinding, Team
         mBinding.actionbar.setOnMenuItemListener(menuId -> {
             switch (menuId) {
                 case R.id.menu_add:
-                    editTeam(null);
+                    editRelationship(null, null);
                     break;
                 case R.id.menu_delete:
                     if (adapter != null) {
@@ -103,65 +105,74 @@ public class TeamListActivity extends MvvmActivity<ActivityTeamListBinding, Team
     }
 
     @Override
-    protected TeamListViewModel createViewModel() {
-        return ViewModelProviders.of(this).get(TeamListViewModel.class);
+    protected RelationshipListViewModel createViewModel() {
+        return ViewModelProviders.of(this).get(RelationshipListViewModel.class);
     }
 
     @Override
     protected void initData() {
-        mBinding.setModel(mModel);
-        mModel.teamsObserver.observe(this, teams -> showTeams(teams));
+        mModel.relationsObserver.observe(this, relationships -> showRelationships(relationships));
         mModel.deleteObserver.observe(this, deleted -> {
             mBinding.actionbar.cancelConfirmStatus();
             adapter.setSelectMode(false);
             adapter.notifyDataSetChanged();
-            mModel.loadTeams();
+            mModel.loadRelationships();
         });
 
-        mModel.loadTeams();
+        mModel.loadRelationships();
     }
 
     private void warningDelete() {
-        showConfirmCancelMessage("Delete season will delete all data related to season, continue?",
-                (dialog, which) -> mModel.deleteTeams(), null);
+        showConfirmCancelMessage("Delete relationship will delete all data related to relationship, continue?",
+                (dialog, which) -> mModel.deleteRelationships(), null);
     }
 
-    private void showTeams(List<TeamListItem> teams) {
+    private void showRelationships(List<Relationship> relationships) {
         if (adapter == null) {
-            adapter = new TeamListAdapter();
-            adapter.setList(teams);
+            adapter = new RelationListAdapter();
+            adapter.setList(relationships);
             adapter.setCheckMap(mModel.getCheckMap());
             adapter.setOnItemClickListener((view, position, data) -> {
                 if (isEditMode) {
-                    editTeam(data);
+                    editRelationship(data, null);
                 }
                 else {
-                    showTeamPage(data);
+                    onSelectRelationship(data);
                 }
             });
-            mBinding.rvTeams.setAdapter(adapter);
+            adapter.setOnAddSubRelationListener(parent -> editRelationship(null, parent));
+            mBinding.rvRelations.setAdapter(adapter);
         }
         else {
-            adapter.setList(teams);
+            adapter.setList(relationships);
             adapter.notifyDataSetChanged();
         }
     }
 
-    private void showTeamPage(TeamListItem data) {
+    private void onSelectRelationship(Relationship data) {
+        Intent intent = new Intent();
+        intent.putExtra(RESP_RELATIONSHIP_ID, data.getId());
+        setResult(RESULT_OK, intent);
+        finish();
     }
 
-    private void editTeam(TeamListItem team) {
-        TeamEditor editor = new TeamEditor();
-        DraggableDialogFragment dialogFragment = new DraggableDialogFragment();
-        dialogFragment.setMaxHeight(ScreenUtils.getScreenHeight() * 4 / 5);
-        dialogFragment.setContentFragment(editor);
-        if (team == null) {
-            dialogFragment.setTitle("New team");
-        }
-        else {
-            editor.setTeam(team.getBean());
-            dialogFragment.setTitle("Edit " + team.getName());
-        }
-        dialogFragment.show(getSupportFragmentManager(), "TeamEditor");
+    private void editRelationship(Relationship relationship, Relationship parent) {
+
+        SimpleDialogs simpleDialogs = new SimpleDialogs();
+        simpleDialogs.openInputDialog(this, "Relationship name", relationship == null ? null:relationship.getName(), name -> {
+            Relationship mRelation;
+            if (relationship == null) {
+                mRelation = new Relationship();
+            }
+            else {
+                mRelation = relationship;
+            }
+            mRelation.setName(name);
+            if (parent != null) {
+                mRelation.setParentId(parent.getId());
+            }
+            RaceApplication.getInstance().getDaoSession().getRelationshipDao().insertOrReplace(mRelation);
+            mModel.loadRelationships();
+        });
     }
 }

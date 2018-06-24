@@ -24,7 +24,6 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="16dp"
             android:layout_marginTop="16dp"
-            android:inputType="number"
             android:textSize="14dp"
             app:layout_constraintStart_toEndOf="@+id/tv_title_index"
             app:layout_constraintTop_toTopOf="parent" />
@@ -71,7 +70,6 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="10dp"
             android:layout_marginTop="18dp"
-            android:inputType="number"
             app:layout_constraintStart_toEndOf="@+id/tv_title_province"
             app:layout_constraintTop_toBottomOf="@+id/tv_player1" />
 
@@ -91,7 +89,6 @@
             android:layout_width="100dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="10dp"
-            android:inputType="number"
             app:layout_constraintStart_toEndOf="@+id/tv_title_city"
             app:layout_constraintTop_toTopOf="@+id/et_province" />
 

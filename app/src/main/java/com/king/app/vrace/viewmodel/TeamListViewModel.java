@@ -3,12 +3,11 @@ package com.king.app.vrace.viewmodel;
 import android.app.Application;
 import android.arch.lifecycle.MutableLiveData;
 import android.support.annotation.NonNull;
+import android.text.TextUtils;
 
 import com.king.app.vrace.base.BaseViewModel;
 import com.king.app.vrace.conf.AppConstants;
 import com.king.app.vrace.conf.GenderType;
-import com.king.app.vrace.model.entity.LegDao;
-import com.king.app.vrace.model.entity.SeasonDao;
 import com.king.app.vrace.model.entity.Team;
 import com.king.app.vrace.model.entity.TeamDao;
 import com.king.app.vrace.model.entity.TeamPlayersDao;
@@ -19,6 +18,7 @@ import com.king.app.vrace.viewmodel.bean.TeamListItem;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -45,6 +45,7 @@ public class TeamListViewModel extends BaseViewModel {
 
     public TeamListViewModel(@NonNull Application application) {
         super(application);
+        mCheckMap = new HashMap<>();
     }
 
     public Map<Long, Boolean> getCheckMap() {
@@ -109,7 +110,24 @@ public class TeamListViewModel extends BaseViewModel {
                 }
                 item.setGender(AppConstants.getGenderText(GenderType.values()[team.getGenderType()]));
                 item.setRelationship(team.getRelationship().getName());
-                item.setPlace(team.getProvince() + "/" + team.getCity());
+                if (TextUtils.isEmpty(team.getProvince())) {
+                    if (!TextUtils.isEmpty(team.getCity())) {
+                        item.setPlace(team.getCity());
+                    }
+                }
+                else {
+                    if (TextUtils.isEmpty(team.getCity())) {
+                        item.setPlace(team.getProvince());
+                    }
+                    else {
+                        if (team.getCity().equals(team.getProvince())) {
+                            item.setPlace(team.getCity());
+                        }
+                        else {
+                            item.setPlace(team.getProvince() + "/" + team.getCity());
+                        }
+                    }
+                }
                 String occupy = null;
                 if (team.getPlayerList().size() > 0) {
                     String occupy1 = team.getPlayerList().get(0).getOccupy();
@@ -189,11 +207,11 @@ public class TeamListViewModel extends BaseViewModel {
                     .executeDeleteWithoutDetachingEntities();
             getDaoSession().getTeamPlayersDao().detachAll();
             // delete from team_season
-            getDaoSession().getSeasonDao().queryBuilder()
+            getDaoSession().getTeamSeasonDao().queryBuilder()
                     .where(TeamSeasonDao.Properties.TeamId.eq(teamId))
                     .buildDelete()
                     .executeDeleteWithoutDetachingEntities();
-            getDaoSession().getSeasonDao().detachAll();
+            getDaoSession().getTeamSeasonDao().detachAll();
             // delete from team_tag
             getDaoSession().getTeamTagDao().queryBuilder()
                     .where(TeamTagDao.Properties.TeamId.eq(teamId))

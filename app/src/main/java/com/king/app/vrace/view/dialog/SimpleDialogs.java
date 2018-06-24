@@ -3,6 +3,7 @@ package com.king.app.vrace.view.dialog;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.text.TextUtils;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 
@@ -21,12 +22,19 @@ public class SimpleDialogs {
     }
 
     public void openInputDialog(Context context, String msg, final OnDialogActionListener listener) {
+        openInputDialog(context, msg, null, listener);
+    }
+
+    public void openInputDialog(Context context, String msg, String initialText, final OnDialogActionListener listener) {
         LinearLayout layout = new LinearLayout(context);
         layout.setPadding(40, 10, 40, 10);
         LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
         EditText edit = new EditText(context);
         edit.setLayoutParams(params);
+        if (!TextUtils.isEmpty(initialText)) {
+            edit.setText(initialText);
+        }
         layout.addView(edit);
         AlertDialog.Builder dialog = new AlertDialog.Builder(context);
         if (msg == null) {

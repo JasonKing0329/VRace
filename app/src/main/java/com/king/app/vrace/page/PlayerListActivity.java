@@ -112,7 +112,6 @@ public class PlayerListActivity extends MvvmActivity<ActivityPlayerListBinding, 
 
     @Override
     protected void initData() {
-        mBinding.setModel(mModel);
         mModel.playersObserver.observe(this, players -> showPlayers(players));
         mModel.deleteObserver.observe(this, deleted -> {
             mBinding.actionbar.cancelConfirmStatus();

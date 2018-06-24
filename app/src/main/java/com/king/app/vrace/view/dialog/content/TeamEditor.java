@@ -1,5 +1,7 @@
 package com.king.app.vrace.view.dialog.content;
 
+import android.app.Activity;
+import android.arch.lifecycle.ViewModelProviders;
 import android.content.Intent;
 import android.graphics.drawable.GradientDrawable;
 import android.text.TextUtils;
@@ -7,16 +9,20 @@ import android.widget.TextView;
 
 import com.king.app.vrace.R;
 import com.king.app.vrace.base.IFragmentHolder;
-import com.king.app.vrace.base.RaceApplication;
 import com.king.app.vrace.conf.Gender;
 import com.king.app.vrace.conf.GenderType;
 import com.king.app.vrace.databinding.FragmentEditorTeamBinding;
 import com.king.app.vrace.model.entity.Player;
 import com.king.app.vrace.model.entity.PlayerDao;
 import com.king.app.vrace.model.entity.Relationship;
+import com.king.app.vrace.model.entity.RelationshipDao;
 import com.king.app.vrace.model.entity.Team;
+import com.king.app.vrace.model.entity.TeamPlayers;
+import com.king.app.vrace.model.entity.TeamPlayersDao;
 import com.king.app.vrace.page.PlayerListActivity;
+import com.king.app.vrace.page.RelationshipListActivity;
 import com.king.app.vrace.view.dialog.DraggableContentFragment;
+import com.king.app.vrace.viewmodel.TeamListViewModel;
 
 /**
  * Desc:
@@ -39,6 +45,8 @@ public class TeamEditor extends DraggableContentFragment<FragmentEditorTeamBindi
 
     private Relationship mRelationship;
 
+    private TeamListViewModel listViewModel;
+
     @Override
     protected void bindFragmentHolder(IFragmentHolder holder) {
 
@@ -51,6 +59,9 @@ public class TeamEditor extends DraggableContentFragment<FragmentEditorTeamBindi
 
     @Override
     protected void initView() {
+
+        listViewModel = ViewModelProviders.of(getActivity()).get(TeamListViewModel.class);
+
         if (mTeam != null) {
             mBinding.etCode.setText(mTeam.getCode());
             mBinding.etProvince.setText(mTeam.getProvince());
@@ -60,7 +71,7 @@ public class TeamEditor extends DraggableContentFragment<FragmentEditorTeamBindi
                 updatePlayerTextView(mBinding.tvPlayer1, mPlayer1);
             }
             if (mTeam.getPlayerList().size() > 1) {
-                mPlayer1 = mTeam.getPlayerList().get(1);
+                mPlayer2 = mTeam.getPlayerList().get(1);
                 updatePlayerTextView(mBinding.tvPlayer2, mPlayer2);
             }
             if (mTeam.getRelationship() != null) {
@@ -87,6 +98,8 @@ public class TeamEditor extends DraggableContentFragment<FragmentEditorTeamBindi
     }
 
     private void selectRelationship() {
+        Intent intent = new Intent(getActivity(), RelationshipListActivity.class);
+        startActivityForResult(intent, REQUEST_RELATIONSHIP);
     }
 
     private void selectPlayer(int requestCode) {
@@ -118,9 +131,13 @@ public class TeamEditor extends DraggableContentFragment<FragmentEditorTeamBindi
             showMessageShort("Empty player2");
             return;
         }
+        if (mRelationship == null) {
+            showMessageShort("Empty relationship");
+            return;
+        }
         mTeam.setCode(code);
         mTeam.setProvince(province);
-        mTeam.setCode(city);
+        mTeam.setCity(city);
         if (mPlayer1.getGender() == Gender.MALE.ordinal()) {
             if (mPlayer2.getGender() == Gender.MALE.ordinal()) {
                 mTeam.setGenderType(GenderType.MM.ordinal());
@@ -137,28 +154,53 @@ public class TeamEditor extends DraggableContentFragment<FragmentEditorTeamBindi
                 mTeam.setGenderType(GenderType.WW.ordinal());
             }
         }
+        mTeam.setRelationshipId(mRelationship.getId());
 
+        if (mTeam.getId() != null) {
+            // remove players
+            getDaoSession().getTeamPlayersDao().queryBuilder()
+                    .where(TeamPlayersDao.Properties.TeamId.eq(mTeam.getId()))
+                    .buildDelete()
+                    .executeDeleteWithoutDetachingEntities();
+        }
+        // insert team
+        getDaoSession().getTeamDao().insertOrReplace(mTeam);
 
         // insert players
+        TeamPlayers teamPlayers = new TeamPlayers();
+        teamPlayers.setPlayerId(mPlayer1.getId());
+        teamPlayers.setTeamId(mTeam.getId());
+        getDaoSession().getTeamPlayersDao().insert(teamPlayers);
+        teamPlayers = new TeamPlayers();
+        teamPlayers.setPlayerId(mPlayer2.getId());
+        teamPlayers.setTeamId(mTeam.getId());
+        getDaoSession().getTeamPlayersDao().insert(teamPlayers);
 
         // insert tags
+
+        dismissAllowingStateLoss();
+        listViewModel.loadTeams();
     }
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        switch (requestCode) {
-            case REQUEST_PLAYER1:
-                mPlayer1 = getPlayer(data.getLongExtra(PlayerListActivity.RESP_PLAYER_ID, -1));
-                updatePlayerTextView(mBinding.tvPlayer1, mPlayer1);
-                break;
-            case REQUEST_PLAYER2:
-                mPlayer2 = getPlayer(data.getLongExtra(PlayerListActivity.RESP_PLAYER_ID, -1));
-                updatePlayerTextView(mBinding.tvPlayer2, mPlayer2);
-                break;
-            case REQUEST_RELATIONSHIP:
-                break;
-            case REQUEST_TAG:
-                break;
+        if (resultCode == Activity.RESULT_OK) {
+            switch (requestCode) {
+                case REQUEST_PLAYER1:
+                    mPlayer1 = getPlayer(data.getLongExtra(PlayerListActivity.RESP_PLAYER_ID, -1));
+                    updatePlayerTextView(mBinding.tvPlayer1, mPlayer1);
+                    break;
+                case REQUEST_PLAYER2:
+                    mPlayer2 = getPlayer(data.getLongExtra(PlayerListActivity.RESP_PLAYER_ID, -1));
+                    updatePlayerTextView(mBinding.tvPlayer2, mPlayer2);
+                    break;
+                case REQUEST_RELATIONSHIP:
+                    mRelationship = getRelationship(data.getLongExtra(RelationshipListActivity.RESP_RELATIONSHIP_ID, -1));
+                    mBinding.btnRelationship.setText(mRelationship.getName());
+                    break;
+                case REQUEST_TAG:
+                    break;
+            }
         }
     }
 
@@ -175,10 +217,18 @@ public class TeamEditor extends DraggableContentFragment<FragmentEditorTeamBindi
     }
 
     private Player getPlayer(long playerId) {
-        Player player = RaceApplication.getInstance().getDaoSession().getPlayerDao()
+        Player player = getDaoSession().getPlayerDao()
                 .queryBuilder()
                 .where(PlayerDao.Properties.Id.eq(playerId))
                 .build().unique();
         return player;
+    }
+
+    private Relationship getRelationship(long relationshipId) {
+        Relationship relationship = getDaoSession().getRelationshipDao()
+                .queryBuilder()
+                .where(RelationshipDao.Properties.Id.eq(relationshipId))
+                .build().unique();
+        return relationship;
     }
 }

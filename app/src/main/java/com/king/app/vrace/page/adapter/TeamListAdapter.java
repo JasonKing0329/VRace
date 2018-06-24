@@ -1,10 +1,13 @@
 package com.king.app.vrace.page.adapter;
 
+import android.graphics.drawable.GradientDrawable;
 import android.view.View;
+import android.widget.TextView;
 
 import com.king.app.vrace.R;
 import com.king.app.vrace.base.BaseBindingAdapter;
 import com.king.app.vrace.databinding.AdapterTeamBinding;
+import com.king.app.vrace.model.entity.Team;
 import com.king.app.vrace.viewmodel.bean.TeamListItem;
 
 import java.util.Map;
@@ -28,6 +31,8 @@ public class TeamListAdapter extends BaseBindingAdapter<AdapterTeamBinding, Team
 
     @Override
     protected void onBindItem(AdapterTeamBinding binding, int position, TeamListItem bean) {
+        binding.setBean(bean);
+        updateNameBg(binding.tvName, bean.getBean());
         binding.cbCheck.setVisibility(isSelectMode ? View.VISIBLE:View.GONE);
         if (isSelectMode) {
             if (checkMap.get(bean.getBean().getId()) == null) {
@@ -37,6 +42,12 @@ public class TeamListAdapter extends BaseBindingAdapter<AdapterTeamBinding, Team
                 binding.cbCheck.setChecked(checkMap.get(bean.getBean().getId()));
             }
         }
+    }
+
+    private void updateNameBg(TextView tvName, Team bean) {
+        GradientDrawable drawable = (GradientDrawable) tvName.getBackground();
+        drawable.setColor(tvName.getResources().getColor(R.color.colorAccent));
+        tvName.setBackground(drawable);
     }
 
     @Override

@@ -46,6 +46,8 @@
             android:screenOrientation="portrait"/>
         <activity android:name=".page.PlayerListActivity"
             android:screenOrientation="portrait"/>
+        <activity android:name=".page.RelationshipListActivity"
+            android:screenOrientation="portrait"/>
     </application>
 
 </manifest>

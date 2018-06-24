@@ -9,6 +9,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.king.app.vrace.model.entity.DaoSession;
+
 /**
  * Desc:
  *
@@ -28,4 +30,8 @@ public abstract class BaseBindingFragment<T extends ViewDataBinding> extends Bas
     }
 
     protected abstract void initView();
+
+    protected DaoSession getDaoSession() {
+        return RaceApplication.getInstance().getDaoSession();
+    }
 }
