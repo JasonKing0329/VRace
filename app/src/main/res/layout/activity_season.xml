@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <android.support.design.widget.CoordinatorLayout
+        android:id="@+id/group_root"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+        <android.support.design.widget.AppBarLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:elevation="0dp"
+            app:elevation="0dp"
+            android:theme="@style/SeasonTheme.AppBarOverlay">
+
+            <android.support.design.widget.CollapsingToolbarLayout
+                android:id="@+id/ctl_toolbar"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:contentScrim="@color/actionbar_bg"
+                app:scrimVisibleHeightTrigger="@dimen/home_scrim_visible_height"
+                app:layout_scrollFlags="scroll|exitUntilCollapsed|enterAlwaysCollapsed|snap">
+
+                <RelativeLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="@dimen/season_head_height">
+                    <ImageView
+                        android:id="@+id/iv_teams"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:src="@drawable/ic_default_team"
+                        android:scaleType="centerCrop"/>
+                </RelativeLayout>
+
+                <android.support.v7.widget.Toolbar
+                    android:id="@+id/toolbar"
+                    android:layout_width="match_parent"
+                    android:layout_height="?android:attr/actionBarSize"
+                    app:title="Glory"
+                    app:layout_collapseMode="pin"
+                    app:popupTheme="@style/SeasonTheme.PopupOverlay"
+                    app:contentInsetStart="0dp"
+                    app:contentInsetLeft="0dp">
+                    <com.king.app.jactionbar.JActionbar
+                        android:id="@+id/actionbar"
+                        android:layout_width="match_parent"
+                        android:layout_height="?android:attr/actionBarSize"
+                        android:background="@color/actionbar_bg"
+                        android:theme="@style/EtActionSearch"
+                        app:title="Season 1"
+                        app:maxShowIcon="5"
+                        app:showIconBack="true"
+                        app:menu="@menu/player_list"
+                        app:iconColor="@color/action_icon_color"
+                        app:titleColor="@color/action_title_color"
+                        app:actionTextColor="@color/action_icon_color"/>
+                </android.support.v7.widget.Toolbar>
+            </android.support.design.widget.CollapsingToolbarLayout>
+
+        </android.support.design.widget.AppBarLayout>
+
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/rv_legs"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            app:layout_behavior="com.king.app.vrace.page.behavior.SeasonPageBehavior"/>
+
+    </android.support.design.widget.CoordinatorLayout>
+</layout>

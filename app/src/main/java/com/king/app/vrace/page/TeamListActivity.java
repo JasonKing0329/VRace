@@ -1,6 +1,7 @@
 package com.king.app.vrace.page;
 
 import android.arch.lifecycle.ViewModelProviders;
+import android.content.Intent;
 import android.support.v7.widget.LinearLayoutManager;
 
 import com.king.app.jactionbar.OnConfirmListener;
@@ -24,9 +25,15 @@ import java.util.List;
  */
 public class TeamListActivity extends MvvmActivity<ActivityTeamListBinding, TeamListViewModel> {
 
+    public static final String EXTRA_SELECT_MODE = "select_mode";
+
+    public static final String RESP_TEAM_ID = "team_id";
+
     private TeamListAdapter adapter;
 
     private boolean isEditMode;
+
+    private boolean isSelectMode;
 
     @Override
     protected int getContentView() {
@@ -35,6 +42,9 @@ public class TeamListActivity extends MvvmActivity<ActivityTeamListBinding, Team
 
     @Override
     protected void initView() {
+
+        isSelectMode = getIntent().getBooleanExtra(EXTRA_SELECT_MODE, false);
+
         mBinding.rvTeams.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false));
 //        mBinding.rvTeams.addItemDecoration(new RecyclerView.ItemDecoration() {
 //            @Override
@@ -136,7 +146,15 @@ public class TeamListActivity extends MvvmActivity<ActivityTeamListBinding, Team
                     editTeam(data);
                 }
                 else {
-                    showTeamPage(data);
+                    if (isSelectMode) {
+                        Intent intent = new Intent();
+                        intent.putExtra(RESP_TEAM_ID, data.getBean().getId());
+                        setResult(RESULT_OK, intent);
+                        finish();
+                    }
+                    else {
+                        showTeamPage(data);
+                    }
                 }
             });
             mBinding.rvTeams.setAdapter(adapter);

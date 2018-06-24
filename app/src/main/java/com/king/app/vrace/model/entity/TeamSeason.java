@@ -29,6 +29,9 @@ public class TeamSeason {
 
     private int episodeSeq;
 
+    @ToOne(joinProperty = "teamId")
+    private Team team;
+
     @ToOne(joinProperty = "seasonId")
     private Season season;
 
@@ -106,6 +109,9 @@ public class TeamSeason {
     @Generated(hash = 1835506626)
     private transient Long season__resolvedKey;
 
+    @Generated(hash = 1834174654)
+    private transient Long team__resolvedKey;
+
     /** To-one relationship, resolved on first access. */
     @Generated(hash = 1175936364)
     public Season getSeason() {
@@ -173,6 +179,39 @@ public class TeamSeason {
             throw new DaoException("Entity is detached from DAO context");
         }
         myDao.update(this);
+    }
+
+    /** To-one relationship, resolved on first access. */
+    @Generated(hash = 1193690988)
+    public Team getTeam() {
+        long __key = this.teamId;
+        if (team__resolvedKey == null || !team__resolvedKey.equals(__key)) {
+            final DaoSession daoSession = this.daoSession;
+            if (daoSession == null) {
+                throw new DaoException("Entity is detached from DAO context");
+            }
+            TeamDao targetDao = daoSession.getTeamDao();
+            Team teamNew = targetDao.load(__key);
+            synchronized (this) {
+                team = teamNew;
+                team__resolvedKey = __key;
+            }
+        }
+        return team;
+    }
+
+    /** called by internal mechanisms, do not call yourself. */
+    @Generated(hash = 1078274893)
+    public void setTeam(@NotNull Team team) {
+        if (team == null) {
+            throw new DaoException(
+                    "To-one property 'teamId' has not-null constraint; cannot set to-one to null");
+        }
+        synchronized (this) {
+            this.team = team;
+            teamId = team.getId();
+            team__resolvedKey = teamId;
+        }
     }
 
     /** called by internal mechanisms, do not call yourself. */

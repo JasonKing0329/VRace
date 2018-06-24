@@ -48,6 +48,10 @@
             android:screenOrientation="portrait"/>
         <activity android:name=".page.RelationshipListActivity"
             android:screenOrientation="portrait"/>
+        <activity android:name=".page.SeasonActivity"
+            android:screenOrientation="portrait"/>
+        <activity android:name=".page.SeasonTeamActivity"
+            android:screenOrientation="portrait"/>
     </application>
 
 </manifest>
