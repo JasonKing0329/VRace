@@ -23,4 +23,7 @@
     <color name="white">#ffffff</color>
     <color name="white_bg">#efefef</color>
     <color name="divider">#efefef</color>
+
+    <color name="blue_00a5c4">#00a5c4</color>
+    <color name="red_f1303d">#f1303d</color>
 </resources>

@@ -156,6 +156,9 @@ public class SeasonActivity extends MvvmActivity<ActivitySeasonBinding, SeasonVi
     }
 
     private void onSelectLeg(LegItem data) {
+        Intent intent = new Intent(this, LegActivity.class);
+        intent.putExtra(LegActivity.EXTRA_LEG_ID, data.getBean().getId());
+        startActivity(intent);
     }
 
     private void editLeg(LegItem data) {

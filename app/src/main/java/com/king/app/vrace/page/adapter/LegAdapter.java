@@ -45,7 +45,7 @@ public class LegAdapter extends BaseBindingAdapter<AdapterLegBinding, LegItem> {
 
         GlideApp.with(binding.ivLeg.getContext())
                 .load(bean.getImagePath())
-                .error(R.drawable.ic_defaut_leg)
+                .error(R.drawable.ic_default_leg)
                 .into(binding.ivLeg);
     }
 

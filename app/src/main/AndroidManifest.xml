@@ -49,9 +49,12 @@
         <activity android:name=".page.RelationshipListActivity"
             android:screenOrientation="portrait"/>
         <activity android:name=".page.SeasonActivity"
-            android:theme="@style/SeasonStatusBarTheme"
+            android:theme="@style/OverStatusBarTheme"
             android:screenOrientation="portrait"/>
         <activity android:name=".page.SeasonTeamActivity"
+            android:screenOrientation="portrait"/>
+        <activity android:name=".page.LegActivity"
+            android:theme="@style/OverStatusBarTheme"
             android:screenOrientation="portrait"/>
     </application>
 
