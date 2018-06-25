@@ -1,9 +1,12 @@
 package com.king.app.vrace.page.adapter;
 
 import android.view.View;
+import android.widget.TextView;
 
+import com.king.app.vrace.GlideApp;
 import com.king.app.vrace.R;
 import com.king.app.vrace.base.BaseBindingAdapter;
+import com.king.app.vrace.conf.LegType;
 import com.king.app.vrace.databinding.AdapterLegBinding;
 import com.king.app.vrace.viewmodel.bean.LegItem;
 
@@ -37,6 +40,34 @@ public class LegAdapter extends BaseBindingAdapter<AdapterLegBinding, LegItem> {
             else {
                 binding.cbCheck.setChecked(checkMap.get(bean.getBean().getId()));
             }
+        }
+        setLegType(binding.tvType, bean.getType());
+
+        GlideApp.with(binding.ivLeg.getContext())
+                .load(bean.getImagePath())
+                .error(R.drawable.ic_defaut_leg)
+                .into(binding.ivLeg);
+    }
+
+    private void setLegType(TextView tvType, LegType type) {
+        tvType.setVisibility(View.VISIBLE);
+        switch (type) {
+            case NEL:
+                tvType.setText("Not Elimination Leg");
+                break;
+            case FINAL:
+                tvType.setText("Final Leg");
+                break;
+            case DLL:
+                tvType.setText("Double Length Leg");
+                break;
+            case DEL:
+                tvType.setText("Double Elimination Leg");
+                break;
+            default:
+                // start line and normal elimination leg
+                tvType.setVisibility(View.GONE);
+                break;
         }
     }
 

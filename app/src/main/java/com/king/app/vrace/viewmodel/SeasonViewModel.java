@@ -8,6 +8,8 @@ import android.text.TextUtils;
 import com.king.app.vrace.base.BaseViewModel;
 import com.king.app.vrace.conf.AppConstants;
 import com.king.app.vrace.conf.GenderType;
+import com.king.app.vrace.conf.LegType;
+import com.king.app.vrace.model.ImageProvider;
 import com.king.app.vrace.model.entity.Leg;
 import com.king.app.vrace.model.entity.LegDao;
 import com.king.app.vrace.model.entity.LegPlacesDao;
@@ -277,15 +279,26 @@ public class SeasonViewModel extends BaseViewModel {
                 }
                 StringBuffer place = new StringBuffer();
                 if (leg.getPlaceList().size() > 0) {
-                    place.append(leg.getPlaceList().get(0).getCountry()).append("/").append(leg.getPlaceList().get(0).getCity());
+                    place.append(leg.getPlaceList().get(0).getCountry());
+                    if (!TextUtils.isEmpty(leg.getPlaceList().get(0).getCity())) {
+                        place.append("/").append(leg.getPlaceList().get(0).getCity());
+                    }
                 }
                 if (leg.getPlaceList().size() > 1) {
-                    place.append(" --> ").append(leg.getPlaceList().get(1).getCountry()).append("/").append(leg.getPlaceList().get(1).getCity());
+                    place.append(" --> ").append(leg.getPlaceList().get(1).getCountry());
+                    if (!TextUtils.isEmpty(leg.getPlaceList().get(1).getCity())) {
+                        place.append("/").append(leg.getPlaceList().get(1).getCity());
+                    }
                 }
                 if (leg.getPlaceList().size() > 2) {
-                    place.append(" --> ").append(leg.getPlaceList().get(2).getCountry()).append("/").append(leg.getPlaceList().get(2).getCity());
+                    place.append(" --> ").append(leg.getPlaceList().get(2).getCountry());
+                    if (!TextUtils.isEmpty(leg.getPlaceList().get(2).getCity())) {
+                        place.append("/").append(leg.getPlaceList().get(2).getCity());
+                    }
                 }
                 item.setPlace(place.toString());
+                item.setType(LegType.values()[leg.getType()]);
+                item.setImagePath(ImageProvider.getLegImagePath(leg));
                 list.add(item);
             }
             e.onNext(list);

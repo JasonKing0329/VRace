@@ -21,6 +21,8 @@ public class LegItem {
 
     private String players;
 
+    private String imagePath;
+
     public Leg getBean() {
         return bean;
     }
@@ -59,5 +61,13 @@ public class LegItem {
 
     public void setPlayers(String players) {
         this.players = players;
+    }
+
+    public String getImagePath() {
+        return imagePath;
+    }
+
+    public void setImagePath(String imagePath) {
+        this.imagePath = imagePath;
     }
 }

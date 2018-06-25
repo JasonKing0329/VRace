@@ -9,7 +9,6 @@
             android:id="@+id/iv_head"
             android:layout_width="0dp"
             android:layout_height="204dp"
-            android:src="@drawable/ic_default4"
             android:scaleType="centerCrop"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"

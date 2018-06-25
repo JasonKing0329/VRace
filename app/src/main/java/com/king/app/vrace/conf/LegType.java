@@ -11,5 +11,6 @@ public enum LegType {
     NEL, // non-elimination leg
     DLL, // double-length leg
     DEL, // double-elimination leg
+    START_LINE,
     FINAL
 }

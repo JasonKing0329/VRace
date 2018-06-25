@@ -51,16 +51,19 @@ public class LegEditor extends DraggableContentFragment<FragmentEditorLegBinding
             mBinding.etDesc.setText(mLeg.getDescription());
             mBinding.spType.setSelection(mLeg.getType());
             if (mLeg.getPlaceList().size() > 0) {
+                mBinding.etContinent1.setText(mLeg.getPlaceList().get(0).getContinent());
                 mBinding.etCountry1.setText(mLeg.getPlaceList().get(0).getCountry());
                 mBinding.etCity1.setText(mLeg.getPlaceList().get(0).getCity());
             }
             if (mLeg.getPlaceList().size() > 1) {
                 mBinding.llPlace2.setVisibility(View.VISIBLE);
+                mBinding.etContinent2.setText(mLeg.getPlaceList().get(1).getContinent());
                 mBinding.etCountry2.setText(mLeg.getPlaceList().get(1).getCountry());
                 mBinding.etCity2.setText(mLeg.getPlaceList().get(1).getCity());
             }
             if (mLeg.getPlaceList().size() > 2) {
                 mBinding.llPlace3.setVisibility(View.VISIBLE);
+                mBinding.etContinent3.setText(mLeg.getPlaceList().get(2).getContinent());
                 mBinding.etCountry3.setText(mLeg.getPlaceList().get(2).getCountry());
                 mBinding.etCity3.setText(mLeg.getPlaceList().get(2).getCity());
             }
@@ -125,50 +128,57 @@ public class LegEditor extends DraggableContentFragment<FragmentEditorLegBinding
             return;
         }
         List<LegPlaces> places = new ArrayList<>();
+        String continent1 = mBinding.etContinent1.getText().toString();
+        if (TextUtils.isEmpty(continent1)) {
+            showMessageShort("Empty continent");
+            return;
+        }
+        // country must not be null while city can be null
         String country1 = mBinding.etCountry1.getText().toString();
         if (TextUtils.isEmpty(country1)) {
             showMessageShort("Empty country");
             return;
         }
         String city1 = mBinding.etCity1.getText().toString();
-        if (TextUtils.isEmpty(city1)) {
-            showMessageShort("Empty city");
-            return;
-        }
         LegPlaces place = new LegPlaces();
         place.setCity(city1);
+        place.setContinent(continent1);
         place.setCountry(country1);
         place.setSeq(1);
         places.add(place);
         if (mBinding.llPlace2.getVisibility() == View.VISIBLE) {
+            String continent = mBinding.etContinent2.getText().toString();
+            if (TextUtils.isEmpty(continent)) {
+                showMessageShort("Empty continent");
+                return;
+            }
             String country = mBinding.etCountry2.getText().toString();
             if (TextUtils.isEmpty(country)) {
                 showMessageShort("Empty country");
                 return;
             }
             String city = mBinding.etCity2.getText().toString();
-            if (TextUtils.isEmpty(city)) {
-                showMessageShort("Empty city");
-                return;
-            }
             place = new LegPlaces();
+            place.setContinent(continent);
             place.setCity(city);
             place.setCountry(country);
             place.setSeq(2);
             places.add(place);
         }
         if (mBinding.llPlace3.getVisibility() == View.VISIBLE) {
+            String continent = mBinding.etContinent3.getText().toString();
+            if (TextUtils.isEmpty(continent)) {
+                showMessageShort("Empty continent");
+                return;
+            }
             String country = mBinding.etCountry3.getText().toString();
             if (TextUtils.isEmpty(country)) {
                 showMessageShort("Empty country");
                 return;
             }
             String city = mBinding.etCity2.getText().toString();
-            if (TextUtils.isEmpty(country)) {
-                showMessageShort("Empty city");
-                return;
-            }
             place = new LegPlaces();
+            place.setContinent(continent);
             place.setCity(city);
             place.setCountry(country);
             place.setSeq(3);
