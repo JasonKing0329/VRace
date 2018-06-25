@@ -21,6 +21,8 @@ public class LegTeam {
 
     private long legId;
 
+    private long seasonId;
+
     private long teamId;
 
     private int position;
@@ -51,11 +53,12 @@ public class LegTeam {
     @Generated(hash = 409543821)
     private transient Long leg__resolvedKey;
 
-    @Generated(hash = 628659864)
-    public LegTeam(Long id, long legId, long teamId, int position, boolean isLast,
+    @Generated(hash = 1451976245)
+    public LegTeam(Long id, long legId, long seasonId, long teamId, int position, boolean isLast,
             boolean eliminated, String description) {
         this.id = id;
         this.legId = legId;
+        this.seasonId = seasonId;
         this.teamId = teamId;
         this.position = position;
         this.isLast = isLast;
@@ -223,6 +226,14 @@ public class LegTeam {
             legId = leg.getId();
             leg__resolvedKey = legId;
         }
+    }
+
+    public long getSeasonId() {
+        return this.seasonId;
+    }
+
+    public void setSeasonId(long seasonId) {
+        this.seasonId = seasonId;
     }
 
     /** called by internal mechanisms, do not call yourself. */

@@ -14,6 +14,7 @@ import com.king.app.vrace.base.RaceApplication;
 import com.king.app.vrace.conf.AppConfig;
 import com.king.app.vrace.model.setting.SettingProperty;
 import com.king.app.vrace.utils.DBExportor;
+import com.king.app.vrace.utils.FileUtil;
 import com.king.app.vrace.utils.MD5Util;
 
 import java.io.File;
@@ -110,7 +111,7 @@ public class LoginViewModel extends BaseViewModel {
             }
 
             // 检查数据库是否存在
-//            FileUtil.copyDbFromAssets(AppConfig.DB_NAME);
+            FileUtil.copyDbFromAssets(AppConfig.DB_NAME);
 
             // init server url
 //                BaseUrl.getInstance().setBaseUrl(SettingProperty.getServerBaseUrl());

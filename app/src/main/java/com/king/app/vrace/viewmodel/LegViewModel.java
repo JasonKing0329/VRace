@@ -21,8 +21,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import io.reactivex.Observable;
-import io.reactivex.ObservableEmitter;
-import io.reactivex.ObservableOnSubscribe;
 import io.reactivex.Observer;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
@@ -160,20 +158,28 @@ public class LegViewModel extends BaseViewModel {
                         .build().list();
                 // except eliminated team before current leg
                 for (TeamSeason team:teams) {
-                    // FIXME 验证方法暂未实现
-//                    LegTeam legTeam = getDaoSession().getLegTeamDao().queryBuilder()
-//                            .where(LegTeamDao.Properties.LegId.eq(team.getId()))
-//                            .where(LegTeamDao.Properties.TeamId.eq(team.getId()))
-//                            .where(LegTeamDao.Properties.Eliminated.eq(true))
-//                            .build().unique();
-//                    if (legTeam != null && legTeam.getLeg().getIndex() < mLeg.getIndex()) {
-//                        continue;
-//                    }
+                    LegTeam legTeam = getDaoSession().getLegTeamDao().queryBuilder()
+                            .where(LegTeamDao.Properties.SeasonId.eq(mLeg.getSeasonId()))
+                            .where(LegTeamDao.Properties.TeamId.eq(team.getId()))
+                            .where(LegTeamDao.Properties.Eliminated.eq(1))
+                            .build().unique();
+                    if (legTeam != null && legTeam.getLeg().getIndex() < mLeg.getIndex()) {
+                        continue;
+                    }
                     list.add(team.getTeam());
                 }
             }
             e.onNext(list);
         });
+    }
+
+    private boolean isEliminated(List<LegTeam> eliminatedList, TeamSeason team) {
+        for (LegTeam lt:eliminatedList) {
+            if (team.getTeam().getId() == lt.getTeamId()) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private void loadTeamRank() {

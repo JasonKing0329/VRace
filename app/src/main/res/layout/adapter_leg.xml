@@ -14,55 +14,29 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
-        <TextView
-            android:id="@+id/tv_leg"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="16dp"
-            android:layout_marginTop="8dp"
-            android:text="@{bean.index}"
-            android:textColor="#ff5158"
-            android:textSize="16dp"
+        <ImageView
+            android:id="@+id/iv_leg"
+            android:layout_width="0dp"
+            android:layout_height="204dp"
+            android:scaleType="centerCrop"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.0"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
         <TextView
-            android:id="@+id/tv_place"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="16dp"
+            android:id="@+id/tv_leg"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:gravity="center"
+            android:text="@{bean.index}"
+            android:layout_marginStart="8dp"
             android:layout_marginTop="8dp"
-            android:text="@{bean.place}"
-            android:textColor="@color/text_sub"
+            android:textColor="@color/white"
             android:textSize="14dp"
+            android:background="@drawable/shape_oval_trans"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/tv_leg" />
-
-        <ImageView
-            android:id="@+id/iv_leg"
-            android:layout_width="0dp"
-            android:layout_height="185dp"
-            android:layout_marginEnd="16dp"
-            android:layout_marginStart="16dp"
-            android:layout_marginTop="8dp"
-            android:scaleType="centerCrop"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/tv_place" />
-
-        <TextView
-            android:id="@+id/tv_players"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="10dp"
-            android:layout_marginEnd="16dp"
-            android:layout_marginTop="12dp"
-            android:text="@{bean.players}"
-            android:textColor="@color/text_second"
-            android:textSize="14dp"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/iv_leg" />
+            app:layout_constraintTop_toTopOf="parent"/>
 
         <CheckBox
             android:id="@+id/cb_check"
@@ -75,16 +49,42 @@
             app:layout_constraintTop_toTopOf="parent" />
 
         <TextView
-            android:id="@+id/tv_type"
+            android:id="@+id/tv_place"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:text="@{bean.place}"
+            android:textColor="@color/white"
+            android:textSize="14dp"
+            android:paddingLeft="16dp"
+            android:paddingBottom="5dp"
+            android:background="#66000000"
+            app:layout_constraintBottom_toBottomOf="@+id/iv_leg"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent" />
+
+        <TextView
+            android:id="@+id/tv_players"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="56dp"
-            android:layout_marginTop="9dp"
-            android:textColor="@color/colorPrimary"
+            android:text="@{bean.players}"
+            android:textColor="@color/white"
             android:textSize="14dp"
-            android:textStyle="bold"
-            app:layout_constraintStart_toEndOf="@+id/tv_leg"
-            app:layout_constraintTop_toTopOf="parent" />
+            android:layout_marginEnd="16dp"
+            android:layout_marginBottom="5dp"
+            app:layout_constraintBottom_toBottomOf="@+id/iv_leg"
+            app:layout_constraintEnd_toEndOf="parent" />
+
+        <TextView
+            android:id="@+id/tv_type"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textColor="#ffff00"
+            android:textSize="14dp"
+            android:paddingLeft="16dp"
+            android:paddingTop="5dp"
+            android:background="#66000000"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintBottom_toTopOf="@id/tv_place" />
 
     </android.support.constraint.ConstraintLayout>
 </layout>
