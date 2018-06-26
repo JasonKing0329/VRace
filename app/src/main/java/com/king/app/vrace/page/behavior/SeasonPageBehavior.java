@@ -71,7 +71,7 @@ public class SeasonPageBehavior extends AppBarLayout.ScrollingViewBehavior {
     private int getColor(int viewTop) {
         int alpha = (int) (((float) Math.abs(viewTop) / (float) totalSpace) * 255);
         if (alpha < 135) {
-            alpha = 0;
+            alpha = 135;
         }
         int color = Color.argb(alpha, 0xff, 0xff, 0xff);
         return color;

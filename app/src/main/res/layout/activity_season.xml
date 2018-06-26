@@ -53,7 +53,7 @@
                         app:title="Season 1"
                         app:maxShowIcon="5"
                         app:showIconBack="true"
-                        app:menu="@menu/player_list"
+                        app:menu="@menu/season"
                         app:iconColor="@color/action_icon_color"
                         app:titleColor="@color/action_title_color"
                         app:actionTextColor="@color/action_icon_color"/>
