@@ -67,6 +67,7 @@ public class TeamEditor extends DraggableContentFragment<FragmentEditorTeamBindi
         listViewModel = ViewModelProviders.of(getActivity()).get(TeamListViewModel.class);
 
         if (mTeam != null) {
+            mTeamColor = mTeam.getSpecialColor();
             mBinding.etCode.setText(mTeam.getCode());
             mBinding.etProvince.setText(mTeam.getProvince());
             mBinding.etCity.setText(mTeam.getCity());
@@ -116,7 +117,8 @@ public class TeamEditor extends DraggableContentFragment<FragmentEditorTeamBindi
     }
 
     private void selectColor() {
-        ColorPicker picker = new ColorPicker();
+        RichColorPicker picker = new RichColorPicker();
+        picker.setInitColor(mTeamColor);
         picker.setOnColorSelectedListener(color -> {
             mTeamColor = color;
             mBinding.tvColor.setBackgroundColor(color);
@@ -125,7 +127,7 @@ public class TeamEditor extends DraggableContentFragment<FragmentEditorTeamBindi
         dialogFragment.setContentFragment(picker);
         dialogFragment.setMaxHeight(ScreenUtils.getScreenHeight());
         dialogFragment.setTitle("Color picker");
-        dialogFragment.show(getChildFragmentManager(), "ColorPicker");
+        dialogFragment.show(getChildFragmentManager(), "RichColorPicker");
     }
 
     private void onConfirm() {

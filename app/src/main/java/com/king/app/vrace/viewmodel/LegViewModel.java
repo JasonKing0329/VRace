@@ -173,15 +173,6 @@ public class LegViewModel extends BaseViewModel {
         });
     }
 
-    private boolean isEliminated(List<LegTeam> eliminatedList, TeamSeason team) {
-        for (LegTeam lt:eliminatedList) {
-            if (team.getTeam().getId() == lt.getTeamId()) {
-                return true;
-            }
-        }
-        return false;
-    }
-
     private void loadTeamRank() {
         queryRankTeams()
                 .observeOn(AndroidSchedulers.mainThread())
@@ -229,6 +220,7 @@ public class LegViewModel extends BaseViewModel {
                 }
                 legTeam.setPosition(i + 1);
                 legTeam.setLegId(mLeg.getId());
+                legTeam.setSeasonId(mLeg.getSeasonId());
                 legTeam.setIsLast(i == mLeg.getPlayerNumber() - 1);
                 if (mLeg.getType() == LegType.EL.ordinal()) {
                     if (legTeam.getIsLast()) {

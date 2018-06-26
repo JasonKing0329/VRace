@@ -7,8 +7,8 @@ android {
         applicationId "com.king.app.vrace"
         minSdkVersion 21
         targetSdkVersion 27
-        versionCode 12
-        versionName "1.9"
+        versionCode 13
+        versionName "1.9.1"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
     signingConfigs {
@@ -78,4 +78,5 @@ dependencies {
     annotationProcessor 'android.arch.lifecycle:compiler:1.1.1'
 
     implementation 'com.github.skydoves:colorpickerview:1.0.8'
+    implementation "com.github.danielnilsson9:color-picker-view:1.4.0@aar"
 }
