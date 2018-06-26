@@ -174,20 +174,26 @@ public class LegViewModel extends BaseViewModel {
     }
 
     private void loadTeamRank() {
-        queryRankTeams()
+        Observable<List<Object>> observable;
+        // 起跑线无任务不加载rank list
+        if (mLeg.getType() == LegType.START_LINE.ordinal()) {
+            observable = toLegData(null);
+        }
+        else {
+            observable = queryRankTeams()
+                            .flatMap(list -> toLegData(list));
+        }
+        observable
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribeOn(Schedulers.io())
-                .subscribe(new Observer<List<LegTeam>>() {
+                .subscribe(new Observer<List<Object>>() {
                     @Override
                     public void onSubscribe(Disposable d) {
                         addDisposable(d);
                     }
 
                     @Override
-                    public void onNext(List<LegTeam> legTeams) {
-                        List<Object> list = new ArrayList<>();
-                        list.add(mLeg);
-                        list.addAll(legTeams);
+                    public void onNext(List<Object> list) {
                         mPageList = list;
                         ranksObserver.setValue(mPageList);
                     }
@@ -202,6 +208,17 @@ public class LegViewModel extends BaseViewModel {
 
                     }
                 });
+    }
+
+    private Observable<List<Object>> toLegData(List<LegTeam> teamRanks) {
+        return Observable.create(e -> {
+            List<Object> list = new ArrayList<>();
+            list.add(mLeg);
+            if (teamRanks != null) {
+                list.addAll(teamRanks);
+            }
+            e.onNext(list);
+        });
     }
 
     private Observable<List<LegTeam>> queryRankTeams() {
@@ -222,11 +239,13 @@ public class LegViewModel extends BaseViewModel {
                 legTeam.setLegId(mLeg.getId());
                 legTeam.setSeasonId(mLeg.getSeasonId());
                 legTeam.setIsLast(i == mLeg.getPlayerNumber() - 1);
-                if (mLeg.getType() == LegType.EL.ordinal()) {
+                // 淘汰赛段与起跑线淘汰最后一名标记为淘汰
+                if (mLeg.getType() == LegType.EL.ordinal() || mLeg.getType() == LegType.START_LINE_EL.ordinal()) {
                     if (legTeam.getIsLast()) {
                         legTeam.setEliminated(true);
                     }
                 }
+                // 双淘汰赛段最后两名标记为淘汰
                 else if (mLeg.getType() == LegType.DEL.ordinal()) {
                     if (i >= mLeg.getPlayerNumber() - 2) {
                         legTeam.setEliminated(true);

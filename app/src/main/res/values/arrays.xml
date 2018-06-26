@@ -19,7 +19,9 @@
         <item>非淘汰赛段</item>
         <item>连续赛段</item>
         <item>双淘汰赛段</item>
-        <item>起跑赛段</item>
+        <item>起跑赛段（不含任务）</item>
         <item>最终赛段</item>
+        <item>起跑赛段（含任务）</item>
+        <item>起跑赛段（淘汰）</item>
     </string-array>
 </resources>
