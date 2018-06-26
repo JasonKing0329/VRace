@@ -21,6 +21,7 @@ import com.king.app.vrace.model.entity.TeamPlayers;
 import com.king.app.vrace.model.entity.TeamPlayersDao;
 import com.king.app.vrace.page.PlayerListActivity;
 import com.king.app.vrace.page.RelationshipListActivity;
+import com.king.app.vrace.utils.ColorUtil;
 import com.king.app.vrace.utils.ScreenUtils;
 import com.king.app.vrace.view.dialog.DraggableContentFragment;
 import com.king.app.vrace.view.dialog.DraggableDialogFragment;
@@ -122,6 +123,7 @@ public class TeamEditor extends DraggableContentFragment<FragmentEditorTeamBindi
         picker.setOnColorSelectedListener(color -> {
             mTeamColor = color;
             mBinding.tvColor.setBackgroundColor(color);
+            mBinding.tvColor.setTextColor(ColorUtil.generateForgroundColorForBg(color));
         });
         DraggableDialogFragment dialogFragment = new DraggableDialogFragment();
         dialogFragment.setContentFragment(picker);

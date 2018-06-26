@@ -7,7 +7,7 @@ import android.text.TextWatcher;
 import com.king.app.vrace.R;
 import com.king.app.vrace.base.IFragmentHolder;
 import com.king.app.vrace.databinding.FragmentColorPickerRichBinding;
-import com.king.app.vrace.utils.ColorFormatter;
+import com.king.app.vrace.utils.ColorUtil;
 import com.king.app.vrace.view.dialog.DraggableContentFragment;
 
 /**
@@ -36,13 +36,13 @@ public class RichColorPicker extends DraggableContentFragment<FragmentColorPicke
 
         if (mColor != null) {
             updateColor(mColor);
-            mBinding.etColorValue.setText(ColorFormatter.formatColor(mColor));
+            mBinding.etColorValue.setText(ColorUtil.formatColor(mColor));
         }
 
         mBinding.colorPicker.setOnColorChangedListener(newColor -> {
             mColor = newColor;
             mBinding.tvColorBg.setBackgroundColor(newColor);
-            mBinding.etColorValue.setText(ColorFormatter.formatColor(newColor));
+            mBinding.etColorValue.setText(ColorUtil.formatColor(newColor));
         });
 
         mBinding.tvConfirm.setOnClickListener(view -> {

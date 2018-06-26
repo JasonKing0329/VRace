@@ -8,6 +8,7 @@ import com.king.app.vrace.R;
 import com.king.app.vrace.base.BaseBindingAdapter;
 import com.king.app.vrace.databinding.AdapterSeasonTeamBinding;
 import com.king.app.vrace.model.entity.Team;
+import com.king.app.vrace.utils.ColorUtil;
 import com.king.app.vrace.viewmodel.bean.SeasonTeamItem;
 
 import java.util.Map;
@@ -48,9 +49,11 @@ public class SeasonTeamsAdapter extends BaseBindingAdapter<AdapterSeasonTeamBind
         GradientDrawable drawable = (GradientDrawable) tvName.getBackground();
         if (bean.getSpecialColor() != 0) {
             drawable.setColor(bean.getSpecialColor());
+            tvName.setTextColor(ColorUtil.generateForgroundColorForBg(bean.getSpecialColor()));
         }
         else {
             drawable.setColor(tvName.getResources().getColor(R.color.colorAccent));
+            tvName.setTextColor(tvName.getResources().getColor(R.color.white));
         }
         tvName.setBackground(drawable);
     }

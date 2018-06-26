@@ -16,6 +16,7 @@ import com.king.app.vrace.model.entity.Team;
 import com.king.app.vrace.model.entity.TeamDao;
 import com.king.app.vrace.model.entity.TeamSeason;
 import com.king.app.vrace.page.TeamListActivity;
+import com.king.app.vrace.utils.ColorUtil;
 import com.king.app.vrace.view.dialog.DraggableContentFragment;
 import com.king.app.vrace.viewmodel.SeasonViewModel;
 
@@ -120,6 +121,7 @@ public class SeasonTeamEditor extends DraggableContentFragment<FragmentEditorSea
             GradientDrawable drawable = (GradientDrawable) mBinding.tvName.getBackground();
             drawable.setColor(mTeam.getSpecialColor());
             mBinding.tvName.setBackground(drawable);
+            mBinding.tvName.setTextColor(ColorUtil.generateForgroundColorForBg(mTeam.getSpecialColor()));
         }
 
         mBinding.tvGender.setText(AppConstants.getGenderText(GenderType.values()[mTeam.getGenderType()]));

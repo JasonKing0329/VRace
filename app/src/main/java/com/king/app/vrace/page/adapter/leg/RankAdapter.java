@@ -15,6 +15,7 @@ import com.king.app.vrace.conf.GenderType;
 import com.king.app.vrace.databinding.AdapterLegTeamRankBinding;
 import com.king.app.vrace.model.entity.LegTeam;
 import com.king.app.vrace.model.entity.Team;
+import com.king.app.vrace.utils.ColorUtil;
 
 /**
  * Desc:
@@ -80,13 +81,15 @@ public class RankAdapter implements View.OnClickListener {
         view.setText(String.valueOf(bean.getPosition()));
     }
 
-    private void updateNameBg(View view, Team bean) {
+    private void updateNameBg(TextView view, Team bean) {
         GradientDrawable drawable = (GradientDrawable) view.getBackground();
         if (bean.getSpecialColor() != 0) {
             drawable.setColor(bean.getSpecialColor());
+            view.setTextColor(ColorUtil.generateForgroundColorForBg(bean.getSpecialColor()));
         }
         else {
             drawable.setColor(view.getResources().getColor(R.color.colorAccent));
+            view.setTextColor(view.getResources().getColor(R.color.white));
         }
         view.setBackground(drawable);
     }
