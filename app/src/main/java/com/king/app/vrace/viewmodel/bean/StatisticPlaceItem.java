@@ -1,9 +1,5 @@
 package com.king.app.vrace.viewmodel.bean;
 
-import com.king.app.vrace.model.entity.Season;
-
-import java.util.List;
-
 /**
  * Desc:
  *
@@ -19,6 +15,10 @@ public class StatisticPlaceItem {
     private String seasons;
 
     private String flagPath;
+
+    private String continent;
+
+    private long lastSeasonId;
 
     public String getCountry() {
         return country;
@@ -52,4 +52,19 @@ public class StatisticPlaceItem {
         this.flagPath = flagPath;
     }
 
+    public long getLastSeasonId() {
+        return lastSeasonId;
+    }
+
+    public void setLastSeasonId(long lastSeasonId) {
+        this.lastSeasonId = lastSeasonId;
+    }
+
+    public String getContinent() {
+        return continent;
+    }
+
+    public void setContinent(String continent) {
+        this.continent = continent;
+    }
 }
