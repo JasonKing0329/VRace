@@ -24,6 +24,7 @@ public class RaceApplication extends Application {
 
     private DaoSession daoSession;
     private RHelper helper;
+    private Database database;
 
     public static RaceApplication getInstance() {
         return instance;
@@ -41,8 +42,8 @@ public class RaceApplication extends Application {
      */
     public void createGreenDao() {
         helper = new RHelper(getApplicationContext(), AppConfig.DB_NAME);
-        Database db = helper.getWritableDb();
-        daoSession = new DaoMaster(db).newSession();
+        database = helper.getWritableDb();
+        daoSession = new DaoMaster(database).newSession();
 
         QueryBuilder.LOG_SQL = true;
         QueryBuilder.LOG_VALUES = true;
@@ -56,6 +57,10 @@ public class RaceApplication extends Application {
 
     public DaoSession getDaoSession() {
         return daoSession;
+    }
+
+    public Database getDatabase() {
+        return database;
     }
 
     public static class RHelper extends DaoMaster.OpenHelper {

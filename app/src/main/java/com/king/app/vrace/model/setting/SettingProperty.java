@@ -73,4 +73,12 @@ public class SettingProperty {
         return getBoolean("enable_finger_print");
     }
 
+    public static void setStatisticPlaceType(int type) {
+        setInt("statistic_place_type", type);
+    }
+
+    public static int getStatisticPlaceType() {
+        return getInt("statistic_place_type");
+    }
+
 }

@@ -68,6 +68,9 @@ public class SeasonListActivity extends MvvmActivity<ActivitySeasonListBinding, 
                 case R.id.menu_teams:
                     goToTeamPage();
                     break;
+                case R.id.menu_places:
+                    goToPlacePage();
+                    break;
             }
         });
 
@@ -105,6 +108,10 @@ public class SeasonListActivity extends MvvmActivity<ActivitySeasonListBinding, 
                 return true;
             }
         });
+    }
+
+    private void goToPlacePage() {
+        startActivity(new Intent(this, StatisticPlaceActivity.class));
     }
 
     private void goToTeamPage() {

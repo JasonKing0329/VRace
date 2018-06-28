@@ -17,9 +17,11 @@ public class AppConfig {
     public static final String EXPORT_BASE = DEF_CONTENT + "/export";
     public static final String HISTORY_BASE = DEF_CONTENT + "/history";
     public static final String IMG_BASE = DEF_CONTENT + "/img";
-    public static final String IMG_PLACE_BASE = IMG_BASE + "/place";
+    public static final String IMG_COUNTRY_BASE = IMG_BASE + "/country";
+    public static final String IMG_CITY_BASE = IMG_BASE + "/city";
+    public static final String IMG_FLAG_BASE = IMG_BASE + "/flag";
 
     public static final String[] DIRS = new String[] {
-            DEF_CONTENT, EXPORT_BASE, HISTORY_BASE, IMG_BASE, IMG_PLACE_BASE
+            DEF_CONTENT, EXPORT_BASE, HISTORY_BASE, IMG_BASE, IMG_FLAG_BASE, IMG_COUNTRY_BASE, IMG_CITY_BASE
     };
 }

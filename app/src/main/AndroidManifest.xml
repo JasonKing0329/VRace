@@ -56,6 +56,8 @@
         <activity android:name=".page.LegActivity"
             android:theme="@style/OverStatusBarTheme"
             android:screenOrientation="portrait"/>
+        <activity android:name=".page.StatisticPlaceActivity"
+            android:screenOrientation="portrait"/>
     </application>
 
 </manifest>

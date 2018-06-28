@@ -19,15 +19,27 @@ public class ImageProvider {
 
     /**
      * city or country
-     * @param place
+     * @param country
      * @return
      */
-    public static String getPlaceImagePath(String place) {
-        File file = getFileByName(place);
-        if (file != null) {
-            return file.getPath();
+    public static String getCountryFlagPath(String country) {
+        String extras[] = new String[]{".jpg", ".jpeg", ".png", ".bmp", ".gif"};
+        String result = null;
+        for (String extra:extras) {
+            String path = AppConfig.IMG_FLAG_BASE + "/" + country + extra;
+            File file = new File(path);
+            if (file.exists()) {
+                result = path;
+                break;
+            }
         }
-        return null;
+        if (result == null) {
+            File file = getRandomFile(AppConfig.IMG_COUNTRY_BASE, country);
+            if (file != null) {
+                result = file.getPath();
+            }
+        }
+        return result;
     }
 
     public static String getLegImagePath(Leg leg) {
@@ -35,9 +47,9 @@ public class ImageProvider {
         if (leg.getPlaceList().size() > 0) {
             LegPlaces place = leg.getPlaceList().get(0);
             // city first
-            File file = getFileByName(place.getCity());
+            File file = getRandomFile(AppConfig.IMG_CITY_BASE, place.getCity());
             if (file == null) {
-                file = getFileByName(place.getCountry());
+                file = getRandomFile(AppConfig.IMG_COUNTRY_BASE, place.getCountry());
             }
             if (file != null) {
                 path = file.getPath();
@@ -46,13 +58,13 @@ public class ImageProvider {
         return path;
     }
 
-    private static File getFileByName(String city) {
-        if (TextUtils.isEmpty(city)) {
+    private static File getRandomFile(String parent, String name) {
+        if (TextUtils.isEmpty(name)) {
             return null;
         }
         File target = null;
         // check folder
-        File folder = new File(AppConfig.IMG_PLACE_BASE + "/" + city);
+        File folder = new File(parent + "/" + name);
         if (folder.exists()) {
             File files[] = folder.listFiles();
             if (files.length > 0) {
