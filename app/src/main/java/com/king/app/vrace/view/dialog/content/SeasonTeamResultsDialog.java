@@ -39,6 +39,7 @@ public class SeasonTeamResultsDialog extends DraggableContentFragment<FragmentSe
                 .setLegTitleList(tableData.getLegTitleList())
                 .setRelationshipList(tableData.getRelationshipList())
                 .setTeamList(tableData.getTeamList())
+                .setTitleBgColor(tableData.getTitleBgColor())
                 .build());
 
         mModel.loadResults(seasonId);

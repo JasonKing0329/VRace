@@ -28,7 +28,7 @@ public class ResultsTableView extends LinearLayout {
 
     private int rowHeight = ScreenUtils.dp2px(20);
 
-    private int titleHeight = ScreenUtils.dp2px(40);
+    private int titleHeight = ScreenUtils.dp2px(60);
 
     private int cellWidth = ScreenUtils.dp2px(40);
 
@@ -53,49 +53,69 @@ public class ResultsTableView extends LinearLayout {
     }
 
     public class Builder {
-        private List<String> legTitleList;
-        private List<String> teamList;
-        private List<String> relationshipList;
-        private String[][] legResults;
+        private List<CellData> legTitleList;
+        private List<CellData> teamList;
+        private List<CellData> relationshipList;
+        private CellData[][] legResults;
+        private int columnTeamColor;
+        private int titleBgColor;
 
-        public Builder setLegResults(String[][] legResults) {
+        public Builder setLegResults(CellData[][] legResults) {
             this.legResults = legResults;
             return this;
         }
 
-        public Builder setLegTitleList(List<String> legTitleList) {
+        public Builder setLegTitleList(List<CellData> legTitleList) {
             this.legTitleList = legTitleList;
             return this;
         }
 
-        public Builder setTeamList(List<String> teamList) {
+        public Builder setTeamList(List<CellData> teamList) {
             this.teamList = teamList;
             return this;
         }
 
-        public Builder setRelationshipList(List<String> relationshipList) {
+        public Builder setRelationshipList(List<CellData> relationshipList) {
             this.relationshipList = relationshipList;
             return this;
         }
 
-        public List<String> getLegTitleList() {
+        public Builder setColumnTeamColor(int columnTeamColor) {
+            this.columnTeamColor = columnTeamColor;
+            return this;
+        }
+
+        public List<CellData> getLegTitleList() {
             return legTitleList;
         }
 
-        public List<String> getTeamList() {
+        public List<CellData> getTeamList() {
             return teamList;
         }
 
-        public List<String> getRelationshipList() {
+        public List<CellData> getRelationshipList() {
             return relationshipList;
         }
 
-        public String[][] getLegResults() {
+        public CellData[][] getLegResults() {
             return legResults;
+        }
+
+        public int getColumnTeamColor() {
+            return columnTeamColor;
         }
 
         public void build() {
             createTable();
+        }
+
+        public int getTitleBgColor() {
+            return titleBgColor;
+        }
+
+        public Builder setTitleBgColor(int titleBgColor) {
+            this.titleBgColor = titleBgColor;
+            return this;
         }
     }
 
@@ -118,6 +138,7 @@ public class ResultsTableView extends LinearLayout {
     private void addTeamColumn() {
         LinearLayout llTeam = new LinearLayout(getContext());
         llTeam.setOrientation(LinearLayout.VERTICAL);
+        llTeam.setBackgroundColor(getBuilder().getColumnTeamColor());
         llTeam.setPadding(ScreenUtils.dp2px(10), 0, ScreenUtils.dp2px(10), 0);
         LayoutParams params = new LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
         addView(llTeam, params);
@@ -131,7 +152,11 @@ public class ResultsTableView extends LinearLayout {
         for (int i = 0; i < builder.getTeamList().size(); i ++) {
             team = new TextView(getContext());
             team.setGravity(Gravity.CENTER);
-            team.setText(builder.getTeamList().get(i));
+            team.setText(builder.getTeamList().get(i).text);
+            if (builder.getTeamList().get(i).background != 0) {
+                team.setBackgroundColor(builder.getTeamList().get(i).background);
+            }
+            team.setTextColor(builder.getTeamList().get(i).textColor);
             params = new LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, rowHeight);
             llTeam.addView(team, params);
 
@@ -154,7 +179,11 @@ public class ResultsTableView extends LinearLayout {
         for (int i = 0; i < builder.getRelationshipList().size(); i ++) {
             team = new TextView(getContext());
             team.setGravity(Gravity.CENTER);
-            team.setText(builder.getRelationshipList().get(i));
+            team.setText(builder.getRelationshipList().get(i).text);
+            team.setTextColor(builder.getRelationshipList().get(i).textColor);
+            if (builder.getRelationshipList().get(i).background != 0) {
+                team.setBackgroundColor(builder.getRelationshipList().get(i).background);
+            }
             params = new LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, rowHeight);
             llTeam.addView(team, params);
 
@@ -168,26 +197,48 @@ public class ResultsTableView extends LinearLayout {
             LayoutParams params = new LayoutParams(cellWidth, ViewGroup.LayoutParams.WRAP_CONTENT);
             scrollRoot.addView(llTeam, params);
 
-            TextView team = new TextView(getContext());
-            team.setGravity(Gravity.CENTER);
-            team.setText(builder.getLegTitleList().get(col));
+            TextView view = new TextView(getContext());
+            view.setMaxLines(3);
+            view.setEllipsize(TextUtils.TruncateAt.END);
+            view.setGravity(Gravity.CENTER);
+            view.setText(builder.getLegTitleList().get(col).text);
+            view.setTextColor(builder.getLegTitleList().get(col).textColor);
+            view.setBackgroundColor(builder.getLegTitleList().get(col).background);
             params = new LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, titleHeight);
-            llTeam.addView(team, params);
+            llTeam.addView(view, params);
 
             for (int row = 0; row < builder.getRelationshipList().size(); row ++) {
-                team = new TextView(getContext());
-                team.setGravity(Gravity.CENTER);
-                if (TextUtils.isEmpty(builder.getLegResults()[row][col])) {
-                    team.setBackgroundColor(Color.parseColor("#a9a9a9"));
+                view = new TextView(getContext());
+                view.setGravity(Gravity.CENTER);
+                if (builder.getLegResults()[row][col] == null) {
+                    view.setBackgroundColor(Color.parseColor("#a9a9a9"));
                 }
                 else {
-                    team.setBackgroundColor(Color.WHITE);
-                    team.setText(builder.getLegResults()[row][col]);
+                    view.setBackgroundColor(Color.WHITE);
+                    view.setText(builder.getLegResults()[row][col].text);
+                    view.setTextColor(builder.getLegResults()[row][col].textColor);
+                    view.setBackgroundColor(builder.getLegResults()[row][col].background);
                 }
                 params = new LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, rowHeight);
-                llTeam.addView(team, params);
+                llTeam.addView(view, params);
 
             }
         }
+    }
+
+    public static class CellData {
+        public String text;
+        public int textColor;
+        public int background;
+
+        public CellData() {
+        }
+
+        public CellData(String text, int textColor, int background) {
+            this.text = text;
+            this.textColor = textColor;
+            this.background = background;
+        }
+
     }
 }

@@ -1,5 +1,7 @@
 package com.king.app.vrace.viewmodel.bean;
 
+import com.king.app.vrace.view.widget.ResultsTableView;
+
 import java.util.List;
 
 /**
@@ -9,40 +11,59 @@ import java.util.List;
  */
 
 public class TableData {
-    private List<String> legTitleList;
-    private List<String> teamList;
-    private List<String> relationshipList;
-    private String[][] legResults;
+    private List<ResultsTableView.CellData> legTitleList;
+    private List<ResultsTableView.CellData> teamList;
+    private List<ResultsTableView.CellData> relationshipList;
+    private ResultsTableView.CellData[][] legResults;
 
-    public List<String> getLegTitleList() {
+    private int columnTeamColor;
+    private int titleBgColor;
+
+    public List<ResultsTableView.CellData> getLegTitleList() {
         return legTitleList;
     }
 
-    public void setLegTitleList(List<String> legTitleList) {
+    public void setLegTitleList(List<ResultsTableView.CellData> legTitleList) {
         this.legTitleList = legTitleList;
     }
 
-    public List<String> getTeamList() {
+    public List<ResultsTableView.CellData> getTeamList() {
         return teamList;
     }
 
-    public void setTeamList(List<String> teamList) {
+    public void setTeamList(List<ResultsTableView.CellData> teamList) {
         this.teamList = teamList;
     }
 
-    public List<String> getRelationshipList() {
+    public List<ResultsTableView.CellData> getRelationshipList() {
         return relationshipList;
     }
 
-    public void setRelationshipList(List<String> relationshipList) {
+    public void setRelationshipList(List<ResultsTableView.CellData> relationshipList) {
         this.relationshipList = relationshipList;
     }
 
-    public String[][] getLegResults() {
+    public ResultsTableView.CellData[][] getLegResults() {
         return legResults;
     }
 
-    public void setLegResults(String[][] legResults) {
+    public void setLegResults(ResultsTableView.CellData[][] legResults) {
         this.legResults = legResults;
+    }
+
+    public int getColumnTeamColor() {
+        return columnTeamColor;
+    }
+
+    public void setColumnTeamColor(int columnTeamColor) {
+        this.columnTeamColor = columnTeamColor;
+    }
+
+    public int getTitleBgColor() {
+        return titleBgColor;
+    }
+
+    public void setTitleBgColor(int titleBgColor) {
+        this.titleBgColor = titleBgColor;
     }
 }

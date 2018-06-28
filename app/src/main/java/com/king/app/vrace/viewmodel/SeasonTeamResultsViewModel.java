@@ -2,17 +2,21 @@ package com.king.app.vrace.viewmodel;
 
 import android.app.Application;
 import android.arch.lifecycle.MutableLiveData;
+import android.graphics.Color;
 import android.support.annotation.NonNull;
+import android.text.TextUtils;
 
 import com.king.app.vrace.base.BaseViewModel;
 import com.king.app.vrace.conf.LegType;
 import com.king.app.vrace.model.entity.Leg;
 import com.king.app.vrace.model.entity.LegDao;
+import com.king.app.vrace.model.entity.LegPlaces;
 import com.king.app.vrace.model.entity.LegTeam;
 import com.king.app.vrace.model.entity.LegTeamDao;
 import com.king.app.vrace.model.entity.Team;
 import com.king.app.vrace.model.entity.TeamSeason;
 import com.king.app.vrace.model.entity.TeamSeasonDao;
+import com.king.app.vrace.view.widget.ResultsTableView;
 import com.king.app.vrace.viewmodel.bean.TableData;
 
 import java.util.ArrayList;
@@ -80,9 +84,19 @@ public class SeasonTeamResultsViewModel extends BaseViewModel {
             Collections.sort(teamResults, new ResultsComparator());
             data.setTeamList(new ArrayList<>());
             data.setRelationshipList(new ArrayList<>());
+
+            int titleColor = Color.parseColor("#eaecf0");
+            int cellColor = Color.parseColor("#f8f9fa");
+            int titleTextColor = Color.parseColor("#333333");
+            int normalTextColor = Color.parseColor("#666666");
+            int colorEliminated = Color.parseColor("#fd5300");
+            int colorLast = Color.parseColor("#0000ff");
+
+            data.setColumnTeamColor(titleColor);
+            data.setTitleBgColor(titleColor);
             for (TeamResults team:teamResults) {
-                data.getTeamList().add(team.team.getCode());
-                data.getRelationshipList().add(team.team.getRelationship().getName());
+                data.getTeamList().add(new ResultsTableView.CellData(team.team.getCode(), titleTextColor, 0));
+                data.getRelationshipList().add(new ResultsTableView.CellData(team.team.getRelationship().getName(), titleTextColor, 0));
             }
 
             List<Leg> legs = getDaoSession().getLegDao().queryBuilder()
@@ -91,22 +105,51 @@ public class SeasonTeamResultsViewModel extends BaseViewModel {
                     .build().list();
             data.setLegTitleList(new ArrayList<>());
             for (Leg leg:legs) {
-                data.getLegTitleList().add("L" + leg.getIndex());
+                String legTitle = getLegTitle(leg);
+                data.getLegTitleList().add(new ResultsTableView.CellData(legTitle, titleTextColor, titleColor));
             }
-            String[][] results = new String[teams.size()][];
+            ResultsTableView.CellData[][] results = new ResultsTableView.CellData[teams.size()][];
             data.setLegResults(results);
             for (int i = 0; i < results.length; i ++) {
-                results[i] = new String[legs.size()];
+                results[i] = new ResultsTableView.CellData[legs.size()];
             }
             for (int row = 0; row < teamResults.size(); row ++) {
                 List<LegTeam> legTeams = teamResults.get(row).legTeams;
                 for (int col = 0; col < legTeams.size(); col ++) {
-                    results[row][legTeams.get(col).getLeg().getIndex() - 1] = formatRank(legTeams.get(col).getPosition());
+                    ResultsTableView.CellData cellData = new ResultsTableView.CellData();
+                    // 被淘汰标红
+                    if (legTeams.get(col).getEliminated()) {
+                        cellData.textColor = colorEliminated;
+                    }
+                    // 非淘汰、连续赛段最后一名
+                    else if (legTeams.get(col).getIsLast() && legTeams.get(col).getLeg().getType() != LegType.FINAL.ordinal()) {
+                        cellData.textColor = colorLast;
+                    }
+                    else {
+                        cellData.textColor = normalTextColor;
+                    }
+                    cellData.background = cellColor;
+                    cellData.text = formatRank(legTeams.get(col).getPosition());
+                    results[row][legTeams.get(col).getLeg().getIndex() - 1] = cellData;
                 }
 
             }
             e.onNext(data);
         });
+    }
+
+    private String getLegTitle(Leg leg) {
+        String result = "L" + leg.getIndex();
+        if (leg.getPlaceList().size() > 0) {
+            LegPlaces place = leg.getPlaceList().get(0);
+            if (TextUtils.isEmpty(place.getCity())) {
+                result = result + "\n" + place.getCountry();
+            }
+            else {
+                result = result + "\n" + place.getCountry() + "-" + place.getCity();
+            }
+        }
+        return result;
     }
 
     private String formatRank(int rank) {
