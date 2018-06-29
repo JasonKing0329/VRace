@@ -178,7 +178,7 @@ public class TeamListActivity extends MvvmActivity<ActivityTeamListBinding, Team
         }
         else {
             editor.setTeam(team.getBean());
-            dialogFragment.setTitle("Edit " + team.getName());
+            dialogFragment.setTitle("Edit " + team.getBean().getCode());
         }
         dialogFragment.show(getSupportFragmentManager(), "TeamEditor");
     }

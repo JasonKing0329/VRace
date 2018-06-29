@@ -7,6 +7,7 @@ import android.widget.TextView;
 import com.king.app.vrace.R;
 import com.king.app.vrace.base.BaseBindingAdapter;
 import com.king.app.vrace.databinding.AdapterTeamBinding;
+import com.king.app.vrace.model.entity.PersonTag;
 import com.king.app.vrace.model.entity.Team;
 import com.king.app.vrace.utils.ColorUtil;
 import com.king.app.vrace.viewmodel.bean.TeamListItem;
@@ -43,6 +44,45 @@ public class TeamListAdapter extends BaseBindingAdapter<AdapterTeamBinding, Team
                 binding.cbCheck.setChecked(checkMap.get(bean.getBean().getId()));
             }
         }
+
+        if (bean.getBean().getTagList().size() > 0) {
+            showTags(binding, bean.getBean());
+            binding.flowTags.setVisibility(View.VISIBLE);
+        }
+        else {
+            binding.flowTags.removeAllViews();
+            binding.flowTags.setVisibility(View.GONE);
+        }
+    }
+
+    private void showTags(AdapterTeamBinding binding, Team bean) {
+        SimpleTagAdapter<PersonTag> adapter = new SimpleTagAdapter<PersonTag>() {
+            @Override
+            protected String getText(PersonTag data) {
+                return data.getTag();
+            }
+
+            @Override
+            protected long getId(PersonTag data) {
+                return data.getId();
+            }
+
+            @Override
+            protected boolean isDisabled(PersonTag item) {
+                return false;
+            }
+        };
+        adapter.setData(bean.getTagList());
+        int color;
+        if (bean.getSpecialColor() != 0) {
+            color = bean.getSpecialColor();
+        }
+        else {
+            color = binding.flowTags.getResources().getColor(R.color.colorAccent);
+        }
+        adapter.setTagColor(color);
+        adapter.setTextColor(ColorUtil.generateForgroundColorForBg(color));
+        adapter.bindFlowLayout(binding.flowTags);
     }
 
     private void updateNameBg(TextView tvName, Team bean) {

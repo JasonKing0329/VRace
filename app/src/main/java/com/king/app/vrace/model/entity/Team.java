@@ -49,6 +49,14 @@ public class Team {
     )
     private List<Player> playerList;
 
+    @ToMany
+    @JoinEntity(
+            entity = TeamTag.class,
+            sourceProperty = "teamId",
+            targetProperty = "tagId"
+    )
+    private List<PersonTag> tagList;
+
     /** Used to resolve relations */
     @Generated(hash = 2040040024)
     private transient DaoSession daoSession;
@@ -256,6 +264,34 @@ public class Team {
 
     public void setSpecialColor(int specialColor) {
         this.specialColor = specialColor;
+    }
+
+    /**
+     * To-many relationship, resolved on first access (and after reset).
+     * Changes to to-many relations are not persisted, make changes to the target entity.
+     */
+    @Generated(hash = 1817414983)
+    public List<PersonTag> getTagList() {
+        if (tagList == null) {
+            final DaoSession daoSession = this.daoSession;
+            if (daoSession == null) {
+                throw new DaoException("Entity is detached from DAO context");
+            }
+            PersonTagDao targetDao = daoSession.getPersonTagDao();
+            List<PersonTag> tagListNew = targetDao._queryTeam_TagList(id);
+            synchronized (this) {
+                if (tagList == null) {
+                    tagList = tagListNew;
+                }
+            }
+        }
+        return tagList;
+    }
+
+    /** Resets a to-many relationship, making the next get call to query for a fresh result. */
+    @Generated(hash = 123385802)
+    public synchronized void resetTagList() {
+        tagList = null;
     }
 
     /** called by internal mechanisms, do not call yourself. */

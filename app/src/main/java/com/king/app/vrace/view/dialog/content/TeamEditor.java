@@ -9,9 +9,13 @@ import android.widget.TextView;
 
 import com.king.app.vrace.R;
 import com.king.app.vrace.base.IFragmentHolder;
+import com.king.app.vrace.base.RaceApplication;
 import com.king.app.vrace.conf.Gender;
 import com.king.app.vrace.conf.GenderType;
 import com.king.app.vrace.databinding.FragmentEditorTeamBinding;
+import com.king.app.vrace.model.ParcelableTags;
+import com.king.app.vrace.model.entity.PersonTag;
+import com.king.app.vrace.model.entity.PersonTagDao;
 import com.king.app.vrace.model.entity.Player;
 import com.king.app.vrace.model.entity.PlayerDao;
 import com.king.app.vrace.model.entity.Relationship;
@@ -19,13 +23,20 @@ import com.king.app.vrace.model.entity.RelationshipDao;
 import com.king.app.vrace.model.entity.Team;
 import com.king.app.vrace.model.entity.TeamPlayers;
 import com.king.app.vrace.model.entity.TeamPlayersDao;
+import com.king.app.vrace.model.entity.TeamTag;
+import com.king.app.vrace.model.entity.TeamTagDao;
 import com.king.app.vrace.page.PlayerListActivity;
 import com.king.app.vrace.page.RelationshipListActivity;
+import com.king.app.vrace.page.TagListActivity;
 import com.king.app.vrace.utils.ColorUtil;
+import com.king.app.vrace.utils.ListUtil;
 import com.king.app.vrace.utils.ScreenUtils;
 import com.king.app.vrace.view.dialog.DraggableContentFragment;
 import com.king.app.vrace.view.dialog.DraggableDialogFragment;
 import com.king.app.vrace.viewmodel.TeamListViewModel;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Desc:
@@ -51,6 +62,8 @@ public class TeamEditor extends DraggableContentFragment<FragmentEditorTeamBindi
     private TeamListViewModel listViewModel;
 
     private int mTeamColor;
+
+    private List<PersonTag> mTags;
 
     @Override
     protected void bindFragmentHolder(IFragmentHolder holder) {
@@ -87,6 +100,8 @@ public class TeamEditor extends DraggableContentFragment<FragmentEditorTeamBindi
             if (mTeam.getSpecialColor() != 0) {
                 mBinding.tvColor.setBackgroundColor(mTeam.getSpecialColor());
             }
+            mTags = mTeam.getTagList();
+            showTags();
         }
         else {
             mTeam = new Team();
@@ -100,11 +115,31 @@ public class TeamEditor extends DraggableContentFragment<FragmentEditorTeamBindi
         mBinding.tvColor.setOnClickListener(view -> selectColor());
     }
 
+    private void showTags() {
+        if (mTags.size() > 0) {
+            StringBuffer buffer = new StringBuffer();
+            for (int i = 0; i < mTags.size(); i ++) {
+                if (i == 0) {
+                    buffer.append(mTags.get(i).getTag());
+                }
+                else {
+                    buffer.append("; ").append(mTags.get(i).getTag());
+                }
+            }
+            mBinding.tvTags.setText(buffer.toString());
+        }
+    }
+
     public void setTeam(Team mTeam) {
         this.mTeam = mTeam;
     }
 
     private void selectTag() {
+        Intent intent = new Intent(getActivity(), TagListActivity.class);
+        if (mTeam != null && mTeam.getId() != null) {
+            intent.putExtra(TagListActivity.REQUEST_TEAM_ID, mTeam.getId());
+        }
+        startActivityForResult(intent, REQUEST_TAG);
     }
 
     private void selectRelationship() {
@@ -188,6 +223,11 @@ public class TeamEditor extends DraggableContentFragment<FragmentEditorTeamBindi
                     .where(TeamPlayersDao.Properties.TeamId.eq(mTeam.getId()))
                     .buildDelete()
                     .executeDeleteWithoutDetachingEntities();
+            // remove tags
+            getDaoSession().getTeamTagDao().queryBuilder()
+                    .where(TeamTagDao.Properties.TeamId.eq(mTeam.getId()))
+                    .buildDelete()
+                    .executeDeleteWithoutDetachingEntities();
         }
         // insert team
         getDaoSession().getTeamDao().insertOrReplace(mTeam);
@@ -201,9 +241,22 @@ public class TeamEditor extends DraggableContentFragment<FragmentEditorTeamBindi
         teamPlayers.setPlayerId(mPlayer2.getId());
         teamPlayers.setTeamId(mTeam.getId());
         getDaoSession().getTeamPlayersDao().insert(teamPlayers);
+        getDaoSession().getTeamPlayersDao().detachAll();
 
         // insert tags
+        if (!ListUtil.isEmpty(mTags)) {
+            List<TeamTag> ttList = new ArrayList<>();
+            for (PersonTag tag:mTags) {
+                TeamTag tt = new TeamTag();
+                tt.setTeamId(mTeam.getId());
+                tt.setTagId(tag.getId());
+                ttList.add(tt);
+            }
+            getDaoSession().getTeamTagDao().insertInTx(ttList);
+        }
+        getDaoSession().getTeamTagDao().detachAll();
 
+        getDaoSession().getTeamDao().detachAll();
         dismissAllowingStateLoss();
         listViewModel.loadTeams();
     }
@@ -225,9 +278,28 @@ public class TeamEditor extends DraggableContentFragment<FragmentEditorTeamBindi
                     mBinding.btnRelationship.setText(mRelationship.getName());
                     break;
                 case REQUEST_TAG:
+                    ParcelableTags tags = data.getParcelableExtra(TagListActivity.RESP_TAG_IDS);
+                    mTags = loadTags(tags);
+                    showTags();
                     break;
             }
         }
+    }
+
+    private List<PersonTag> loadTags(ParcelableTags tags) {
+        List<PersonTag> list = new ArrayList<>();
+        if (tags.getTagIdList() != null) {
+            PersonTagDao dao = RaceApplication.getInstance().getDaoSession().getPersonTagDao();
+            for (long id:tags.getTagIdList()) {
+                PersonTag tag = dao.queryBuilder()
+                        .where(PersonTagDao.Properties.Id.eq(id))
+                        .unique();
+                if (tag != null) {
+                    list.add(tag);
+                }
+            }
+        }
+        return list;
     }
 
     private void updatePlayerTextView(TextView tv, Player player) {
