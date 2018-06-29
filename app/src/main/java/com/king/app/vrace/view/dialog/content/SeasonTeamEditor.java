@@ -99,7 +99,7 @@ public class SeasonTeamEditor extends DraggableContentFragment<FragmentEditorSea
         getDaoSession().getTeamSeasonDao().insertOrReplace(mTeamSeason);
         // 相关加载项要刷新
         getDaoSession().getTeamSeasonDao().detachAll();
-        getDaoSession().getTeamDao().deleteAll();
+        getDaoSession().getTeamDao().detachAll();
 
         dismissAllowingStateLoss();
         seasonViewModel.loadTeams(mSeasonId);

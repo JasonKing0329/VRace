@@ -26,6 +26,8 @@ public class SeasonTeamItem {
 
     private String result;
 
+    private double point;
+
     public TeamSeason getBean() {
         return bean;
     }
@@ -88,5 +90,13 @@ public class SeasonTeamItem {
 
     public void setResult(String result) {
         this.result = result;
+    }
+
+    public double getPoint() {
+        return point;
+    }
+
+    public void setPoint(double point) {
+        this.point = point;
     }
 }

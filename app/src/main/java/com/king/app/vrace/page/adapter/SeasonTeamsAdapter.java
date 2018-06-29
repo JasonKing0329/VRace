@@ -9,6 +9,7 @@ import com.king.app.vrace.base.BaseBindingAdapter;
 import com.king.app.vrace.databinding.AdapterSeasonTeamBinding;
 import com.king.app.vrace.model.entity.Team;
 import com.king.app.vrace.utils.ColorUtil;
+import com.king.app.vrace.utils.FormatUtil;
 import com.king.app.vrace.viewmodel.bean.SeasonTeamItem;
 
 import java.util.Map;
@@ -33,6 +34,7 @@ public class SeasonTeamsAdapter extends BaseBindingAdapter<AdapterSeasonTeamBind
     @Override
     protected void onBindItem(AdapterSeasonTeamBinding binding, int position, SeasonTeamItem bean) {
         binding.setBean(bean);
+        binding.tvPoint.setText(FormatUtil.pointZZ(bean.getPoint()));
         updateNameBg(binding.tvName, bean.getBean().getTeam());
         binding.cbCheck.setVisibility(isSelectMode ? View.VISIBLE:View.GONE);
         if (isSelectMode) {

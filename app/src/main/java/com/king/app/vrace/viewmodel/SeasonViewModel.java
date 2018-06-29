@@ -14,6 +14,7 @@ import com.king.app.vrace.model.entity.Leg;
 import com.king.app.vrace.model.entity.LegDao;
 import com.king.app.vrace.model.entity.LegPlacesDao;
 import com.king.app.vrace.model.entity.LegSpecialDao;
+import com.king.app.vrace.model.entity.LegTeam;
 import com.king.app.vrace.model.entity.LegTeamDao;
 import com.king.app.vrace.model.entity.Season;
 import com.king.app.vrace.model.entity.SeasonDao;
@@ -135,6 +136,7 @@ public class SeasonViewModel extends BaseViewModel {
                 item.setName(team.getTeam().getCode());
                 item.setGender(AppConstants.getGenderText(GenderType.values()[team.getTeam().getGenderType()]));
                 item.setRelationship(team.getTeam().getRelationship().getName());
+                getTeamResult(item, team);
                 if (TextUtils.isEmpty(team.getTeam().getProvince())) {
                     if (!TextUtils.isEmpty(team.getTeam().getCity())) {
                         item.setPlace(team.getTeam().getCity());
@@ -169,6 +171,58 @@ public class SeasonViewModel extends BaseViewModel {
             }
             e.onNext(list);
         });
+    }
+
+    private void getTeamResult(SeasonTeamItem item, TeamSeason team) {
+        String result = null;
+        List<LegTeam> legTeams = getDaoSession().getLegTeamDao().queryBuilder()
+                .where(LegTeamDao.Properties.TeamId.eq(team.getId()))
+                .where(LegTeamDao.Properties.SeasonId.eq(team.getSeasonId()))
+                .build().list();
+        int sum = 0;
+        int max = 0;
+        int min = Integer.MAX_VALUE;
+        int legs = legTeams.size();
+        for (LegTeam lt:legTeams) {
+            if (lt.getLeg().getIndex() == 0) {
+                legs --;
+                continue;
+            }
+            if (lt.getEliminated()) {
+                result = lt.getLeg().getIndex() + " Legs";
+            }
+            else if (lt.getLeg().getType() == LegType.FINAL.ordinal()) {
+                switch (lt.getPosition()) {
+                    case 1:
+                        result = "Winner";
+                        break;
+                    case 2:
+                        result = "2nd";
+                        break;
+                    case 3:
+                        result = "3rd";
+                        break;
+                    case 4:
+                        result = "4th";
+                        break;
+                }
+            }
+            if (lt.getPosition() > max) {
+                max = lt.getPosition();
+            }
+            if (lt.getPosition() < min) {
+                min = lt.getPosition();
+            }
+            sum += lt.getPosition();
+        }
+        // 赛段数大于5，去掉1最高去掉1最低取平均；小于等于5，全部取平均
+        if (legs > 5) {
+            item.setPoint((double) (sum - max - min) / (double) (legs - 2));
+        }
+        else {
+            item.setPoint((double) sum / (double) legs);
+        }
+        item.setResult(result);
     }
 
     public void deleteTeams() {

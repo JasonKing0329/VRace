@@ -103,17 +103,29 @@
             app:layout_constraintTop_toBottomOf="@+id/tv_place" />
 
         <TextView
-            android:id="@+id/tv_result"
+            android:id="@+id/tv_point"
             android:layout_width="70dp"
             android:layout_height="wrap_content"
             android:layout_marginEnd="16dp"
             android:layout_marginBottom="16dp"
             android:gravity="right"
-            android:text="@{bean.result}"
-            android:textSize="18dp"
-            android:textColor="@color/colorAccent"
+            android:textSize="14dp"
+            android:textColor="@color/red_f1303d"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintBottom_toBottomOf="parent"/>
+
+        <TextView
+            android:id="@+id/tv_result"
+            android:layout_width="70dp"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="16dp"
+            android:layout_marginBottom="4dp"
+            android:gravity="right"
+            android:text="@{bean.result}"
+            android:textSize="14dp"
+            android:textColor="@color/green34A350"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintBottom_toTopOf="@id/tv_point"/>
 
     </android.support.constraint.ConstraintLayout>
 </layout>

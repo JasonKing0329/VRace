@@ -15,6 +15,6 @@
         app:showAsAction="ifRoom"/>
     <item android:id="@+id/menu_results"
         android:title="Results"
-        android:icon="@drawable/ic_movie_white_24dp"
+        android:icon="@drawable/ic_show_chart_white_24dp"
         app:showAsAction="ifRoom"/>
 </menu>
