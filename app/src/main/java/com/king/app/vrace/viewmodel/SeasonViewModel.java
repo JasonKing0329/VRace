@@ -176,7 +176,7 @@ public class SeasonViewModel extends BaseViewModel {
     private void getTeamResult(SeasonTeamItem item, TeamSeason team) {
         String result = null;
         List<LegTeam> legTeams = getDaoSession().getLegTeamDao().queryBuilder()
-                .where(LegTeamDao.Properties.TeamId.eq(team.getId()))
+                .where(LegTeamDao.Properties.TeamId.eq(team.getTeamId()))
                 .where(LegTeamDao.Properties.SeasonId.eq(team.getSeasonId()))
                 .build().list();
         int sum = 0;
@@ -276,6 +276,7 @@ public class SeasonViewModel extends BaseViewModel {
         querySeason(seasonId)
                 .flatMap(season -> {
                     mSeason = season;
+                    seasonObserver.postValue(season);
                     return queryLegs(mSeason.getId());
                 })
                 .flatMap(list -> toLegItems(list))

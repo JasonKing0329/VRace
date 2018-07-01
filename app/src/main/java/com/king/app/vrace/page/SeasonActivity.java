@@ -132,6 +132,7 @@ public class SeasonActivity extends MvvmActivity<ActivitySeasonBinding, SeasonVi
     @Override
     protected void initData() {
 
+        mModel.seasonObserver.observe(this, season -> mBinding.actionbar.setTitle("Season " + season.getIndex()));
         mModel.legsObserver.observe(this, legItems -> showLegs(legItems));
         mModel.deleteLegsObserver.observe(this, deleted -> {
             mBinding.actionbar.cancelConfirmStatus();

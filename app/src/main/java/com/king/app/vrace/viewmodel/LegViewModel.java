@@ -160,7 +160,7 @@ public class LegViewModel extends BaseViewModel {
                 for (TeamSeason team:teams) {
                     LegTeam legTeam = getDaoSession().getLegTeamDao().queryBuilder()
                             .where(LegTeamDao.Properties.SeasonId.eq(mLeg.getSeasonId()))
-                            .where(LegTeamDao.Properties.TeamId.eq(team.getId()))
+                            .where(LegTeamDao.Properties.TeamId.eq(team.getTeamId()))
                             .where(LegTeamDao.Properties.Eliminated.eq(1))
                             .build().unique();
                     if (legTeam != null && legTeam.getLeg().getIndex() < mLeg.getIndex()) {

@@ -9,6 +9,7 @@ import com.king.app.vrace.model.entity.Player;
 import com.king.app.vrace.model.entity.PlayerDao;
 import com.king.app.vrace.model.entity.TeamPlayersDao;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -75,7 +76,12 @@ public class PlayerListViewModel extends BaseViewModel {
     }
 
     private Observable<List<Player>> queryPlayers() {
-        return Observable.create(e -> e.onNext(getDaoSession().getPlayerDao().loadAll()));
+        return Observable.create(e -> {
+            List<Player> list = getDaoSession().getPlayerDao().loadAll();
+            // 为方便添加按添加顺序倒序排序
+            Collections.reverse(list);
+            e.onNext(list);
+        });
     }
 
     public void deletePlayers() {

@@ -17,7 +17,6 @@ import com.king.app.vrace.viewmodel.bean.TeamListItem;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -91,7 +90,8 @@ public class TeamListViewModel extends BaseViewModel {
 
     private Observable<List<Team>> sortItems(List<Team> teams) {
         return Observable.create(e -> {
-            Collections.sort(teams, new TeamComparator());
+            // 为方便添加，后添加的在前
+            Collections.reverse(teams);
             e.onNext(teams);
         });
     }
@@ -146,16 +146,16 @@ public class TeamListViewModel extends BaseViewModel {
         });
     }
 
-    private class TeamComparator implements Comparator<Team> {
-
-        @Override
-        public int compare(Team left, Team right) {
-            // 按season index排序
-            int valueL = left.getSeasonList().size() > 0 ? left.getSeasonList().get(0).getSeason().getIndex() : Integer.MAX_VALUE;
-            int valueR = left.getSeasonList().size() > 0 ? right.getSeasonList().get(0).getSeason().getIndex() : Integer.MAX_VALUE;
-            return valueL - valueR;
-        }
-    }
+//    private class TeamComparator implements Comparator<Team> {
+//
+//        @Override
+//        public int compare(Team left, Team right) {
+//            // 按season index升序排序
+//            int valueL = left.getSeasonList().size() > 0 ? left.getSeasonList().get(0).getSeason().getIndex() : Integer.MAX_VALUE;
+//            int valueR = right.getSeasonList().size() > 0 ? right.getSeasonList().get(0).getSeason().getIndex() : Integer.MAX_VALUE;
+//            return valueL - valueR;
+//        }
+//    }
 
     public void deleteTeams() {
         Observable.create(e -> getDaoSession().runInTx(() -> {

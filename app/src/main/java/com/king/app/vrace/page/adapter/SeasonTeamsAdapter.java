@@ -46,12 +46,12 @@ public class SeasonTeamsAdapter extends BaseBindingAdapter<AdapterSeasonTeamBind
                 binding.cbCheck.setChecked(checkMap.get(bean.getBean().getId()));
             }
         }
+        binding.flowTags.removeAllViews();
         if (bean.getBean().getTeam().getTagList().size() > 0) {
             showTags(binding, bean.getBean().getTeam());
             binding.flowTags.setVisibility(View.VISIBLE);
         }
         else {
-            binding.flowTags.removeAllViews();
             binding.flowTags.setVisibility(View.GONE);
         }
     }

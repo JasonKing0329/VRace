@@ -45,12 +45,12 @@ public class TeamListAdapter extends BaseBindingAdapter<AdapterTeamBinding, Team
             }
         }
 
+        binding.flowTags.removeAllViews();
         if (bean.getBean().getTagList().size() > 0) {
             showTags(binding, bean.getBean());
             binding.flowTags.setVisibility(View.VISIBLE);
         }
         else {
-            binding.flowTags.removeAllViews();
             binding.flowTags.setVisibility(View.GONE);
         }
     }
