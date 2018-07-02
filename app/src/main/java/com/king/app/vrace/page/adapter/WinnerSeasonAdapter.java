@@ -35,6 +35,10 @@ public class WinnerSeasonAdapter extends RecyclerView.Adapter {
         return TYPE_HEAD;
     }
 
+    public void setList(List<Object> list) {
+        this.list = list;
+    }
+
     @NonNull
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
@@ -52,8 +56,8 @@ public class WinnerSeasonAdapter extends RecyclerView.Adapter {
                 int position = holder.getLayoutPosition();
                 onClickItem(v, position, (StatisticWinnerItem) list.get(position));
             });
+            return holder;
         }
-        return null;
     }
 
     private void onClickItem(View v, int position, StatisticWinnerItem item) {
@@ -78,7 +82,7 @@ public class WinnerSeasonAdapter extends RecyclerView.Adapter {
     }
 
     private void onBindItem(AdapterStatisticWinnerBinding binding, int position, StatisticWinnerItem item) {
-
+        binding.setBean(item);
     }
 
     @Override

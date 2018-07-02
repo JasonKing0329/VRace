@@ -60,6 +60,8 @@
             android:screenOrientation="portrait"/>
         <activity android:name=".page.TagListActivity"
             android:screenOrientation="portrait"/>
+        <activity android:name=".page.StatisticWinnerActivity"
+            android:screenOrientation="portrait"/>
     </application>
 
 </manifest>

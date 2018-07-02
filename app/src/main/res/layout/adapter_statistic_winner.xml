@@ -21,17 +21,20 @@
 
             <TextView
                 android:id="@+id/tv_type"
-                android:layout_width="80dp"
+                android:layout_width="70dp"
                 android:layout_height="wrap_content"
+                android:text="@{bean.type}"
+                android:paddingLeft="16dp"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
 
             <TextView
                 android:id="@+id/tv_count"
-                android:layout_width="30dp"
+                android:layout_width="40dp"
                 android:layout_height="wrap_content"
                 android:gravity="center"
+                android:text="@{String.valueOf(bean.count)}"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
                 app:layout_constraintStart_toEndOf="@+id/tv_type" />
@@ -43,6 +46,7 @@
                 android:text="@{bean.seasons}"
                 android:textColor="@color/text_second"
                 android:textSize="14dp"
+                android:layout_marginEnd="16dp"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintRight_toRightOf="parent"
                 app:layout_constraintStart_toEndOf="@+id/tv_count"

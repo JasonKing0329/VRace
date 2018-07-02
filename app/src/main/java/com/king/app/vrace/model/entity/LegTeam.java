@@ -39,6 +39,9 @@ public class LegTeam {
     @ToOne(joinProperty = "legId")
     private Leg leg;
 
+    @ToOne(joinProperty = "seasonId")
+    private Season season;
+
     /** Used to resolve relations */
     @Generated(hash = 2040040024)
     private transient DaoSession daoSession;
@@ -52,6 +55,9 @@ public class LegTeam {
 
     @Generated(hash = 409543821)
     private transient Long leg__resolvedKey;
+
+    @Generated(hash = 1835506626)
+    private transient Long season__resolvedKey;
 
     @Generated(hash = 1451976245)
     public LegTeam(Long id, long legId, long seasonId, long teamId, int position, boolean isLast,
@@ -234,6 +240,39 @@ public class LegTeam {
 
     public void setSeasonId(long seasonId) {
         this.seasonId = seasonId;
+    }
+
+    /** To-one relationship, resolved on first access. */
+    @Generated(hash = 1175936364)
+    public Season getSeason() {
+        long __key = this.seasonId;
+        if (season__resolvedKey == null || !season__resolvedKey.equals(__key)) {
+            final DaoSession daoSession = this.daoSession;
+            if (daoSession == null) {
+                throw new DaoException("Entity is detached from DAO context");
+            }
+            SeasonDao targetDao = daoSession.getSeasonDao();
+            Season seasonNew = targetDao.load(__key);
+            synchronized (this) {
+                season = seasonNew;
+                season__resolvedKey = __key;
+            }
+        }
+        return season;
+    }
+
+    /** called by internal mechanisms, do not call yourself. */
+    @Generated(hash = 672497649)
+    public void setSeason(@NotNull Season season) {
+        if (season == null) {
+            throw new DaoException(
+                    "To-one property 'seasonId' has not-null constraint; cannot set to-one to null");
+        }
+        synchronized (this) {
+            this.season = season;
+            seasonId = season.getId();
+            season__resolvedKey = seasonId;
+        }
     }
 
     /** called by internal mechanisms, do not call yourself. */

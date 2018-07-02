@@ -14,6 +14,8 @@ public class StatisticWinnerItem {
 
     private String seasons;
 
+    private int sortValue;
+
     public String getType() {
         return type;
     }
@@ -36,5 +38,13 @@ public class StatisticWinnerItem {
 
     public void setSeasons(String seasons) {
         this.seasons = seasons;
+    }
+
+    public int getSortValue() {
+        return sortValue;
+    }
+
+    public void setSortValue(int sortValue) {
+        this.sortValue = sortValue;
     }
 }

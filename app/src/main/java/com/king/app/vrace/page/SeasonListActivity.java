@@ -71,6 +71,9 @@ public class SeasonListActivity extends MvvmActivity<ActivitySeasonListBinding, 
                 case R.id.menu_places:
                     goToPlacePage();
                     break;
+                case R.id.menu_winners:
+                    goToWinnerPage();
+                    break;
             }
         });
 
@@ -116,6 +119,10 @@ public class SeasonListActivity extends MvvmActivity<ActivitySeasonListBinding, 
 
     private void goToTeamPage() {
         startActivity(new Intent(this, TeamListActivity.class));
+    }
+
+    private void goToWinnerPage() {
+        startActivity(new Intent(this, StatisticWinnerActivity.class));
     }
 
     @Override
