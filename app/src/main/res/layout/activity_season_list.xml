@@ -16,7 +16,7 @@
             android:layout_width="match_parent"
             android:layout_height="?android:attr/actionBarSize"
             android:background="@color/actionbar_bg"
-            app:maxShowIcon="4"
+            app:maxShowIcon="5"
             app:iconColor="@color/action_icon_color"
             app:menu="@menu/season_list"
             app:showIconBack="false"

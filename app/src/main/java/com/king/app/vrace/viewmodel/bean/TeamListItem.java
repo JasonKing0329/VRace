@@ -1,5 +1,7 @@
 package com.king.app.vrace.viewmodel.bean;
 
+import com.king.app.vrace.model.bean.TeamResult;
+import com.king.app.vrace.model.entity.Season;
 import com.king.app.vrace.model.entity.Team;
 
 /**
@@ -21,6 +23,10 @@ public class TeamListItem {
     private String place;
 
     private String occupy;
+
+    private TeamResult result;
+
+    private Season season;
 
     public Team getBean() {
         return bean;
@@ -68,5 +74,21 @@ public class TeamListItem {
 
     public void setOccupy(String occupy) {
         this.occupy = occupy;
+    }
+
+    public Season getSeason() {
+        return season;
+    }
+
+    public void setSeason(Season season) {
+        this.season = season;
+    }
+
+    public TeamResult getResult() {
+        return result;
+    }
+
+    public void setResult(TeamResult result) {
+        this.result = result;
     }
 }

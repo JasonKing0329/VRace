@@ -8,6 +8,8 @@ import android.text.TextUtils;
 import com.king.app.vrace.base.BaseViewModel;
 import com.king.app.vrace.conf.AppConstants;
 import com.king.app.vrace.conf.GenderType;
+import com.king.app.vrace.model.TeamModel;
+import com.king.app.vrace.model.bean.TeamResult;
 import com.king.app.vrace.model.entity.Team;
 import com.king.app.vrace.model.entity.TeamDao;
 import com.king.app.vrace.model.entity.TeamPlayersDao;
@@ -17,6 +19,7 @@ import com.king.app.vrace.viewmodel.bean.TeamListItem;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -42,20 +45,33 @@ public class TeamListViewModel extends BaseViewModel {
 
     private Map<Long, Boolean> mCheckMap;
 
+    private TeamModel teamModel;
+
+    private int mSortType;
+
     public TeamListViewModel(@NonNull Application application) {
         super(application);
         mCheckMap = new HashMap<>();
+        mSortType = AppConstants.TEAM_SORT_NONE;
+        teamModel = new TeamModel();
     }
 
     public Map<Long, Boolean> getCheckMap() {
         return mCheckMap;
     }
 
+    public void onSortTypeChanged(int type) {
+        if (mSortType != type) {
+            mSortType = type;
+            loadTeams();
+        }
+    }
+
     public void loadTeams() {
         loadingObserver.setValue(true);
         queryTeams()
-                .flatMap(list -> sortItems(list))
                 .flatMap(list -> toViewItems(list))
+                .flatMap(list -> sortItems(list))
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribeOn(Schedulers.io())
                 .subscribe(new Observer<List<TeamListItem>>() {
@@ -88,10 +104,15 @@ public class TeamListViewModel extends BaseViewModel {
         return Observable.create(e -> e.onNext(getDaoSession().getTeamDao().loadAll()));
     }
 
-    private Observable<List<Team>> sortItems(List<Team> teams) {
+    private Observable<List<TeamListItem>> sortItems(List<TeamListItem> teams) {
         return Observable.create(e -> {
-            // 为方便添加，后添加的在前
-            Collections.reverse(teams);
+            // 为方便添加，按添加顺序后添加的在前
+            if (mSortType == AppConstants.TEAM_SORT_NONE) {
+                Collections.reverse(teams);
+            }
+            else {
+                Collections.sort(teams, new TeamComparator());
+            }
             e.onNext(teams);
         });
     }
@@ -103,59 +124,163 @@ public class TeamListViewModel extends BaseViewModel {
                 TeamListItem item = new TeamListItem();
                 item.setBean(team);
                 if (team.getSeasonList().size() > 0) {
-                    item.setName("S" + team.getSeasonList().get(0).getSeason().getIndex() + "\n" + team.getCode());
+                    String seasons = "S" + team.getSeasonList().get(0).getSeason().getIndex();
+                    String uniqueSeason = seasons;
+                    // 参与多季度的team单独显示，并显示过往季度
+                    if (team.getSeasonList().size() > 1) {
+                        for (int i = 1; i < team.getSeasonList().size(); i ++) {
+                            seasons = "S" + team.getSeasonList().get(i).getSeason().getIndex() + "," + seasons;
+                            TeamListItem multiItem = new TeamListItem();
+                            multiItem.setBean(team);
+                            multiItem.setName(seasons + "\n" + team.getCode());
+                            multiItem.setSeason(team.getSeasonList().get(i).getSeason());
+                            parseTeam(team, multiItem);
+                            list.add(multiItem);
+                        }
+                    }
+                    item.setSeason(team.getSeasonList().get(0).getSeason());
+                    item.setName(uniqueSeason + "\n" + team.getCode());
                 }
                 else {
                     item.setName(team.getCode());
                 }
-                item.setGender(AppConstants.getGenderText(GenderType.values()[team.getGenderType()]));
-                item.setRelationship(team.getRelationship().getName());
-                if (TextUtils.isEmpty(team.getProvince())) {
-                    if (!TextUtils.isEmpty(team.getCity())) {
-                        item.setPlace(team.getCity());
-                    }
-                }
-                else {
-                    if (TextUtils.isEmpty(team.getCity())) {
-                        item.setPlace(team.getProvince());
-                    }
-                    else {
-                        if (team.getCity().equals(team.getProvince())) {
-                            item.setPlace(team.getCity());
-                        }
-                        else {
-                            item.setPlace(team.getProvince() + "/" + team.getCity());
-                        }
-                    }
-                }
-                String occupy = null;
-                if (team.getPlayerList().size() > 0) {
-                    String occupy1 = team.getPlayerList().get(0).getOccupy();
-                    String occupy2 = team.getPlayerList().get(1).getOccupy();
-                    if (occupy1.equals(occupy2)) {
-                        occupy = occupy1;
-                    }
-                    else {
-                        occupy = occupy1 + "；" + occupy2;
-                    }
-                }
-                item.setOccupy(occupy);
+                parseTeam(team, item);
                 list.add(item);
             }
             e.onNext(list);
         });
     }
 
-//    private class TeamComparator implements Comparator<Team> {
-//
-//        @Override
-//        public int compare(Team left, Team right) {
-//            // 按season index升序排序
-//            int valueL = left.getSeasonList().size() > 0 ? left.getSeasonList().get(0).getSeason().getIndex() : Integer.MAX_VALUE;
-//            int valueR = right.getSeasonList().size() > 0 ? right.getSeasonList().get(0).getSeason().getIndex() : Integer.MAX_VALUE;
-//            return valueL - valueR;
-//        }
-//    }
+    private void parseTeam(Team team, TeamListItem item) {
+        item.setGender(AppConstants.getGenderText(GenderType.values()[team.getGenderType()]));
+        item.setRelationship(team.getRelationship().getName());
+        if (TextUtils.isEmpty(team.getProvince())) {
+            if (!TextUtils.isEmpty(team.getCity())) {
+                item.setPlace(team.getCity());
+            }
+        }
+        else {
+            if (TextUtils.isEmpty(team.getCity())) {
+                item.setPlace(team.getProvince());
+            }
+            else {
+                if (team.getCity().equals(team.getProvince())) {
+                    item.setPlace(team.getCity());
+                }
+                else {
+                    item.setPlace(team.getProvince() + "/" + team.getCity());
+                }
+            }
+        }
+        String occupy = null;
+        if (team.getPlayerList().size() > 0) {
+            String occupy1 = team.getPlayerList().get(0).getOccupy();
+            String occupy2 = team.getPlayerList().get(1).getOccupy();
+            if (occupy1.equals(occupy2)) {
+                occupy = occupy1;
+            }
+            else {
+                occupy = occupy1 + "；" + occupy2;
+            }
+        }
+        item.setOccupy(occupy);
+
+        // 计算point及赛冠
+        if (item.getSeason() != null) {
+            TeamResult result = teamModel.getTeamSeasonResults(team.getId(), item.getSeason().getId());
+            item.setResult(result);
+        }
+    }
+
+    private class TeamComparator implements Comparator<TeamListItem> {
+
+        @Override
+        public int compare(TeamListItem left, TeamListItem right) {
+            int valueL = 0;
+            int valueR = 0;
+            switch (mSortType) {
+                case AppConstants.TEAM_SORT_SEASON:// 降序，第二关键词endPosition升序
+                    // 没有season的表示是新添加的team，排在最前
+                    valueL = left.getSeason() == null ? -1:left.getSeason().getIndex();
+                    valueR = right.getSeason() == null ? -1:right.getSeason().getIndex();
+                    if (valueL == valueR && valueL != -1) {
+                        valueL = left.getResult().getEndPosition();
+                        valueR = right.getResult().getEndPosition();
+                        return valueL - valueR;
+                    }
+                    else {
+                        return valueR - valueL;
+                    }
+                case AppConstants.TEAM_SORT_POINT:// 升序，第二关键词endPosition升序，第三关键词赛冠降序
+                    // 没有result的表示是新添加的team，排在最后
+                    double vl;
+                    if (left.getResult() == null || left.getResult().getPoint() == 0) {
+                        vl = 9999;
+                    }
+                    else {
+                        vl = left.getResult().getPoint();
+                    }
+                    double vr;
+                    if (right.getResult() == null || right.getResult().getPoint() == 0) {
+                        vr = 9999;
+                    }
+                    else {
+                        vr = right.getResult().getPoint();
+                    }
+                    if (vl == vr && vl != -1) {
+                        vl = left.getResult().getEndPosition();
+                        vr = right.getResult().getEndPosition();
+                        if (vl == vr) {
+                            vl = left.getResult().getChampions();
+                            vr = right.getResult().getChampions();
+                            return compareDouble(vr, vl);
+                        }
+                        else {
+                            return compareDouble(vl, vr);
+                        }
+                    }
+                    else {
+                        return compareDouble(vl, vr);
+                    }
+                case AppConstants.TEAM_SORT_CHAMPIONS:// 降序，第二关键词endPosition升序，第三关键词point升序
+                    // 没有result的表示是新添加的team，排在最后
+                    vl = left.getResult() == null ? -1:left.getResult().getChampions();
+                    vr = right.getResult() == null ? -1:right.getResult().getChampions();
+                    if (vl == vr && vl != -1) {
+                        vl = left.getResult().getEndPosition();
+                        vr = right.getResult().getEndPosition();
+                        if (vl == vr) {
+                            vl = left.getResult().getPoint();
+                            vr = right.getResult().getPoint();
+                            return compareDouble(vl, vr);
+                        }
+                        else {
+                            return compareDouble(vl, vr);
+                        }
+                    }
+                    else {
+                        return compareDouble(vr, vl);
+                    }
+            }
+            return 0;
+        }
+    }
+
+    private int compareDouble(double left, double right) {
+        if (left < right) {
+            return -1;
+        }
+        else if (left > right) {
+            return 1;
+        }
+        else {
+            return 0;
+        }
+    }
+
+    private int compareInt(int left, int right) {
+        return left - right;
+    }
 
     public void deleteTeams() {
         Observable.create(e -> getDaoSession().runInTx(() -> {

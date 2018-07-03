@@ -10,6 +10,7 @@ import com.king.app.vrace.databinding.AdapterTeamBinding;
 import com.king.app.vrace.model.entity.PersonTag;
 import com.king.app.vrace.model.entity.Team;
 import com.king.app.vrace.utils.ColorUtil;
+import com.king.app.vrace.utils.FormatUtil;
 import com.king.app.vrace.viewmodel.bean.TeamListItem;
 
 import java.util.Map;
@@ -35,6 +36,47 @@ public class TeamListAdapter extends BaseBindingAdapter<AdapterTeamBinding, Team
     protected void onBindItem(AdapterTeamBinding binding, int position, TeamListItem bean) {
         binding.setBean(bean);
         updateNameBg(binding.tvName, bean.getBean());
+
+        binding.tvSeq.setText(String.valueOf(position + 1));
+
+        if (bean.getResult() == null) {
+            binding.tvPoint.setVisibility(View.GONE);
+            binding.tvChampion.setVisibility(View.GONE);
+            binding.tvLegs.setVisibility(View.GONE);
+            binding.tvLegs.setTextColor(binding.tvLegs.getResources().getColor(R.color.text_sub));
+        }
+        else {
+            binding.tvLegs.setVisibility(View.VISIBLE);
+            binding.tvLegs.setText(bean.getResult().getEndRank());
+            // winner
+            if (bean.getResult().getEndPosition() == 1) {
+                binding.tvLegs.setTextColor(binding.tvLegs.getResources().getColor(R.color.redC93437));
+            }
+            else if (bean.getResult().getEndPosition() == 2) {
+                binding.tvLegs.setTextColor(binding.tvLegs.getResources().getColor(R.color.green34A350));
+            }
+            else if (bean.getResult().getEndPosition() == 3) {
+                binding.tvLegs.setTextColor(binding.tvLegs.getResources().getColor(R.color.green34A350));
+            }
+            else {
+                binding.tvLegs.setTextColor(binding.tvLegs.getResources().getColor(R.color.text_sub));
+            }
+            if (bean.getResult().getChampions() > 0) {
+                binding.tvChampion.setText("赛冠(" + bean.getResult().getChampions() + ")");
+                binding.tvChampion.setVisibility(View.VISIBLE);
+            }
+            else {
+                binding.tvChampion.setVisibility(View.GONE);
+            }
+            if (bean.getResult().getPoint() > 0) {
+                binding.tvPoint.setText(FormatUtil.pointZZ(bean.getResult().getPoint()));
+                binding.tvPoint.setVisibility(View.VISIBLE);
+            }
+            else {
+                binding.tvPoint.setVisibility(View.GONE);
+            }
+        }
+
         binding.cbCheck.setVisibility(isSelectMode ? View.VISIBLE:View.GONE);
         if (isSelectMode) {
             if (checkMap.get(bean.getBean().getId()) == null) {

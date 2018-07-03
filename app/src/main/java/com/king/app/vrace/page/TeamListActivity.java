@@ -3,10 +3,14 @@ package com.king.app.vrace.page;
 import android.arch.lifecycle.ViewModelProviders;
 import android.content.Intent;
 import android.support.v7.widget.LinearLayoutManager;
+import android.view.MenuItem;
+import android.view.View;
+import android.widget.PopupMenu;
 
 import com.king.app.jactionbar.OnConfirmListener;
 import com.king.app.vrace.R;
 import com.king.app.vrace.base.MvvmActivity;
+import com.king.app.vrace.conf.AppConstants;
 import com.king.app.vrace.databinding.ActivityTeamListBinding;
 import com.king.app.vrace.page.adapter.TeamListAdapter;
 import com.king.app.vrace.utils.ScreenUtils;
@@ -110,6 +114,38 @@ public class TeamListActivity extends MvvmActivity<ActivityTeamListBinding, Team
                 return true;
             }
         });
+
+        mBinding.actionbar.registerPopupMenu(R.id.menu_sort);
+        mBinding.actionbar.setPopupMenuProvider((iconMenuId, anchorView) -> {
+            switch (iconMenuId) {
+                case R.id.menu_sort:
+                    return getSortPopup(anchorView);
+            }
+            return null;
+        });
+    }
+
+    private PopupMenu getSortPopup(View anchorView) {
+        PopupMenu menu = new PopupMenu(this, anchorView);
+        menu.getMenuInflater().inflate(R.menu.team_sort, menu.getMenu());
+        menu.setOnMenuItemClickListener(item -> {
+            switch (item.getItemId()) {
+                case R.id.menu_sort_champions:
+                    mModel.onSortTypeChanged(AppConstants.TEAM_SORT_CHAMPIONS);
+                    break;
+                case R.id.menu_sort_point:
+                    mModel.onSortTypeChanged(AppConstants.TEAM_SORT_POINT);
+                    break;
+                case R.id.menu_sort_season:
+                    mModel.onSortTypeChanged(AppConstants.TEAM_SORT_SEASON);
+                    break;
+                default:
+                    mModel.onSortTypeChanged(AppConstants.TEAM_SORT_NONE);
+                    break;
+            }
+            return true;
+        });
+        return menu;
     }
 
     @Override
