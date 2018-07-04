@@ -2,22 +2,30 @@ package com.king.app.vrace.viewmodel;
 
 import android.app.Application;
 import android.arch.lifecycle.MutableLiveData;
+import android.databinding.ObservableInt;
 import android.graphics.Color;
 import android.support.annotation.NonNull;
 import android.text.TextUtils;
+import android.view.View;
 
 import com.king.app.vrace.base.BaseViewModel;
 import com.king.app.vrace.conf.LegType;
+import com.king.app.vrace.model.TeamModel;
 import com.king.app.vrace.model.entity.Leg;
 import com.king.app.vrace.model.entity.LegDao;
 import com.king.app.vrace.model.entity.LegPlaces;
 import com.king.app.vrace.model.entity.LegTeam;
 import com.king.app.vrace.model.entity.LegTeamDao;
+import com.king.app.vrace.model.entity.Season;
+import com.king.app.vrace.model.entity.SeasonDao;
 import com.king.app.vrace.model.entity.Team;
 import com.king.app.vrace.model.entity.TeamSeason;
 import com.king.app.vrace.model.entity.TeamSeasonDao;
 import com.king.app.vrace.view.widget.ResultsTableView;
 import com.king.app.vrace.viewmodel.bean.TableData;
+import com.king.app.vrace.viewmodel.bean.TeamChartBean;
+
+import org.greenrobot.greendao.query.QueryBuilder;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -25,6 +33,8 @@ import java.util.Comparator;
 import java.util.List;
 
 import io.reactivex.Observable;
+import io.reactivex.ObservableEmitter;
+import io.reactivex.ObservableOnSubscribe;
 import io.reactivex.Observer;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
@@ -38,15 +48,37 @@ import io.reactivex.schedulers.Schedulers;
 
 public class SeasonTeamResultsViewModel extends BaseViewModel {
 
+    public MutableLiveData<Season> seasonObserver = new MutableLiveData<>();
+
     public MutableLiveData<TableData> dataObserver = new MutableLiveData<>();
+
+    public MutableLiveData<TeamChartBean> chartObserver = new MutableLiveData<>();
+
+    public ObservableInt tableVisibility = new ObservableInt();
+
+    public ObservableInt chartVisibility = new ObservableInt();
+
+    private TeamModel teamModel;
+
+    private TeamChartBean mTeamChartBean;
+
+    private Season mSeason;
 
     public SeasonTeamResultsViewModel(@NonNull Application application) {
         super(application);
+        tableVisibility.set(View.VISIBLE);
+        chartVisibility.set(View.GONE);
+        teamModel = new TeamModel();
     }
 
     public void loadResults(long seasonId) {
         loadingObserver.setValue(true);
-        createTableData(seasonId)
+        loadSeason(seasonId)
+                .flatMap(season -> {
+                    mSeason = season;
+                    seasonObserver.postValue(season);
+                    return createTableData(seasonId);
+                })
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribeOn(Schedulers.io())
                 .subscribe(new Observer<TableData>() {
@@ -57,8 +89,8 @@ public class SeasonTeamResultsViewModel extends BaseViewModel {
 
                     @Override
                     public void onNext(TableData tableData) {
-                        loadingObserver.setValue(false);
                         dataObserver.setValue(tableData);
+                        loadChartData();
                     }
 
                     @Override
@@ -72,6 +104,10 @@ public class SeasonTeamResultsViewModel extends BaseViewModel {
 
                     }
                 });
+    }
+
+    private Observable<Season> loadSeason(long seasonId) {
+        return Observable.create(e -> e.onNext(getDaoSession().getSeasonDao().queryBuilder().where(SeasonDao.Properties.Id.eq(seasonId)).build().unique()));
     }
 
     private Observable<TableData> createTableData(long seasonId) {
@@ -192,6 +228,115 @@ public class SeasonTeamResultsViewModel extends BaseViewModel {
         return results;
     }
 
+    public void tableView() {
+        if (tableVisibility.get() != View.VISIBLE) {
+            chartVisibility.set(View.GONE);
+            tableVisibility.set(View.VISIBLE);
+        }
+    }
+
+    public void chartView() {
+        if (chartVisibility.get() != View.VISIBLE) {
+            tableVisibility.set(View.GONE);
+            chartVisibility.set(View.VISIBLE);
+        }
+    }
+
+    private void loadChartData() {
+        getChartData()
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribeOn(Schedulers.io())
+                .subscribe(new Observer<TeamChartBean>() {
+                    @Override
+                    public void onSubscribe(Disposable d) {
+                        addDisposable(d);
+                    }
+
+                    @Override
+                    public void onNext(TeamChartBean teamChartBean) {
+                        loadingObserver.setValue(false);
+                        mTeamChartBean = teamChartBean;
+                        chartObserver.setValue(teamChartBean);
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+                        e.printStackTrace();
+                        loadingObserver.setValue(false);
+                    }
+
+                    @Override
+                    public void onComplete() {
+
+                    }
+                });
+    }
+
+    private Observable<TeamChartBean> getChartData() {
+        return Observable.create(e -> {
+            TeamChartBean bean = new TeamChartBean();
+            List<Leg> legs = getDaoSession().getLegDao().queryBuilder()
+                    .where(LegDao.Properties.SeasonId.eq(mSeason.getId()))
+                    .build().list();
+            bean.setLegList(legs);
+
+            List<TeamSeason> teams = getDaoSession().getTeamSeasonDao().queryBuilder()
+                    .where(TeamSeasonDao.Properties.SeasonId.eq(mSeason.getId()))
+                    .build().list();
+
+            bean.setyValueList(new ArrayList<>());
+            TeamLegComparator comparator = new TeamLegComparator();
+            for (int i = 0; i < teams.size(); i ++) {
+                bean.getyValueList().add(teams.size() - i);
+            }
+
+            bean.setTeamResultList(new ArrayList<>());
+            bean.setTeamList(new ArrayList<>());
+            // 实测全显示效果不好，只显示决赛队伍的走势
+            QueryBuilder<LegTeam> builder = getDaoSession().getLegTeamDao().queryBuilder();
+            builder.join(LegTeamDao.Properties.LegId, Leg.class)
+                    .where(LegDao.Properties.Type.eq(LegType.FINAL.ordinal()));
+            List<LegTeam> legTeams = builder
+                    .where(LegTeamDao.Properties.SeasonId.eq(mSeason.getId()))
+                    .build().list();
+            for (int i = 0; i < legTeams.size(); i ++) {
+                Team team = legTeams.get(i).getTeam();
+                bean.getTeamList().add(team);
+                List<LegTeam> lt = getDaoSession().getLegTeamDao().queryBuilder()
+                        .where(LegTeamDao.Properties.SeasonId.eq(mSeason.getId()))
+                        .where(LegTeamDao.Properties.TeamId.eq(team.getId()))
+                        .build().list();
+                Collections.sort(lt, comparator);
+                bean.getTeamResultList().add(lt);
+            }
+            e.onNext(bean);
+        });
+    }
+
+    public void preSeason() {
+        Season season = getDaoSession().getSeasonDao().queryBuilder()
+                .where(SeasonDao.Properties.Index.eq(mSeason.getIndex() - 1))
+                .build().unique();
+        if (season == null) {
+            messageObserver.setValue("No previous season found");
+        }
+        else {
+            loadResults(season.getId());
+        }
+    }
+
+    public void nextSeason() {
+        Season season = getDaoSession().getSeasonDao().queryBuilder()
+                .where(SeasonDao.Properties.Index.eq(mSeason.getIndex() + 1))
+                .build().unique();
+        if (season == null) {
+            messageObserver.setValue("No next season found");
+        }
+        else {
+            loadResults(season.getId());
+        }
+    }
+
     private class TeamResults {
         Team team;
         private List<LegTeam> legTeams;
@@ -203,6 +348,14 @@ public class SeasonTeamResultsViewModel extends BaseViewModel {
         @Override
         public int compare(TeamResults left, TeamResults right) {
             return left.rank - right.rank;
+        }
+    }
+
+    private class TeamLegComparator implements Comparator<LegTeam> {
+
+        @Override
+        public int compare(LegTeam left, LegTeam right) {
+            return left.getLeg().getIndex() - right.getLeg().getIndex();
         }
     }
 }

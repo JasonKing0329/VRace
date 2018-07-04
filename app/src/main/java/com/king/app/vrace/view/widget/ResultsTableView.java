@@ -120,6 +120,7 @@ public class ResultsTableView extends LinearLayout {
     }
 
     private void createTable() {
+        removeAllViews();
         addTeamColumn();
         LayoutParams params = new LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
         HorizontalScrollView scrollView = new HorizontalScrollView(getContext());

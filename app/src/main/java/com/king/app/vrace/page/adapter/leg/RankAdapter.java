@@ -64,6 +64,12 @@ public class RankAdapter implements View.OnClickListener {
                 onEditRankItemListener.onEditRankItem(bean, position);
             }
         });
+        binding.getRoot().setOnLongClickListener(v -> {
+            if (onEditRankItemListener != null) {
+                onEditRankItemListener.onLongClickItem(bean, position);
+            }
+            return true;
+        });
     }
 
     private void updateRank(TextView view, LegTeam bean) {
@@ -129,5 +135,7 @@ public class RankAdapter implements View.OnClickListener {
 
     public interface OnEditRankItemListener {
         void onEditRankItem(LegTeam legTeam, int position);
+
+        void onLongClickItem(LegTeam bean, int position);
     }
 }

@@ -273,4 +273,14 @@ public class LegViewModel extends BaseViewModel {
         }
         return false;
     }
+
+    public void deleteItem(LegTeam bean) {
+        if (bean != null && bean.getId() != null) {
+            bean.delete();
+            getDaoSession().getLegTeamDao().detachAll();
+            long legId = mLeg.getId();
+            getDaoSession().getLegDao().detachAll();
+            loadLegs(legId);
+        }
+    }
 }

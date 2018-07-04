@@ -110,12 +110,15 @@ public class SeasonActivity extends MvvmActivity<ActivitySeasonBinding, SeasonVi
     }
 
     private void showSeasonResultsDialog() {
-        SeasonTeamResultsDialog content = new SeasonTeamResultsDialog();
-        content.setSeasonId(mModel.getSeason().getId());
-        DraggableDialogFragment dialogFragment = new DraggableDialogFragment();
-        dialogFragment.setTitle("Results");
-        dialogFragment.setContentFragment(content);
-        dialogFragment.show(getSupportFragmentManager(), "SeasonTeamResultsDialog");
+        Intent intent = new Intent(this, SeasonTeamResultsActivity.class);
+        intent.putExtra(SeasonTeamResultsActivity.EXTRA_SEASON_ID, mModel.getSeason().getId());
+        startActivity(intent);
+//        SeasonTeamResultsDialog content = new SeasonTeamResultsDialog();
+//        content.setSeasonId(mModel.getSeason().getId());
+//        DraggableDialogFragment dialogFragment = new DraggableDialogFragment();
+//        dialogFragment.setTitle("Results");
+//        dialogFragment.setContentFragment(content);
+//        dialogFragment.show(getSupportFragmentManager(), "SeasonTeamResultsDialog");
     }
 
     private void manageTeams() {

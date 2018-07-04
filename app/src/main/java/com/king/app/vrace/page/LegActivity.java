@@ -16,8 +16,8 @@ import com.king.app.vrace.model.entity.Leg;
 import com.king.app.vrace.model.entity.LegTeam;
 import com.king.app.vrace.model.entity.Team;
 import com.king.app.vrace.page.adapter.LegTeamAdapter;
-import com.king.app.vrace.page.adapter.leg.DescAdapter;
 import com.king.app.vrace.page.adapter.leg.LegComplexAdapter;
+import com.king.app.vrace.page.adapter.leg.RankAdapter;
 import com.king.app.vrace.utils.ScreenUtils;
 import com.king.app.vrace.view.dialog.SimpleDialogs;
 import com.king.app.vrace.viewmodel.LegViewModel;
@@ -128,7 +128,19 @@ public class LegActivity extends MvvmActivity<ActivityLegBinding, LegViewModel> 
         if (pageAdapter == null) {
             pageAdapter = new LegComplexAdapter();
             pageAdapter.setList(items);
-            pageAdapter.setOnEditRankItemListener((legTeam, position) -> editRankDesc(legTeam, position));
+            pageAdapter.setOnEditRankItemListener(new RankAdapter.OnEditRankItemListener() {
+                @Override
+                public void onEditRankItem(LegTeam legTeam, int position) {
+                    editRankDesc(legTeam, position);
+                }
+
+                @Override
+                public void onLongClickItem(LegTeam bean, int position) {
+                    showConfirmCancelMessage("Delete this item?"
+                            , (dialog, which) -> mModel.deleteItem(bean)
+                            , null);
+                }
+            });
             pageAdapter.setOnEditLegDescListener((leg, position) -> editLegDesc(leg, position));
             mBinding.rvRank.setAdapter(pageAdapter);
         }

@@ -14,6 +14,7 @@ import com.king.app.vrace.viewmodel.SeasonTeamResultsViewModel;
  * @time 2018/6/26 0026 19:57
  */
 
+@Deprecated
 public class SeasonTeamResultsDialog extends DraggableContentFragment<FragmentSeasonTeamResultsBinding> {
 
     private SeasonTeamResultsViewModel mModel;

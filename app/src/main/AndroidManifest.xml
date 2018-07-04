@@ -32,6 +32,9 @@
         <meta-data
             android:name="com.sec.android.support.multiwindow"
             android:value="true" />
+        <activity android:name=".page.TestActivity"
+            android:screenOrientation="portrait">
+        </activity>
         <activity android:name=".page.LoginActivity"
             android:screenOrientation="portrait">
             <intent-filter>
@@ -62,6 +65,8 @@
             android:screenOrientation="portrait"/>
         <activity android:name=".page.StatisticWinnerActivity"
             android:screenOrientation="portrait"/>
+        <activity android:name=".page.SeasonTeamResultsActivity"
+            android:screenOrientation="landscape"/>
     </application>
 
 </manifest>
