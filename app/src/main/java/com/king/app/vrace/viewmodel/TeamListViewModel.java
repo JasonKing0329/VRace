@@ -5,6 +5,7 @@ import android.arch.lifecycle.MutableLiveData;
 import android.support.annotation.NonNull;
 import android.text.TextUtils;
 
+import com.king.app.vrace.R;
 import com.king.app.vrace.base.BaseViewModel;
 import com.king.app.vrace.conf.AppConstants;
 import com.king.app.vrace.conf.GenderType;
@@ -15,6 +16,8 @@ import com.king.app.vrace.model.entity.TeamDao;
 import com.king.app.vrace.model.entity.TeamPlayersDao;
 import com.king.app.vrace.model.entity.TeamSeasonDao;
 import com.king.app.vrace.model.entity.TeamTagDao;
+import com.king.app.vrace.viewmodel.bean.StatProvinceItem;
+import com.king.app.vrace.viewmodel.bean.StatTeamItem;
 import com.king.app.vrace.viewmodel.bean.TeamListItem;
 
 import java.util.ArrayList;
@@ -26,6 +29,9 @@ import java.util.List;
 import java.util.Map;
 
 import io.reactivex.Observable;
+import io.reactivex.ObservableEmitter;
+import io.reactivex.ObservableOnSubscribe;
+import io.reactivex.ObservableSource;
 import io.reactivex.Observer;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
@@ -40,6 +46,8 @@ import io.reactivex.schedulers.Schedulers;
 public class TeamListViewModel extends BaseViewModel {
 
     public MutableLiveData<List<TeamListItem>> teamsObserver = new MutableLiveData<>();
+
+    public MutableLiveData<List<StatProvinceItem>> provinceTeamsObserver = new MutableLiveData<>();
 
     public MutableLiveData<Boolean> deleteObserver = new MutableLiveData<>();
 
@@ -69,6 +77,10 @@ public class TeamListViewModel extends BaseViewModel {
 
     public void loadTeams() {
         loadingObserver.setValue(true);
+        if (mSortType == AppConstants.TEAM_SORT_PROVINCE) {
+            loadProvinceGroup();
+            return;
+        }
         queryTeams()
                 .flatMap(list -> toViewItems(list))
                 .flatMap(list -> sortItems(list))
@@ -84,6 +96,38 @@ public class TeamListViewModel extends BaseViewModel {
                     public void onNext(List<TeamListItem> teamListItems) {
                         loadingObserver.setValue(false);
                         teamsObserver.setValue(teamListItems);
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+                        e.printStackTrace();
+                        loadingObserver.setValue(false);
+                        messageObserver.setValue(e.getMessage());
+                    }
+
+                    @Override
+                    public void onComplete() {
+
+                    }
+                });
+    }
+
+    private void loadProvinceGroup() {
+        queryTeams()
+                .flatMap(list -> toViewItems(list))
+                .flatMap(list -> toProvinceGroup(list))
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribeOn(Schedulers.io())
+                .subscribe(new Observer<List<StatProvinceItem>>() {
+                    @Override
+                    public void onSubscribe(Disposable d) {
+                        addDisposable(d);
+                    }
+
+                    @Override
+                    public void onNext(List<StatProvinceItem> list) {
+                        loadingObserver.setValue(false);
+                        provinceTeamsObserver.setValue(list);
                     }
 
                     @Override
@@ -192,6 +236,38 @@ public class TeamListViewModel extends BaseViewModel {
         }
     }
 
+    private Observable<List<StatProvinceItem>> toProvinceGroup(List<TeamListItem> list) {
+        return Observable.create(e -> {
+            List<StatProvinceItem> groups = new ArrayList<>();
+            Map<String, StatProvinceItem> provinceMap = new HashMap<>();
+            for (TeamListItem team:list) {
+                String province = team.getBean().getProvince();
+                StatProvinceItem item = provinceMap.get(province);
+                if (item == null) {
+                    item = new StatProvinceItem();
+                    item.setProvince(province);
+                    item.setChildItemList(new ArrayList<>());
+                    provinceMap.put(province, item);
+                    groups.add(item);
+                }
+                StatTeamItem sti = new StatTeamItem();
+                sti.setBean(team);
+                item.getChildItemList().add(sti);
+            }
+
+            // sort children
+            StatTeamComparator teamComparator = new StatTeamComparator();
+            for (StatProvinceItem item:groups) {
+                item.setCount(item.getChildItemList().size());
+                Collections.sort(item.getChildItemList(), teamComparator);
+            }
+            // sort province
+            Collections.sort(groups, new StatProvinceComparator());
+
+            e.onNext(groups);
+        });
+    }
+
     private class TeamComparator implements Comparator<TeamListItem> {
 
         @Override
@@ -263,6 +339,32 @@ public class TeamListViewModel extends BaseViewModel {
                     }
             }
             return 0;
+        }
+    }
+
+    private class StatTeamComparator implements Comparator<StatTeamItem> {
+
+        @Override
+        public int compare(StatTeamItem left, StatTeamItem right) {
+            // 以endPosition升序，第二关键词point升序
+            double vl = left.getBean().getResult().getEndPosition();
+            double vr = right.getBean().getResult().getEndPosition();
+            if (vl == vr) {
+                vl = left.getBean().getResult().getPoint();
+                vr = right.getBean().getResult().getPoint();
+                return compareDouble(vl, vr);
+            }
+            else {
+                return compareDouble(vl, vr);
+            }
+        }
+    }
+
+    private class StatProvinceComparator implements Comparator<StatProvinceItem> {
+
+        @Override
+        public int compare(StatProvinceItem left, StatProvinceItem right) {
+            return right.getCount() - left.getCount();
         }
     }
 

@@ -9,4 +9,6 @@
         android:title="Point"/>
     <item android:id="@+id/menu_sort_champions"
         android:title="Champions"/>
+    <item android:id="@+id/menu_sort_province"
+        android:title="Province"/>
 </menu>

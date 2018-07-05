@@ -3,7 +3,6 @@ package com.king.app.vrace.page;
 import android.arch.lifecycle.ViewModelProviders;
 import android.content.Intent;
 import android.support.v7.widget.LinearLayoutManager;
-import android.view.MenuItem;
 import android.view.View;
 import android.widget.PopupMenu;
 
@@ -12,11 +11,13 @@ import com.king.app.vrace.R;
 import com.king.app.vrace.base.MvvmActivity;
 import com.king.app.vrace.conf.AppConstants;
 import com.king.app.vrace.databinding.ActivityTeamListBinding;
+import com.king.app.vrace.page.adapter.StatProvinceTeamAdapter;
 import com.king.app.vrace.page.adapter.TeamListAdapter;
 import com.king.app.vrace.utils.ScreenUtils;
 import com.king.app.vrace.view.dialog.DraggableDialogFragment;
 import com.king.app.vrace.view.dialog.content.TeamEditor;
 import com.king.app.vrace.viewmodel.TeamListViewModel;
+import com.king.app.vrace.viewmodel.bean.StatProvinceItem;
 import com.king.app.vrace.viewmodel.bean.TeamListItem;
 
 import java.util.List;
@@ -34,6 +35,7 @@ public class TeamListActivity extends MvvmActivity<ActivityTeamListBinding, Team
     public static final String RESP_TEAM_ID = "team_id";
 
     private TeamListAdapter adapter;
+    private StatProvinceTeamAdapter groupAdapter;
 
     private boolean isEditMode;
 
@@ -139,6 +141,9 @@ public class TeamListActivity extends MvvmActivity<ActivityTeamListBinding, Team
                 case R.id.menu_sort_season:
                     mModel.onSortTypeChanged(AppConstants.TEAM_SORT_SEASON);
                     break;
+                case R.id.menu_sort_province:
+                    mModel.onSortTypeChanged(AppConstants.TEAM_SORT_PROVINCE);
+                    break;
                 default:
                     mModel.onSortTypeChanged(AppConstants.TEAM_SORT_NONE);
                     break;
@@ -156,12 +161,19 @@ public class TeamListActivity extends MvvmActivity<ActivityTeamListBinding, Team
     @Override
     protected void initData() {
         mBinding.setModel(mModel);
-        mModel.teamsObserver.observe(this, teams -> showTeams(teams));
+        mModel.teamsObserver.observe(this, teams -> {
+            groupAdapter = null;
+            showTeams(teams);
+        });
         mModel.deleteObserver.observe(this, deleted -> {
             mBinding.actionbar.cancelConfirmStatus();
             adapter.setSelectMode(false);
             adapter.notifyDataSetChanged();
             mModel.loadTeams();
+        });
+        mModel.provinceTeamsObserver.observe(this, teams -> {
+            adapter = null;
+            showProvinceTeams(teams);
         });
 
         mModel.loadTeams();
@@ -199,6 +211,27 @@ public class TeamListActivity extends MvvmActivity<ActivityTeamListBinding, Team
             adapter.setList(teams);
             adapter.notifyDataSetChanged();
         }
+    }
+
+    private void showProvinceTeams(List<StatProvinceItem> teams) {
+        groupAdapter = new StatProvinceTeamAdapter(teams);
+        groupAdapter.setOnTeamItemClickListener(item -> {
+            if (isEditMode) {
+                editTeam(item.getBean());
+            }
+            else {
+                if (isSelectMode) {
+                    Intent intent = new Intent();
+                    intent.putExtra(RESP_TEAM_ID, item.getBean().getBean().getId());
+                    setResult(RESULT_OK, intent);
+                    finish();
+                }
+                else {
+                    showTeamPage(item.getBean());
+                }
+            }
+        });
+        mBinding.rvTeams.setAdapter(groupAdapter);
     }
 
     private void showTeamPage(TeamListItem data) {

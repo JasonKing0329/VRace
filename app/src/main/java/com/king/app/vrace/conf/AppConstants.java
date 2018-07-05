@@ -20,6 +20,8 @@ public class AppConstants {
 
     public static final int TEAM_SORT_CHAMPIONS = 3;
 
+    public static final int TEAM_SORT_PROVINCE = 4;
+
     public static String getGenderText(GenderType type) {
         switch (type) {
             case MW:
