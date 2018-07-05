@@ -1,6 +1,8 @@
 package com.king.app.vrace.page;
 
 import android.arch.lifecycle.ViewModelProviders;
+import android.content.DialogInterface;
+import android.content.Intent;
 import android.graphics.Rect;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -15,11 +17,14 @@ import com.king.app.vrace.page.adapter.StatCountryAdapter;
 import com.king.app.vrace.page.adapter.StatPlaceAdapter;
 import com.king.app.vrace.page.adapter.StatisticPlaceAdapter;
 import com.king.app.vrace.utils.ScreenUtils;
+import com.king.app.vrace.view.dialog.AlertDialogFragment;
 import com.king.app.vrace.viewmodel.StatisticPlaceViewModel;
+import com.king.app.vrace.viewmodel.bean.PlaceSeason;
 import com.king.app.vrace.viewmodel.bean.StatContinentItem;
 import com.king.app.vrace.viewmodel.bean.StatCountryItem;
 import com.king.app.vrace.viewmodel.bean.StatisticPlaceItem;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -76,16 +81,12 @@ public class StatisticPlaceActivity extends MvvmActivity<ActivityStatisticPlaceB
     protected void initData() {
         mModel.placeObserver.observe(this, list -> showPlaces(list));
         mModel.groupsObserver.observe(this, list -> showGroups(list));
+        mModel.placeSeasonsObserver.observe(this, list -> showPlaceSeasons(list));
     }
 
     private void showGroups(List<StatContinentItem> list) {
         groupAdapter = new StatPlaceAdapter(list);
-        groupAdapter.setOnCountryItemClickListener(new StatCountryAdapter.OnCountryItemClickListener() {
-            @Override
-            public void onClickCountry(StatCountryItem item) {
-
-            }
-        });
+        groupAdapter.setOnCountryItemClickListener(item -> onSelectCountry(item.getBean().getCountry()));
         mBinding.rvPlaces.setAdapter(groupAdapter);
         mBinding.actionbar.updateMenuText(R.id.menu_group_mode, "No group");
     }
@@ -95,7 +96,7 @@ public class StatisticPlaceActivity extends MvvmActivity<ActivityStatisticPlaceB
             adapter = new StatisticPlaceAdapter();
             adapter.setList(teams);
             adapter.setOnItemClickListener((view, position, data) -> {
-
+                onSelectCountry(data.getCountry());
             });
             mBinding.rvPlaces.setAdapter(adapter);
         }
@@ -104,6 +105,31 @@ public class StatisticPlaceActivity extends MvvmActivity<ActivityStatisticPlaceB
             adapter.notifyDataSetChanged();
         }
         mBinding.actionbar.updateMenuText(R.id.menu_group_mode, "Group by continent");
+    }
+
+    private void showPlaceSeasons(List<PlaceSeason> list) {
+        String[] textList = mModel.convertToTextList(list);
+        new AlertDialogFragment()
+                .setTitle(null)
+                .setItems(textList, (dialog, which) -> goToSeasonOrLeg(list.get(which)))
+                .show(getSupportFragmentManager(), "AlertDialogFragment");
+    }
+
+    private void goToSeasonOrLeg(PlaceSeason placeSeason) {
+        Intent intent = new Intent();
+        if (placeSeason.getLegs().size() > 1) {
+            intent.setClass(this, SeasonActivity.class);
+            intent.putExtra(SeasonActivity.EXTRA_SEASON_ID, placeSeason.getSeason().getId());
+        }
+        else {
+            intent.setClass(this, LegActivity.class);
+            intent.putExtra(LegActivity.EXTRA_LEG_ID, placeSeason.getLegs().get(0).getId());
+        }
+        startActivity(intent);
+    }
+
+    private void onSelectCountry(String country) {
+        mModel.findCountrySeasons(country);
     }
 
 }

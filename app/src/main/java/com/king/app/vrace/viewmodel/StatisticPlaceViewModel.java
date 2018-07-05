@@ -2,18 +2,26 @@ package com.king.app.vrace.viewmodel;
 
 import android.app.Application;
 import android.arch.lifecycle.MutableLiveData;
+import android.database.Cursor;
 import android.support.annotation.NonNull;
 import android.text.TextUtils;
 
 import com.king.app.vrace.base.BaseViewModel;
+import com.king.app.vrace.base.RaceApplication;
 import com.king.app.vrace.conf.AppConstants;
 import com.king.app.vrace.model.ImageProvider;
 import com.king.app.vrace.model.entity.Leg;
+import com.king.app.vrace.model.entity.LegDao;
 import com.king.app.vrace.model.entity.LegPlaces;
+import com.king.app.vrace.model.entity.LegPlacesDao;
+import com.king.app.vrace.model.entity.Season;
 import com.king.app.vrace.model.setting.SettingProperty;
+import com.king.app.vrace.viewmodel.bean.PlaceSeason;
 import com.king.app.vrace.viewmodel.bean.StatContinentItem;
 import com.king.app.vrace.viewmodel.bean.StatCountryItem;
 import com.king.app.vrace.viewmodel.bean.StatisticPlaceItem;
+
+import org.greenrobot.greendao.query.QueryBuilder;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -23,6 +31,8 @@ import java.util.List;
 import java.util.Map;
 
 import io.reactivex.Observable;
+import io.reactivex.ObservableEmitter;
+import io.reactivex.ObservableOnSubscribe;
 import io.reactivex.Observer;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
@@ -39,6 +49,8 @@ public class StatisticPlaceViewModel extends BaseViewModel {
     public MutableLiveData<List<StatisticPlaceItem>> placeObserver = new MutableLiveData<>();
 
     public MutableLiveData<List<StatContinentItem>> groupsObserver = new MutableLiveData<>();
+
+    public MutableLiveData<List<PlaceSeason>> placeSeasonsObserver = new MutableLiveData<>();
 
     private int mStatisticType;
 
@@ -191,11 +203,88 @@ public class StatisticPlaceViewModel extends BaseViewModel {
         return list;
     }
 
+    public void findCountrySeasons(String country) {
+        getCountrySeasons(country)
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribeOn(Schedulers.io())
+                .subscribe(new Observer<List<PlaceSeason>>() {
+                    @Override
+                    public void onSubscribe(Disposable d) {
+                        addDisposable(d);
+                    }
+
+                    @Override
+                    public void onNext(List<PlaceSeason> seasons) {
+                        placeSeasonsObserver.setValue(seasons);
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+                        e.printStackTrace();
+                    }
+
+                    @Override
+                    public void onComplete() {
+
+                    }
+                });
+    }
+
+    private Observable<List<PlaceSeason>> getCountrySeasons(String country) {
+        return Observable.create(e -> {
+            List<PlaceSeason> list = new ArrayList<>();
+            List<LegPlaces> places = getDaoSession().getLegPlacesDao().queryBuilder()
+                    .where(LegPlacesDao.Properties.Country.eq(country))
+                    .build().list();
+
+            Map<Long, PlaceSeason> seasonMap = new HashMap<>();
+            for (LegPlaces legPlaces:places) {
+                long seasonId = legPlaces.getLeg().getSeasonId();
+                PlaceSeason ps = seasonMap.get(seasonId);
+                if (ps == null) {
+                    ps = new PlaceSeason();
+                    ps.setCountry(country);
+                    ps.setSeason(legPlaces.getLeg().getSeason());
+                    ps.setLegs(new ArrayList<>());
+                    list.add(ps);
+                    seasonMap.put(seasonId, ps);
+                }
+                ps.getLegs().add(legPlaces.getLeg());
+            }
+
+            Collections.sort(list, new PlaceSeasonComparator());
+            e.onNext(list);
+        });
+    }
+
+    public String[] convertToTextList(List<PlaceSeason> list) {
+        String[] textList = new String[list.size()];
+        for (int n = 0; n < list.size(); n ++) {
+            PlaceSeason ps = list.get(n);
+            String item = "S" + ps.getSeason().getIndex() + "   Leg " + ps.getLegs().get(0).getIndex();
+            if (ps.getLegs().size() > 1) {
+                for (int i = 1; i < ps.getLegs().size(); i ++) {
+                    item = item + ", Leg " + ps.getLegs().get(i).getIndex();
+                }
+            }
+            textList[n] = item;
+        }
+        return textList;
+    }
+
     private class CountComparator implements Comparator<StatisticPlaceItem> {
 
         @Override
         public int compare(StatisticPlaceItem left, StatisticPlaceItem right) {
             return right.getCount() - left.getCount();
+        }
+    }
+
+    private class PlaceSeasonComparator implements Comparator<PlaceSeason> {
+
+        @Override
+        public int compare(PlaceSeason left, PlaceSeason right) {
+            return left.getSeason().getIndex() - right.getSeason().getIndex();
         }
     }
 }
