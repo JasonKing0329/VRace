@@ -1,6 +1,8 @@
 package com.king.app.vrace.page;
 
 import android.arch.lifecycle.ViewModelProviders;
+import android.content.DialogInterface;
+import android.content.Intent;
 import android.graphics.Rect;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
@@ -10,12 +12,15 @@ import android.view.View;
 import com.king.app.vrace.GlideApp;
 import com.king.app.vrace.R;
 import com.king.app.vrace.base.MvvmActivity;
+import com.king.app.vrace.conf.LegSpecialType;
 import com.king.app.vrace.databinding.ActivityLegBinding;
 import com.king.app.vrace.model.ImageProvider;
 import com.king.app.vrace.model.entity.Leg;
+import com.king.app.vrace.model.entity.LegSpecial;
 import com.king.app.vrace.model.entity.LegTeam;
 import com.king.app.vrace.model.entity.Team;
 import com.king.app.vrace.page.adapter.LegTeamAdapter;
+import com.king.app.vrace.page.adapter.leg.DescAdapter;
 import com.king.app.vrace.page.adapter.leg.LegComplexAdapter;
 import com.king.app.vrace.page.adapter.leg.RankAdapter;
 import com.king.app.vrace.utils.ScreenUtils;
@@ -33,6 +38,8 @@ import java.util.List;
 public class LegActivity extends MvvmActivity<ActivityLegBinding, LegViewModel> {
 
     public static final String EXTRA_LEG_ID = "leg_id";
+
+    public static final int REQUEST_SPECIAL = 1201;
 
     private LegTeamAdapter teamAdapter;
 
@@ -141,13 +148,37 @@ public class LegActivity extends MvvmActivity<ActivityLegBinding, LegViewModel> 
                             , null);
                 }
             });
-            pageAdapter.setOnEditLegDescListener((leg, position) -> editLegDesc(leg, position));
+            pageAdapter.setOnEditLegDescListener(new DescAdapter.OnEditLegDescListener() {
+                @Override
+                public void onEditLegDesc(Leg leg, int position) {
+                    editLegDesc(leg, position);
+                }
+
+                @Override
+                public void onAddSpecial() {
+                    addSpecial();
+                }
+
+                @Override
+                public void onRemoveSpecial(LegSpecial legSpecial) {
+                    showConfirmCancelMessage("Delete this item?"
+                            , (dialog, which) -> {
+                                mModel.removeSpecial(legSpecial);
+                                pageAdapter.notifyDataSetChanged();
+                            }, null);
+                }
+            });
             mBinding.rvRank.setAdapter(pageAdapter);
         }
         else {
             pageAdapter.setList(items);
             pageAdapter.notifyDataSetChanged();
         }
+    }
+
+    private void addSpecial() {
+        Intent intent = new Intent(this, LegSpecialActivity.class);
+        startActivityForResult(intent, REQUEST_SPECIAL);
     }
 
     private void editLegDesc(Leg leg, int position) {
@@ -166,5 +197,17 @@ public class LegActivity extends MvvmActivity<ActivityLegBinding, LegViewModel> 
             legTeam.update();
             pageAdapter.notifyItemChanged(position);
         });
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == REQUEST_SPECIAL) {
+            if (resultCode == RESULT_OK) {
+                int type = data.getIntExtra(LegSpecialActivity.RESP_SPEACIAL_TYPE, -1);
+                mModel.addSpecialForLeg(type);
+                pageAdapter.notifyDataSetChanged();
+            }
+        }
     }
 }

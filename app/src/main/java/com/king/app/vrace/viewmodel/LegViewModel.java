@@ -11,6 +11,8 @@ import com.king.app.vrace.base.BaseViewModel;
 import com.king.app.vrace.conf.LegType;
 import com.king.app.vrace.model.entity.Leg;
 import com.king.app.vrace.model.entity.LegDao;
+import com.king.app.vrace.model.entity.LegSpecial;
+import com.king.app.vrace.model.entity.LegSpecialDao;
 import com.king.app.vrace.model.entity.LegTeam;
 import com.king.app.vrace.model.entity.LegTeamDao;
 import com.king.app.vrace.model.entity.Team;
@@ -282,5 +284,30 @@ public class LegViewModel extends BaseViewModel {
             getDaoSession().getLegDao().detachAll();
             loadLegs(legId);
         }
+    }
+
+    public void addSpecialForLeg(int type) {
+        LegSpecial special = getDaoSession().getLegSpecialDao().queryBuilder()
+                .where(LegSpecialDao.Properties.LegId.eq(mLeg.getId()))
+                .where(LegSpecialDao.Properties.SpecialType.eq(type))
+                .build().unique();
+        if (special == null) {
+            special = new LegSpecial();
+            special.setLegId(mLeg.getId());
+            special.setSpecialType(type);
+            getDaoSession().getLegSpecialDao().insert(special);
+            getDaoSession().getLegSpecialDao().detachAll();
+            getDaoSession().getLegDao().detachAll();
+            mLeg.resetSpecialList();
+            mLeg.refresh();
+        }
+    }
+
+    public void removeSpecial(LegSpecial legSpecial) {
+        getDaoSession().getLegSpecialDao().delete(legSpecial);
+        getDaoSession().getLegSpecialDao().detachAll();
+        getDaoSession().getLegDao().detachAll();
+        mLeg.resetSpecialList();
+        mLeg.refresh();
     }
 }

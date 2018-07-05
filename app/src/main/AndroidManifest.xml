@@ -67,6 +67,8 @@
             android:screenOrientation="portrait"/>
         <activity android:name=".page.SeasonTeamResultsActivity"
             android:screenOrientation="landscape"/>
+        <activity android:name=".page.LegSpecialActivity"
+            android:screenOrientation="portrait"/>
     </application>
 
 </manifest>

@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <RelativeLayout
+        android:layout_width="wrap_content"
+        android:layout_height="80dp">
+        <ImageView
+            android:id="@+id/iv_content"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:maxHeight="80dp"
+            android:adjustViewBounds="true"
+            android:layout_marginLeft="8dp"
+            android:layout_marginRight="12dp"
+            android:layout_centerVertical="true"
+            android:scaleType="fitCenter"
+            android:src="@drawable/sp_specify"/>
+    </RelativeLayout>
+</layout>

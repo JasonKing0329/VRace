@@ -47,9 +47,13 @@ public abstract class BaseBindingAdapter<V extends ViewDataBinding, T> extends R
 
     @Override
     public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
-        V binding = DataBindingUtil.getBinding(holder.itemView);
+        V binding = getBindingFromHolder(holder);
         onBindItem(binding, position, list.get(position));
         binding.executePendingBindings();
+    }
+
+    protected V getBindingFromHolder(RecyclerView.ViewHolder holder) {
+        return DataBindingUtil.getBinding(holder.itemView);
     }
 
     protected abstract void onBindItem(V binding, int position, T bean);
