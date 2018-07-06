@@ -79,13 +79,13 @@ public class SeasonListAdapter extends BaseBindingAdapter<AdapterSeasonBinding, 
             if (index < 7) {
                 return R.drawable.ic_default5;
             }
-            else if (index < 14) {
+            else if (index < 15) {
                 return R.drawable.ic_default4;
             }
-            else if (index < 22) {
+            else if (index < 21) {
                 return R.drawable.ic_default1;
             }
-            else if (index < 28) {
+            else if (index < 29) {
                 return R.drawable.ic_default3;
             }
             else {

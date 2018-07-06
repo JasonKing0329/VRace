@@ -51,6 +51,7 @@ public class RaceApplication extends Application {
 
     public void reCreateGreenDao() {
         daoSession.clear();
+        database.close();
         helper.close();
         createGreenDao();
     }

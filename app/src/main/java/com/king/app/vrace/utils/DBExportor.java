@@ -33,11 +33,11 @@ public class DBExportor {
 
 		Calendar calendar = Calendar.getInstance();
 		StringBuffer target = new StringBuffer();
-		target.append(AppConfig.HISTORY_BASE).append("/roles_");
+		target.append(AppConfig.HISTORY_BASE).append("/race_");
 		target.append(calendar.get(Calendar.YEAR)).append("_");
 		target.append(calendar.get(Calendar.MONTH) + 1).append("_");
 		target.append(calendar.get(Calendar.DAY_OF_MONTH)).append("_");
-		target.append(calendar.get(Calendar.HOUR)).append("_");
+		target.append(calendar.get(Calendar.HOUR_OF_DAY)).append("_");
 		target.append(calendar.get(Calendar.MINUTE)).append("_");
 		target.append(calendar.get(Calendar.SECOND));
 		target.append(".db");

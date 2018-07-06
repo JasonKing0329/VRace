@@ -9,6 +9,7 @@ import com.king.app.vrace.model.entity.LegDao;
 import com.king.app.vrace.model.entity.Season;
 import com.king.app.vrace.model.entity.SeasonDao;
 import com.king.app.vrace.model.entity.TeamSeasonDao;
+import com.king.app.vrace.utils.DBExportor;
 
 import java.util.HashMap;
 import java.util.Iterator;
@@ -140,5 +141,35 @@ public class SeasonListViewModel extends BaseViewModel {
                     .executeDeleteWithoutDetachingEntities();
             getDaoSession().getTeamSeasonDao().detachAll();
         }
+    }
+
+    public void saveAsHistory() {
+        Observable.create(e -> {
+            DBExportor.exportAsHistory();
+            e.onNext(new Object());
+        }).observeOn(AndroidSchedulers.mainThread())
+                .subscribeOn(Schedulers.io())
+                .subscribe(new Observer<Object>() {
+                    @Override
+                    public void onSubscribe(Disposable d) {
+                        addDisposable(d);
+                    }
+
+                    @Override
+                    public void onNext(Object object) {
+                        messageObserver.setValue("save successfully");
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+                        e.printStackTrace();
+                        messageObserver.setValue("save failed: " + e.getMessage());
+                    }
+
+                    @Override
+                    public void onComplete() {
+
+                    }
+                });
     }
 }

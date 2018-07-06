@@ -10,11 +10,13 @@ import android.view.View;
 import com.king.app.jactionbar.OnConfirmListener;
 import com.king.app.vrace.R;
 import com.king.app.vrace.base.MvvmActivity;
+import com.king.app.vrace.base.RaceApplication;
 import com.king.app.vrace.databinding.ActivitySeasonListBinding;
 import com.king.app.vrace.model.entity.Season;
 import com.king.app.vrace.page.adapter.SeasonListAdapter;
 import com.king.app.vrace.utils.ScreenUtils;
 import com.king.app.vrace.view.dialog.DraggableDialogFragment;
+import com.king.app.vrace.view.dialog.content.LoadFromSelector;
 import com.king.app.vrace.view.dialog.content.SeasonEditor;
 import com.king.app.vrace.viewmodel.SeasonListViewModel;
 
@@ -74,6 +76,12 @@ public class SeasonListActivity extends MvvmActivity<ActivitySeasonListBinding, 
                 case R.id.menu_winners:
                     goToWinnerPage();
                     break;
+                case R.id.menu_save:
+                    saveAsHistory();
+                    break;
+                case R.id.menu_load_from:
+                    loadFromHistory();
+                    break;
             }
         });
 
@@ -111,6 +119,22 @@ public class SeasonListActivity extends MvvmActivity<ActivitySeasonListBinding, 
                 return true;
             }
         });
+    }
+
+    private void saveAsHistory() {
+        mModel.saveAsHistory();
+    }
+
+    private void loadFromHistory() {
+        LoadFromSelector selector = new LoadFromSelector();
+        selector.setOnDatabaseChangedListener(() -> {
+            RaceApplication.getInstance().reCreateGreenDao();
+            initData();
+        });
+        DraggableDialogFragment dialogFragment = new DraggableDialogFragment();
+        dialogFragment.setTitle("Load From");
+        dialogFragment.setContentFragment(selector);
+        dialogFragment.show(getSupportFragmentManager(), "LoadFromSelector");
     }
 
     private void goToPlacePage() {

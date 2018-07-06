@@ -263,9 +263,15 @@ public class LegViewModel extends BaseViewModel {
         if (selectedItem != null) {
             selectedItem.setTeamId(data.getId());
             getDaoSession().getLegTeamDao().insertOrReplace(selectedItem);
-            // 必须相关的都detach，否则不刷新
+            // 必须相关的都detach，并且通知mLeg刷新，否则很多时候会出现再次进入不刷新的bug
             getDaoSession().getLegTeamDao().detachAll();
             getDaoSession().getLegDao().detachAll();
+
+            // 还必须通知mLeg刷新，例如如果不加这两句，进入一个新leg，
+            // 新添加几个legteam，又编辑了leg的description，退出leg，再进入leg，legteam部分就一片空白，但是如果划掉任务重启app，添加过的legteam就出现了
+            // 调试时发现leg实体里teamList的数量是0，所以应该是GreenDao的缓存机制造成的，mLeg取到了缓存里的Leg，关系数据没有更新
+            mLeg.resetTeamList();
+            mLeg.refresh();
         }
     }
 

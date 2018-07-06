@@ -186,7 +186,7 @@ public class LegActivity extends MvvmActivity<ActivityLegBinding, LegViewModel> 
         dialogs.openInputDialog(this, "Description", leg.getDescription(), text -> {
             leg.setDescription(text);
             leg.update();
-            pageAdapter.notifyItemChanged(position);
+            pageAdapter.notifyDataSetChanged();
         });
     }
 
