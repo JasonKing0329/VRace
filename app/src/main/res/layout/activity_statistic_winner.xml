@@ -2,6 +2,11 @@
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools">
+    <data>
+        <variable
+            name="model"
+            type="com.king.app.vrace.viewmodel.StatisticWinnerModel"/>
+    </data>
 
     <android.support.constraint.ConstraintLayout
         android:layout_width="match_parent"
@@ -14,12 +19,47 @@
             app:maxShowIcon="4"
             app:iconColor="@color/action_icon_color"
             app:showIconBack="true"
-            app:title="Winners"
+            app:title="@{model.targetRankText}"
+            app:menu="@menu/stat_winner"
             app:titleColor="@color/action_title_color"
             app:actionTextColor="@color/action_icon_color"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent"/>
+        <LinearLayout
+            android:id="@+id/ll_rank"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/actionbar">
+            <ImageView
+                android:id="@+id/iv_last"
+                android:layout_width="44dp"
+                android:layout_height="44dp"
+                android:padding="10dp"
+                android:visibility="@{model.rankLastVisibility}"
+                android:onClick="@{model.onLastRank}"
+                android:src="@drawable/ic_keyboard_arrow_left_grey_700_24dp"/>
+            <TextView
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:text="@{model.targetRankText}"
+                android:textColor="@color/text_second"
+                android:textSize="20dp" />
+            <ImageView
+                android:id="@+id/iv_next"
+                android:layout_width="44dp"
+                android:layout_height="44dp"
+                android:padding="10dp"
+                android:visibility="@{model.rankNextVisibility}"
+                android:onClick="@{model.onNextRank}"
+                android:src="@drawable/ic_keyboard_arrow_right_grey_700_24dp"/>
+        </LinearLayout>
         <android.support.v7.widget.RecyclerView
             android:id="@+id/rv_places"
             android:layout_width="0dp"
@@ -27,7 +67,7 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/actionbar"
+            app:layout_constraintTop_toBottomOf="@id/ll_rank"
             tools:listitem="@layout/adapter_statistic_winner"/>
     </android.support.constraint.ConstraintLayout>
 

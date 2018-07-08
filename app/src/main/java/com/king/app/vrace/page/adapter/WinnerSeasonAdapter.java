@@ -27,6 +27,8 @@ public class WinnerSeasonAdapter extends RecyclerView.Adapter {
 
     private List<Object> list;
 
+    private OnItemClickListener onItemClickListener;
+
     @Override
     public int getItemViewType(int position) {
         if (list.get(position) instanceof StatisticWinnerItem) {
@@ -37,6 +39,10 @@ public class WinnerSeasonAdapter extends RecyclerView.Adapter {
 
     public void setList(List<Object> list) {
         this.list = list;
+    }
+
+    public void setOnItemClickListener(OnItemClickListener onItemClickListener) {
+        this.onItemClickListener = onItemClickListener;
     }
 
     @NonNull
@@ -61,6 +67,9 @@ public class WinnerSeasonAdapter extends RecyclerView.Adapter {
     }
 
     private void onClickItem(View v, int position, StatisticWinnerItem item) {
+        if (onItemClickListener != null) {
+            onItemClickListener.onItemClick(position, item);
+        }
     }
 
     @Override
@@ -95,5 +104,9 @@ public class WinnerSeasonAdapter extends RecyclerView.Adapter {
         public BindingHolder(View itemView) {
             super(itemView);
         }
+    }
+
+    public interface OnItemClickListener {
+        void onItemClick(int position, StatisticWinnerItem item);
     }
 }
