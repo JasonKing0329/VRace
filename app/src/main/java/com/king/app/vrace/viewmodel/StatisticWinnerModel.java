@@ -144,6 +144,7 @@ public class StatisticWinnerModel extends BaseViewModel {
 
                 // the 4th maybe in final leg
                 if (mTargetPosition == 4) {
+                    builder = getDaoSession().getLegTeamDao().queryBuilder();
                     builder.join(LegTeamDao.Properties.LegId, Leg.class)
                             .where(LegDao.Properties.Type.eq(LegType.FINAL.ordinal()));
                     builder.where(LegTeamDao.Properties.Position.eq(mTargetPosition));

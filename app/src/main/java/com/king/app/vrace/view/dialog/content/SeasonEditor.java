@@ -58,8 +58,8 @@ public class SeasonEditor extends DraggableContentFragment<FragmentEditorSeasonB
             mBinding.etTeams.setText(String.valueOf(mSeason.getTeam()));
             mBinding.spSeasonType.setSelection(mSeason.getType());
             mBinding.spTeamType.setSelection(mSeason.getTeamType());
-            mFilmingDate = dateFormat.format(new Date(mSeason.getDateAir()));
-            mAirDate = dateFormat.format(new Date(mSeason.getDateFilming()));
+            mFilmingDate = dateFormat.format(new Date(mSeason.getDateFilming()));
+            mAirDate = dateFormat.format(new Date(mSeason.getDateAir()));
             mBinding.btnAir.setText("Air\n" + mAirDate);
             mBinding.btnFilming.setText("Filming\n" + mFilmingDate);
         }
