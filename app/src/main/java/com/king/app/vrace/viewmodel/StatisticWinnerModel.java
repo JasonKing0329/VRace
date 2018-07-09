@@ -12,6 +12,7 @@ import com.king.app.vrace.base.BaseViewModel;
 import com.king.app.vrace.conf.AppConstants;
 import com.king.app.vrace.conf.GenderType;
 import com.king.app.vrace.conf.LegType;
+import com.king.app.vrace.model.TeamModel;
 import com.king.app.vrace.model.entity.Leg;
 import com.king.app.vrace.model.entity.LegDao;
 import com.king.app.vrace.model.entity.LegTeam;
@@ -19,6 +20,7 @@ import com.king.app.vrace.model.entity.LegTeamDao;
 import com.king.app.vrace.model.entity.PersonTag;
 import com.king.app.vrace.model.entity.Relationship;
 import com.king.app.vrace.model.entity.Season;
+import com.king.app.vrace.model.entity.Team;
 import com.king.app.vrace.model.entity.TeamSeason;
 import com.king.app.vrace.viewmodel.bean.StatisticWinnerItem;
 
@@ -51,6 +53,9 @@ public class StatisticWinnerModel extends BaseViewModel {
     public ObservableInt rankNextVisibility = new ObservableInt();
 
     public ObservableField<String> targetRankText = new ObservableField<>();
+
+    // 首个被淘汰
+    private final int FLAG_ELIM_FIRST = 999;
 
     private int mTargetPosition = 1;
 
@@ -110,11 +115,41 @@ public class StatisticWinnerModel extends BaseViewModel {
 
     private Observable<List<LegTeam>> queryWinners() {
         return Observable.create(e -> {
-            QueryBuilder<LegTeam> builder = getDaoSession().getLegTeamDao().queryBuilder();
-            builder.join(LegTeamDao.Properties.LegId, Leg.class)
-                    .where(LegDao.Properties.Type.eq(LegType.FINAL.ordinal()));
-            builder.where(LegTeamDao.Properties.Position.eq(mTargetPosition));
-            List<LegTeam> list = builder.build().list();
+            List<LegTeam> list = new ArrayList<>();
+            // final 3
+            if (mTargetPosition < 4 && mTargetPosition > 0) {
+                QueryBuilder<LegTeam> builder = getDaoSession().getLegTeamDao().queryBuilder();
+                builder.join(LegTeamDao.Properties.LegId, Leg.class)
+                        .where(LegDao.Properties.Type.eq(LegType.FINAL.ordinal()));
+                builder.where(LegTeamDao.Properties.Position.eq(mTargetPosition));
+                list = builder.build().list();
+            }
+            // eliminated first
+            else if (mTargetPosition == FLAG_ELIM_FIRST) {
+                // 3 situation: first leg elimination, NEL/TBC, start line elimination
+                List<Season> seasons = getDaoSession().getSeasonDao().loadAll();
+                for (Season season:seasons) {
+                    LegTeam team = new TeamModel().getFirstEliminatedTeam(season);
+                    if (team != null) {
+                        list.add(team);
+                    }
+                }
+            }
+            // other ranks
+            else {
+                QueryBuilder<LegTeam> builder = getDaoSession().getLegTeamDao().queryBuilder();
+                builder.where(LegTeamDao.Properties.Position.eq(mTargetPosition));
+                builder.where(LegTeamDao.Properties.Eliminated.eq(1));
+                list = builder.build().list();
+
+                // the 4th maybe in final leg
+                if (mTargetPosition == 4) {
+                    builder.join(LegTeamDao.Properties.LegId, Leg.class)
+                            .where(LegDao.Properties.Type.eq(LegType.FINAL.ordinal()));
+                    builder.where(LegTeamDao.Properties.Position.eq(mTargetPosition));
+                    list.addAll(builder.build().list());
+                }
+            }
             e.onNext(list);
         });
     }
@@ -130,7 +165,7 @@ public class StatisticWinnerModel extends BaseViewModel {
                     item = new StatisticWinnerItem();
                     relationMap.put(relationship, item);
                     item.setType(relationship.getName());
-                    item.setSeasonList(new ArrayList<>());
+                    item.setLegTeamList(new ArrayList<>());
                     results.add(item);
                 }
                 item.setCount(relationMap.get(relationship).getCount() + 1);
@@ -140,7 +175,7 @@ public class StatisticWinnerModel extends BaseViewModel {
                 else {
                     item.setSeasons(relationMap.get(relationship).getSeasons() + ", S" + legTeam.getSeason().getIndex());
                 }
-                item.getSeasonList().add(legTeam.getSeason());
+                item.getLegTeamList().add(legTeam);
             }
             Collections.sort(results, new WinnerComparator());
             e.onNext(results);
@@ -156,7 +191,7 @@ public class StatisticWinnerModel extends BaseViewModel {
                 if (genderMap.get(genderType) == null) {
                     genderMap.put(genderType, new StatisticWinnerItem());
                     genderMap.get(genderType).setType(AppConstants.getGenderText(GenderType.values()[genderType]));
-                    genderMap.get(genderType).setSeasonList(new ArrayList<>());
+                    genderMap.get(genderType).setLegTeamList(new ArrayList<>());
                     results.add(genderMap.get(genderType));
                 }
                 genderMap.get(genderType).setCount(genderMap.get(genderType).getCount() + 1);
@@ -166,7 +201,7 @@ public class StatisticWinnerModel extends BaseViewModel {
                 else {
                     genderMap.get(genderType).setSeasons(genderMap.get(genderType).getSeasons() + ", S" + legTeam.getSeason().getIndex());
                 }
-                genderMap.get(genderType).getSeasonList().add(legTeam.getSeason());
+                genderMap.get(genderType).getLegTeamList().add(legTeam);
             }
             Collections.sort(results, new WinnerComparator());
             e.onNext(results);
@@ -188,7 +223,7 @@ public class StatisticWinnerModel extends BaseViewModel {
                     positionMap.put(position, new StatisticWinnerItem());
                     positionMap.get(position).setType("片头" + position);
                     positionMap.get(position).setSortValue(position);
-                    positionMap.get(position).setSeasonList(new ArrayList<>());
+                    positionMap.get(position).setLegTeamList(new ArrayList<>());
                     results.add(positionMap.get(position));
                 }
                 positionMap.get(position).setCount(positionMap.get(position).getCount() + 1);
@@ -198,7 +233,7 @@ public class StatisticWinnerModel extends BaseViewModel {
                 else {
                     positionMap.get(position).setSeasons(positionMap.get(position).getSeasons() + ", S" + legTeam.getSeason().getIndex());
                 }
-                positionMap.get(position).getSeasonList().add(legTeam.getSeason());
+                positionMap.get(position).getLegTeamList().add(legTeam);
             }
             Collections.sort(results, new WinnerComparator());
             e.onNext(results);
@@ -226,7 +261,7 @@ public class StatisticWinnerModel extends BaseViewModel {
                         positionMap.put(position, new StatisticWinnerItem());
                         positionMap.get(position).setType("EP" + position);
                         positionMap.get(position).setSortValue(position);
-                        positionMap.get(position).setSeasonList(new ArrayList<>());
+                        positionMap.get(position).setLegTeamList(new ArrayList<>());
                         results.add(positionMap.get(position));
                     }
                     positionMap.get(position).setCount(positionMap.get(position).getCount() + 1);
@@ -236,7 +271,7 @@ public class StatisticWinnerModel extends BaseViewModel {
                     else {
                         positionMap.get(position).setSeasons(positionMap.get(position).getSeasons() + ", S" + legTeam.getSeason().getIndex());
                     }
-                    positionMap.get(position).getSeasonList().add(legTeam.getSeason());
+                    positionMap.get(position).getLegTeamList().add(legTeam);
                 }
             }
             Collections.sort(results, new WinnerComparator());
@@ -257,7 +292,7 @@ public class StatisticWinnerModel extends BaseViewModel {
                     if (tagMap.get(tag) == null) {
                         tagMap.put(tag, new StatisticWinnerItem());
                         tagMap.get(tag).setType(tag);
-                        tagMap.get(tag).setSeasonList(new ArrayList<>());
+                        tagMap.get(tag).setLegTeamList(new ArrayList<>());
                         results.add(tagMap.get(tag));
                     }
                     tagMap.get(tag).setCount(tagMap.get(tag).getCount() + 1);
@@ -267,7 +302,7 @@ public class StatisticWinnerModel extends BaseViewModel {
                     else {
                         tagMap.get(tag).setSeasons(tagMap.get(tag).getSeasons() + ", S" + legTeam.getSeason().getIndex());
                     }
-                    tagMap.get(tag).getSeasonList().add(legTeam.getSeason());
+                    tagMap.get(tag).getLegTeamList().add(legTeam);
                 }
             }
             Collections.sort(results, new WinnerComparator());
@@ -275,26 +310,63 @@ public class StatisticWinnerModel extends BaseViewModel {
         });
     }
 
-    public String[] convertToTextList(List<Season> list) {
+    public String[] convertToTextList(List<LegTeam> list) {
         String[] textList = new String[list.size()];
         for (int n = 0; n < list.size(); n ++) {
-            Season season = list.get(n);
-            textList[n] = "S" + season.getIndex();
+            Season season = list.get(n).getSeason();
+            Team team = list.get(n).getTeam();
+            textList[n] = "S" + season.getIndex() + " " + team.getCode() + " ";
+            if (team.getProvince().equals(team.getCity())) {
+                textList[n] = textList[n] + team.getProvince();
+            }
+            else {
+                textList[n] = textList[n] + team.getProvince() + "/" + team.getCity();
+            }
         }
         return textList;
     }
 
+    /**
+     * 支持排名1-12以及首个出局
+     * @param view
+     */
     public void onLastRank(View view) {
-        // 暂时只支持Final 3
         rankNextVisibility.set(View.VISIBLE);
-        if (mTargetPosition == 2) {
+        if (mTargetPosition == FLAG_ELIM_FIRST) {
+            mTargetPosition = 12;
+        }
+        else {
+            mTargetPosition --;
+        }
+
+        if (mTargetPosition == 1) {
             rankLastVisibility.set(View.INVISIBLE);
         }
-        mTargetPosition --;
         updateTargetText();
         loadData();
     }
 
+    /**
+     * 支持排名1-12以及首个出局
+     * @param view
+     */
+    public void onNextRank(View view) {
+        rankLastVisibility.set(View.VISIBLE);
+        if (mTargetPosition == 12) {
+            rankNextVisibility.set(View.INVISIBLE);
+            mTargetPosition = FLAG_ELIM_FIRST;
+        }
+        else {
+            mTargetPosition ++;
+        }
+
+        updateTargetText();
+        loadData();
+    }
+
+    /**
+     * 支持排名1-12以及首个出局
+     */
     private void updateTargetText() {
         switch (mTargetPosition) {
             case 1:
@@ -306,18 +378,13 @@ public class StatisticWinnerModel extends BaseViewModel {
             case 3:
                 targetRankText.set("Third");
                 break;
+            case FLAG_ELIM_FIRST:
+                targetRankText.set("First Out");
+                break;
+            default:
+                targetRankText.set(mTargetPosition + "th");
+                break;
         }
-    }
-
-    public void onNextRank(View view) {
-        // 暂时只支持Final 3
-        rankLastVisibility.set(View.VISIBLE);
-        if (mTargetPosition == 2) {
-            rankNextVisibility.set(View.INVISIBLE);
-        }
-        mTargetPosition ++;
-        updateTargetText();
-        loadData();
     }
 
     public class WinnerComparator implements Comparator<StatisticWinnerItem> {

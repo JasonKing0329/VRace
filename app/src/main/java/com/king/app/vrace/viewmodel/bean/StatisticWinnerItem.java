@@ -1,6 +1,6 @@
 package com.king.app.vrace.viewmodel.bean;
 
-import com.king.app.vrace.model.entity.Season;
+import com.king.app.vrace.model.entity.LegTeam;
 
 import java.util.List;
 
@@ -20,7 +20,7 @@ public class StatisticWinnerItem {
 
     private int sortValue;
 
-    private List<Season> seasonList;
+    private List<LegTeam> legTeamList;
 
     public String getType() {
         return type;
@@ -54,11 +54,11 @@ public class StatisticWinnerItem {
         this.sortValue = sortValue;
     }
 
-    public List<Season> getSeasonList() {
-        return seasonList;
+    public List<LegTeam> getLegTeamList() {
+        return legTeamList;
     }
 
-    public void setSeasonList(List<Season> seasonList) {
-        this.seasonList = seasonList;
+    public void setLegTeamList(List<LegTeam> legTeamList) {
+        this.legTeamList = legTeamList;
     }
 }

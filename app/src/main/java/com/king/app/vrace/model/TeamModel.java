@@ -3,8 +3,11 @@ package com.king.app.vrace.model;
 import com.king.app.vrace.base.RaceApplication;
 import com.king.app.vrace.conf.LegType;
 import com.king.app.vrace.model.bean.TeamResult;
+import com.king.app.vrace.model.entity.Leg;
+import com.king.app.vrace.model.entity.LegDao;
 import com.king.app.vrace.model.entity.LegTeam;
 import com.king.app.vrace.model.entity.LegTeamDao;
+import com.king.app.vrace.model.entity.Season;
 
 import java.util.List;
 
@@ -85,5 +88,49 @@ public class TeamModel {
                 .buildCount().count();
         result.setChampions((int) count);
         return result;
+    }
+
+    public LegTeam getFirstEliminatedTeam(Season season) {
+        LegTeam team;
+
+        // start line elimination
+        Leg leg0 = getSeasonLeg(season.getId(), 0);
+        if (leg0.getType() == LegType.START_LINE_EL.ordinal()) {
+            team = RaceApplication.getInstance().getDaoSession().getLegTeamDao().queryBuilder()
+                    .where(LegTeamDao.Properties.SeasonId.eq(season.getId()))
+                    .where(LegTeamDao.Properties.LegId.eq(leg0.getId()))
+                    .where(LegTeamDao.Properties.Eliminated.eq(1))
+                    .build().unique();
+            return team;
+        }
+
+        // normal elimination in first leg
+        Leg leg1 = getSeasonLeg(season.getId(), 1);
+        if (leg1.getType() != LegType.NEL.ordinal() && leg1.getType() != LegType.DLL.ordinal()) {
+            team = RaceApplication.getInstance().getDaoSession().getLegTeamDao().queryBuilder()
+                    .where(LegTeamDao.Properties.SeasonId.eq(season.getId()))
+                    .where(LegTeamDao.Properties.LegId.eq(leg1.getId()))
+                    .where(LegTeamDao.Properties.IsLast.eq(1))
+                    .where(LegTeamDao.Properties.Eliminated.eq(1))
+                    .build().unique();
+            return team;
+        }
+
+        // NEL, TBC
+        Leg leg2 = getSeasonLeg(season.getId(), 2);
+        team = RaceApplication.getInstance().getDaoSession().getLegTeamDao().queryBuilder()
+                .where(LegTeamDao.Properties.SeasonId.eq(season.getId()))
+                .where(LegTeamDao.Properties.LegId.eq(leg2.getId()))
+                .where(LegTeamDao.Properties.IsLast.eq(1))
+                .where(LegTeamDao.Properties.Eliminated.eq(1))
+                .build().unique();
+        return team;
+    }
+
+    private Leg getSeasonLeg(long seasonId, int index) {
+        return RaceApplication.getInstance().getDaoSession().getLegDao().queryBuilder()
+                .where(LegDao.Properties.SeasonId.eq(seasonId))
+                .where(LegDao.Properties.Index.eq(index))
+                .build().unique();
     }
 }

@@ -89,10 +89,10 @@ public class StatisticWinnerActivity extends MvvmActivity<ActivityStatisticWinne
     }
 
     private void popupItem(StatisticWinnerItem item) {
-        String[] textList = mModel.convertToTextList(item.getSeasonList());
+        String[] textList = mModel.convertToTextList(item.getLegTeamList());
         new AlertDialogFragment()
                 .setTitle(null)
-                .setItems(textList, (dialog, which) -> goToSeason(item.getSeasonList().get(which)))
+                .setItems(textList, (dialog, which) -> goToSeason(item.getLegTeamList().get(which).getSeason()))
                 .show(getSupportFragmentManager(), "AlertDialogFragment");
     }
 
