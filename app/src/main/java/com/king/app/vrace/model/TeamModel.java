@@ -9,6 +9,8 @@ import com.king.app.vrace.model.entity.LegTeam;
 import com.king.app.vrace.model.entity.LegTeamDao;
 import com.king.app.vrace.model.entity.Season;
 
+import org.greenrobot.greendao.query.QueryBuilder;
+
 import java.util.List;
 
 /**
@@ -80,8 +82,11 @@ public class TeamModel {
             result.setPoint((double) sum / (double) legs);
         }
 
-        // 计算赛冠
-        long count = RaceApplication.getInstance().getDaoSession().getLegTeamDao().queryBuilder()
+        // 计算赛冠，start line的不计入
+        QueryBuilder<LegTeam> builder = RaceApplication.getInstance().getDaoSession().getLegTeamDao().queryBuilder();
+        builder.join(LegTeamDao.Properties.LegId, Leg.class)
+                .where(LegDao.Properties.Index.gt(0));
+        long count = builder
                 .where(LegTeamDao.Properties.TeamId.eq(teamId))
                 .where(LegTeamDao.Properties.SeasonId.eq(seasonId))
                 .where(LegTeamDao.Properties.Position.eq(1))

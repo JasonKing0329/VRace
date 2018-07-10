@@ -95,8 +95,8 @@ public class StatisticWinnerModel extends BaseViewModel {
     }
 
     private Observable<List<Object>> combineData(List<LegTeam> list){
-        return Observable.combineLatest(toRelationItems(list), toGenderItems(list), toEpItems(list), toHeadItems(list), toTagItems(list)
-                , (relations, genders, eps, heads, tags) -> {
+        return Observable.combineLatest(toRelationItems(list), toGenderItems(list), toEpItems(list), toHeadItems(list), toTagItems(list), toProvinceItems(list)
+                , (relations, genders, eps, heads, tags, provinces) -> {
 
                     List<Object> results = new ArrayList<>();
                     results.add("Team type");
@@ -109,6 +109,8 @@ public class StatisticWinnerModel extends BaseViewModel {
                     results.addAll(eps);
                     results.add("片头");
                     results.addAll(heads);
+                    results.add("Province");
+                    results.addAll(provinces);
                     return results;
                 });
     }
@@ -305,6 +307,32 @@ public class StatisticWinnerModel extends BaseViewModel {
                     }
                     tagMap.get(tag).getLegTeamList().add(legTeam);
                 }
+            }
+            Collections.sort(results, new WinnerComparator());
+            e.onNext(results);
+        });
+    }
+
+    private Observable<List<StatisticWinnerItem>> toProvinceItems(List<LegTeam> list) {
+        return Observable.create(e -> {
+            List<StatisticWinnerItem> results = new ArrayList<>();
+            HashMap<String, StatisticWinnerItem> provinceMap = new HashMap<>();
+            for (LegTeam legTeam:list) {
+                String province = legTeam.getTeam().getProvince();
+                if (provinceMap.get(province) == null) {
+                    provinceMap.put(province, new StatisticWinnerItem());
+                    provinceMap.get(province).setType(province);
+                    provinceMap.get(province).setLegTeamList(new ArrayList<>());
+                    results.add(provinceMap.get(province));
+                }
+                provinceMap.get(province).setCount(provinceMap.get(province).getCount() + 1);
+                if (TextUtils.isEmpty(provinceMap.get(province).getSeasons())) {
+                    provinceMap.get(province).setSeasons("S" + legTeam.getSeason().getIndex());
+                }
+                else {
+                    provinceMap.get(province).setSeasons(provinceMap.get(province).getSeasons() + ", S" + legTeam.getSeason().getIndex());
+                }
+                provinceMap.get(province).getLegTeamList().add(legTeam);
             }
             Collections.sort(results, new WinnerComparator());
             e.onNext(results);
