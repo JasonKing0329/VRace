@@ -73,6 +73,7 @@ public class RankChart extends View {
         DebugLog.e("");
         this.mAdapter = mAdapter;
         invalidate();
+        requestLayout();
     }
 
     public void setDrawDashGrid(boolean mDrawDashGrid) {
