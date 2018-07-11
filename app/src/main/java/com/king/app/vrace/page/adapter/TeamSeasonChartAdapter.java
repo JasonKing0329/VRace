@@ -2,7 +2,9 @@ package com.king.app.vrace.page.adapter;
 
 import android.graphics.Color;
 
+import com.king.app.vrace.R;
 import com.king.app.vrace.model.entity.LegTeam;
+import com.king.app.vrace.model.entity.Season;
 import com.king.app.vrace.view.widget.RankChartAdapter;
 import com.king.app.vrace.viewmodel.bean.TeamChartBean;
 
@@ -14,9 +16,13 @@ import java.util.List;
  * @author：Jing Yang
  * @date: 2018/7/4 14:30
  */
-public class TeamChartAdapter extends RankChartAdapter {
+public class TeamSeasonChartAdapter extends RankChartAdapter {
 
     private TeamChartBean mChartBean;
+
+    private int[] colors = new int[] {
+            Color.parseColor("#f1303d"), Color.parseColor("#375BF1"), Color.parseColor("#34A350")
+    };
 
     public void setChartBean(TeamChartBean mChartBean) {
         this.mChartBean = mChartBean;
@@ -29,12 +35,7 @@ public class TeamChartAdapter extends RankChartAdapter {
 
     @Override
     public String getXAxisName(int position) {
-        String place = mChartBean.getLegList().get(position).getPlaceList().get(0).getCountry();
-        if (place.equals("中国")) {
-            place = mChartBean.getLegList().get(position).getPlaceList().get(0).getCity();
-        }
-        return "L" + mChartBean.getLegList().get(position).getIndex() + "\n"
-                + place;
+        return "L" + mChartBean.getLegList().get(position).getIndex();
     }
 
     @Override
@@ -59,6 +60,9 @@ public class TeamChartAdapter extends RankChartAdapter {
 
     @Override
     public int getLineColor(int position) {
+        if (mChartBean.getTeamList().size() > 1) {
+            return colors[position];
+        }
         int color = mChartBean.getTeamList().get(position).getSpecialColor();
         if (color == Color.WHITE) {
             color = Color.parseColor("#333333");
@@ -85,8 +89,9 @@ public class TeamChartAdapter extends RankChartAdapter {
 
     @Override
     public String getText(int lineIndex, int xIndex) {
-        if (xIndex == getXAxisCount() - 1) {
-            return mChartBean.getTeamList().get(lineIndex).getCode();
+        if (xIndex == mChartBean.getTeamResultList().get(lineIndex).size() - 1) {
+            Season season = mChartBean.getSeasonList().get(lineIndex);
+            return "S" + season.getIndex();
         }
         return null;
     }

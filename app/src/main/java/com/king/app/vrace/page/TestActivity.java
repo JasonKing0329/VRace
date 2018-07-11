@@ -41,6 +41,63 @@ public class TestActivity extends MvvmActivity<ActivityTestBinding, BaseViewMode
 
     @Override
     protected void initView() {
+        mBinding.chartScroll.setDrawDashGrid(true);
+        mBinding.chartScroll.setAdapter(new RankChartAdapter() {
+            @Override
+            public int getXAxisCount() {
+                return 13;
+            }
+
+            @Override
+            public String getXAxisName(int position) {
+                return "L" + position;
+            }
+
+            @Override
+            public int getYAxisCount() {
+                return 13;
+            }
+
+            @Override
+            public String getYAxisName(int position) {
+                return String.valueOf(13 - position);
+            }
+
+            @Override
+            public Integer getYAxisValue(int i) {
+                if (i == 0) {
+                    return null;
+                }
+                else {
+                    return 13 - i;
+                }
+            }
+
+            @Override
+            public int getLineCount() {
+                return lineColors.length;
+            }
+
+            @Override
+            public int getLineColor(int position) {
+                return lineColors[position];
+            }
+
+            @Override
+            public String getText(int lineIndex, int xIndex) {
+                if (xIndex == 12) {
+                    return "Line " + lineIndex;
+                }
+                return null;
+            }
+
+            @Override
+            public Integer getValue(int lineIndex, int xIndex) {
+                return lineValues[lineIndex][xIndex];
+            }
+        });
+
+
         mBinding.chart.setDrawDashGrid(true);
         mBinding.chart.setAdapter(new RankChartAdapter() {
             @Override
@@ -84,8 +141,11 @@ public class TestActivity extends MvvmActivity<ActivityTestBinding, BaseViewMode
             }
 
             @Override
-            public String getLineText(int i) {
-                return "Line " + i;
+            public String getText(int lineIndex, int xIndex) {
+                if (xIndex == 12) {
+                    return "Line " + lineIndex;
+                }
+                return null;
             }
 
             @Override

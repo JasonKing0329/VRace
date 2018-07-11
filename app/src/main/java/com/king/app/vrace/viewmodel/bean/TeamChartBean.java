@@ -2,6 +2,7 @@ package com.king.app.vrace.viewmodel.bean;
 
 import com.king.app.vrace.model.entity.Leg;
 import com.king.app.vrace.model.entity.LegTeam;
+import com.king.app.vrace.model.entity.Season;
 import com.king.app.vrace.model.entity.Team;
 import com.king.app.vrace.model.entity.TeamSeason;
 
@@ -16,6 +17,8 @@ import java.util.List;
 public class TeamChartBean {
 
     private List<Leg> legList;
+
+    private List<Season> seasonList;
 
     private List<Team> teamList;
 
@@ -53,5 +56,13 @@ public class TeamChartBean {
 
     public void setyValueList(List<Integer> yValueList) {
         this.yValueList = yValueList;
+    }
+
+    public List<Season> getSeasonList() {
+        return seasonList;
+    }
+
+    public void setSeasonList(List<Season> seasonList) {
+        this.seasonList = seasonList;
     }
 }

@@ -16,7 +16,8 @@ public abstract class RankChartAdapter {
 
     public abstract int getLineCount();
     public abstract int getLineColor(int position);
-    public abstract String getLineText(int i);
 
     public abstract Integer getValue(int lineIndex, int xIndex);
+
+    public abstract String getText(int lineIndex, int xIndex);
 }

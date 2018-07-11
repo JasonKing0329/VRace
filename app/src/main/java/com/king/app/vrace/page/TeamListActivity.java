@@ -235,6 +235,9 @@ public class TeamListActivity extends MvvmActivity<ActivityTeamListBinding, Team
     }
 
     private void showTeamPage(TeamListItem data) {
+        Intent intent = new Intent(this, TeamActivity.class);
+        intent.putExtra(TeamActivity.EXTRA_TEAM_ID, data.getBean().getId());
+        startActivity(intent);
     }
 
     private void editTeam(TeamListItem team) {

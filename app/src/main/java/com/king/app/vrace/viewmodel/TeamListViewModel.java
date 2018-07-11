@@ -16,6 +16,7 @@ import com.king.app.vrace.model.entity.TeamDao;
 import com.king.app.vrace.model.entity.TeamPlayersDao;
 import com.king.app.vrace.model.entity.TeamSeasonDao;
 import com.king.app.vrace.model.entity.TeamTagDao;
+import com.king.app.vrace.utils.PlaceUtil;
 import com.king.app.vrace.viewmodel.bean.StatProvinceItem;
 import com.king.app.vrace.viewmodel.bean.StatTeamItem;
 import com.king.app.vrace.viewmodel.bean.TeamListItem;
@@ -198,24 +199,7 @@ public class TeamListViewModel extends BaseViewModel {
     private void parseTeam(Team team, TeamListItem item) {
         item.setGender(AppConstants.getGenderText(GenderType.values()[team.getGenderType()]));
         item.setRelationship(team.getRelationship().getName());
-        if (TextUtils.isEmpty(team.getProvince())) {
-            if (!TextUtils.isEmpty(team.getCity())) {
-                item.setPlace(team.getCity());
-            }
-        }
-        else {
-            if (TextUtils.isEmpty(team.getCity())) {
-                item.setPlace(team.getProvince());
-            }
-            else {
-                if (team.getCity().equals(team.getProvince())) {
-                    item.setPlace(team.getCity());
-                }
-                else {
-                    item.setPlace(team.getProvince() + "/" + team.getCity());
-                }
-            }
-        }
+        item.setPlace(PlaceUtil.getCombinePlace(team.getProvince(), team.getCity()));
         String occupy = null;
         if (team.getPlayerList().size() > 0) {
             String occupy1 = team.getPlayerList().get(0).getOccupy();

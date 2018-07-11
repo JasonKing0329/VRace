@@ -22,4 +22,9 @@
         <attr name="layout_weight" format="float"/>
         <attr name="android:layout_gravity"/>
     </declare-styleable>
+
+    <declare-styleable name="RankChart">
+        <attr name="minXCellWidth" format="dimension" />
+        <attr name="minYCellHeight" format="dimension" />
+    </declare-styleable>
 </resources>

@@ -1,6 +1,7 @@
 package com.king.app.vrace.page;
 
 import android.arch.lifecycle.ViewModelProviders;
+import android.content.Intent;
 import android.support.v7.widget.LinearLayoutManager;
 
 import com.king.app.jactionbar.OnConfirmListener;
@@ -150,6 +151,9 @@ public class SeasonTeamActivity extends MvvmActivity<ActivitySeasonTeamsBinding,
     }
 
     private void showTeamPage(SeasonTeamItem data) {
+        Intent intent = new Intent(this, TeamActivity.class);
+        intent.putExtra(TeamActivity.EXTRA_TEAM_ID, data.getBean().getTeamId());
+        startActivity(intent);
     }
 
     private void editTeam(SeasonTeamItem team) {

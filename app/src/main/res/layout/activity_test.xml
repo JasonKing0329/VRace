@@ -8,23 +8,34 @@
         android:layout_height="match_parent"
         android:background="@color/text_sub">
 
-        <View
-            android:id="@+id/view"
-            android:layout_width="0dp"
-            android:layout_height="360dp"
-            android:background="@color/colorAccent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintBottom_toBottomOf="parent"/>
-
         <com.king.app.vrace.view.widget.RankChart
             android:id="@+id/chart"
-            android:layout_width="0dp"
-            android:layout_height="0dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:padding="2dp"
             android:background="@color/white"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintBottom_toTopOf="@id/view"/>
+            app:minYCellHeight="15dp"
+            app:minXCellWidth="20dp"/>
+
+        <HorizontalScrollView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:scrollbars="none"
+            android:layout_marginTop="20dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/chart">
+            <com.king.app.vrace.view.widget.RankChart
+                android:id="@+id/chart_scroll"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:padding="10dp"
+                android:background="@color/white"
+                app:minYCellHeight="20dp"
+                app:minXCellWidth="30dp"/>
+        </HorizontalScrollView>
     </android.support.constraint.ConstraintLayout>
 </layout>

@@ -69,6 +69,9 @@
             android:screenOrientation="landscape"/>
         <activity android:name=".page.LegSpecialActivity"
             android:screenOrientation="portrait"/>
+        <activity android:name=".page.TeamActivity"
+            android:screenOrientation="portrait"
+            android:launchMode="singleInstance"/>
     </application>
 
 </manifest>
