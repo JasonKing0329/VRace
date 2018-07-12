@@ -22,6 +22,7 @@ import com.king.app.vrace.model.entity.Season;
 import com.king.app.vrace.model.entity.SeasonDao;
 import com.king.app.vrace.model.entity.TeamSeason;
 import com.king.app.vrace.model.entity.TeamSeasonDao;
+import com.king.app.vrace.utils.PlaceUtil;
 import com.king.app.vrace.viewmodel.bean.LegItem;
 import com.king.app.vrace.viewmodel.bean.SeasonTeamItem;
 
@@ -138,30 +139,27 @@ public class SeasonViewModel extends BaseViewModel {
                 SeasonTeamItem item = new SeasonTeamItem();
                 item.setEpSeq(String.valueOf(team.getEpisodeSeq()));
                 item.setBean(team);
-                item.setName(team.getTeam().getCode());
+                String name = team.getTeam().getCode();
+                // all star team has more than 1 season
+                if (team.getTeam().getSeasonList().size() > 1) {
+                    name = "";
+                    for (TeamSeason season:team.getTeam().getSeasonList()) {
+                        if (season.getSeason().getIndex() < team.getSeason().getIndex()) {
+                            name = name + ",S" + season.getSeason().getIndex();
+                        }
+                    }
+                    if (name.startsWith(",")) {
+                        name = name.substring(1);
+                    }
+                    name = name + "\n" + team.getTeam().getCode();
+                }
+                item.setName(name);
                 item.setGender(AppConstants.getGenderText(GenderType.values()[team.getTeam().getGenderType()]));
                 item.setRelationship(team.getTeam().getRelationship().getName());
                 TeamResult teamResult = teamModel.getTeamSeasonResults(team.getTeamId(), team.getSeasonId());
                 item.setPoint(teamResult.getPoint());
                 item.setResult(teamResult.getEndRank());
-                if (TextUtils.isEmpty(team.getTeam().getProvince())) {
-                    if (!TextUtils.isEmpty(team.getTeam().getCity())) {
-                        item.setPlace(team.getTeam().getCity());
-                    }
-                }
-                else {
-                    if (TextUtils.isEmpty(team.getTeam().getCity())) {
-                        item.setPlace(team.getTeam().getProvince());
-                    }
-                    else {
-                        if (team.getTeam().getCity().equals(team.getTeam().getProvince())) {
-                            item.setPlace(team.getTeam().getCity());
-                        }
-                        else {
-                            item.setPlace(team.getTeam().getProvince() + "/" + team.getTeam().getCity());
-                        }
-                    }
-                }
+                item.setPlace(PlaceUtil.getCombinePlace(team.getTeam().getProvince(), team.getTeam().getCity()));
                 String occupy = null;
                 if (team.getTeam().getPlayerList().size() > 0) {
                     String occupy1 = team.getTeam().getPlayerList().get(0).getOccupy();

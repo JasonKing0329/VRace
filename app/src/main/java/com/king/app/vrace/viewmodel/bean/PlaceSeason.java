@@ -13,18 +13,18 @@ import java.util.List;
  */
 public class PlaceSeason {
 
-    private String country;
+    private String place;
 
     private Season season;
 
     private List<Leg> legs;
 
-    public String getCountry() {
-        return country;
+    public String getPlace() {
+        return place;
     }
 
-    public void setCountry(String country) {
-        this.country = country;
+    public void setPlace(String place) {
+        this.place = place;
     }
 
     public Season getSeason() {

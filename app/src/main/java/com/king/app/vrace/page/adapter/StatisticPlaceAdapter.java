@@ -23,10 +23,10 @@ public class StatisticPlaceAdapter extends BaseBindingAdapter<AdapterStatisticPl
     protected void onBindItem(AdapterStatisticPlaceBinding binding, int position, StatisticPlaceItem bean) {
         binding.setBean(bean);
 
-        binding.tvCountry.setText(bean.getCountry() + "(" + bean.getCount() + ")");
+        binding.tvCountry.setText(bean.getPlace() + "(" + bean.getCount() + ")");
 
         GlideApp.with(binding.ivFlag.getContext())
-                .load(bean.getFlagPath())
+                .load(bean.getImgPath())
                 .error(R.drawable.ic_default_leg)
                 .into(binding.ivFlag);
     }

@@ -3,6 +3,7 @@ package com.king.app.vrace.page;
 import android.arch.lifecycle.ViewModelProviders;
 import android.content.Intent;
 import android.graphics.Rect;
+import android.support.v7.widget.LinearLayoutCompat;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
@@ -10,15 +11,12 @@ import android.view.View;
 import com.king.app.vrace.R;
 import com.king.app.vrace.base.MvvmActivity;
 import com.king.app.vrace.conf.AppConstants;
-import com.king.app.vrace.databinding.ActivityStatisticPlaceBinding;
-import com.king.app.vrace.model.setting.SettingProperty;
-import com.king.app.vrace.page.adapter.StatPlaceAdapter;
+import com.king.app.vrace.databinding.ActivityStatisticLocalBinding;
 import com.king.app.vrace.page.adapter.StatisticPlaceAdapter;
 import com.king.app.vrace.utils.ScreenUtils;
 import com.king.app.vrace.view.dialog.AlertDialogFragment;
-import com.king.app.vrace.viewmodel.StatisticPlaceViewModel;
+import com.king.app.vrace.viewmodel.StatisticLocalViewModel;
 import com.king.app.vrace.viewmodel.bean.PlaceSeason;
-import com.king.app.vrace.viewmodel.bean.StatContinentItem;
 import com.king.app.vrace.viewmodel.bean.StatisticPlaceItem;
 
 import java.util.List;
@@ -29,18 +27,20 @@ import java.util.List;
  * @author：Jing Yang
  * @date: 2018/6/21 20:31
  */
-public class StatisticPlaceActivity extends MvvmActivity<ActivityStatisticPlaceBinding, StatisticPlaceViewModel> {
+public class StatisticLocalActivity extends MvvmActivity<ActivityStatisticLocalBinding, StatisticLocalViewModel> {
 
     private StatisticPlaceAdapter adapter;
-    private StatPlaceAdapter groupAdapter;
 
     @Override
     protected int getContentView() {
-        return R.layout.activity_statistic_place;
+        return R.layout.activity_statistic_local;
     }
 
     @Override
     protected void initView() {
+
+        mBinding.tvDepart.setSelected(true);
+
         mBinding.rvPlaces.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false));
         mBinding.rvPlaces.addItemDecoration(new RecyclerView.ItemDecoration() {
             @Override
@@ -51,49 +51,35 @@ public class StatisticPlaceActivity extends MvvmActivity<ActivityStatisticPlaceB
 
         mBinding.actionbar.setOnBackListener(() -> onBackPressed());
 
-        mBinding.actionbar.setOnMenuItemListener(menuId -> {
-            switch (menuId) {
-                case R.id.menu_group_mode:
-                    if (SettingProperty.getStatisticPlaceType() == AppConstants.STAT_PLACE_GROUP_BY_CONT) {
-                        SettingProperty.setStatisticPlaceType(AppConstants.STAT_PLACE_GROUP_NONE);
-                        mModel.statistic(AppConstants.STAT_PLACE_GROUP_NONE);
-                    }
-                    else {
-                        SettingProperty.setStatisticPlaceType(AppConstants.STAT_PLACE_GROUP_BY_CONT);
-                        mModel.statistic(AppConstants.STAT_PLACE_GROUP_BY_CONT);
-                    }
-                    break;
-                case R.id.menu_local:
-                    goToLocalPage();
-                    break;
-            }
-        });
-
+        mBinding.llDepart.setOnClickListener(view -> onSelectLocalType(AppConstants.STAT_LOCAL_DEPART));
+        mBinding.llFinal.setOnClickListener(view -> onSelectLocalType(AppConstants.STAT_LOCAL_FINAL));
     }
 
-    private void goToLocalPage() {
-        Intent intent = new Intent();
-        intent.setClass(this, StatisticLocalActivity.class);
-        startActivity(intent);
+    private void onSelectLocalType(int type) {
+        if (type == AppConstants.STAT_LOCAL_FINAL) {
+            mBinding.llFinal.setShowDividers(LinearLayoutCompat.SHOW_DIVIDER_END);
+            mBinding.tvFinal.setSelected(true);
+            mBinding.llDepart.setShowDividers(LinearLayoutCompat.SHOW_DIVIDER_NONE);
+            mBinding.tvDepart.setSelected(false);
+        }
+        else {
+            mBinding.llFinal.setShowDividers(LinearLayoutCompat.SHOW_DIVIDER_NONE);
+            mBinding.tvFinal.setSelected(false);
+            mBinding.llDepart.setShowDividers(LinearLayoutCompat.SHOW_DIVIDER_END);
+            mBinding.tvDepart.setSelected(true);
+        }
+        mModel.statistic(type);
     }
 
     @Override
-    protected StatisticPlaceViewModel createViewModel() {
-        return ViewModelProviders.of(this).get(StatisticPlaceViewModel.class);
+    protected StatisticLocalViewModel createViewModel() {
+        return ViewModelProviders.of(this).get(StatisticLocalViewModel.class);
     }
 
     @Override
     protected void initData() {
         mModel.placeObserver.observe(this, list -> showPlaces(list));
-        mModel.groupsObserver.observe(this, list -> showGroups(list));
         mModel.placeSeasonsObserver.observe(this, list -> showPlaceSeasons(list));
-    }
-
-    private void showGroups(List<StatContinentItem> list) {
-        groupAdapter = new StatPlaceAdapter(list);
-        groupAdapter.setOnCountryItemClickListener(item -> onSelectCountry(item.getBean().getPlace()));
-        mBinding.rvPlaces.setAdapter(groupAdapter);
-        mBinding.actionbar.updateMenuText(R.id.menu_group_mode, "No group");
     }
 
     private void showPlaces(List<StatisticPlaceItem> teams) {
@@ -101,7 +87,7 @@ public class StatisticPlaceActivity extends MvvmActivity<ActivityStatisticPlaceB
             adapter = new StatisticPlaceAdapter();
             adapter.setList(teams);
             adapter.setOnItemClickListener((view, position, data) -> {
-                onSelectCountry(data.getPlace());
+                onSelectCity(data.getPlace());
             });
             mBinding.rvPlaces.setAdapter(adapter);
         }
@@ -133,8 +119,8 @@ public class StatisticPlaceActivity extends MvvmActivity<ActivityStatisticPlaceB
         startActivity(intent);
     }
 
-    private void onSelectCountry(String country) {
-        mModel.findCountrySeasons(country);
+    private void onSelectCity(String city) {
+        mModel.findCitySeasons(city);
     }
 
 }

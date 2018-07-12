@@ -12,6 +12,10 @@ public class AppConstants {
 
     public static final int STAT_PLACE_GROUP_BY_CONT = 1;
 
+    public static final int STAT_LOCAL_DEPART = 0;
+
+    public static final int STAT_LOCAL_FINAL = 1;
+
     public static final int TEAM_SORT_NONE = 0;
 
     public static final int TEAM_SORT_SEASON = 1;

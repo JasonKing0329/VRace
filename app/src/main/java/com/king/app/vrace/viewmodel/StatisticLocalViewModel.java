@@ -7,15 +7,16 @@ import android.text.TextUtils;
 
 import com.king.app.vrace.base.BaseViewModel;
 import com.king.app.vrace.conf.AppConstants;
+import com.king.app.vrace.conf.LegType;
 import com.king.app.vrace.model.ImageProvider;
 import com.king.app.vrace.model.entity.Leg;
+import com.king.app.vrace.model.entity.LegDao;
 import com.king.app.vrace.model.entity.LegPlaces;
 import com.king.app.vrace.model.entity.LegPlacesDao;
-import com.king.app.vrace.model.setting.SettingProperty;
 import com.king.app.vrace.viewmodel.bean.PlaceSeason;
-import com.king.app.vrace.viewmodel.bean.StatContinentItem;
-import com.king.app.vrace.viewmodel.bean.StatCountryItem;
 import com.king.app.vrace.viewmodel.bean.StatisticPlaceItem;
+
+import org.greenrobot.greendao.query.QueryBuilder;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -36,29 +37,25 @@ import io.reactivex.schedulers.Schedulers;
  * @author：Jing Yang
  * @date: 2018/6/28 17:11
  */
-public class StatisticPlaceViewModel extends BaseViewModel {
+public class StatisticLocalViewModel extends BaseViewModel {
 
     public MutableLiveData<List<StatisticPlaceItem>> placeObserver = new MutableLiveData<>();
-
-    public MutableLiveData<List<StatContinentItem>> groupsObserver = new MutableLiveData<>();
 
     public MutableLiveData<List<PlaceSeason>> placeSeasonsObserver = new MutableLiveData<>();
 
     private int mStatisticType;
 
-    public StatisticPlaceViewModel(@NonNull Application application) {
+    public StatisticLocalViewModel(@NonNull Application application) {
         super(application);
 
-        statistic(SettingProperty.getStatisticPlaceType());
+        mStatisticType = -1;
+        statistic(AppConstants.STAT_LOCAL_DEPART);
     }
 
     public void statistic(int type) {
-        mStatisticType = type;
+        if (mStatisticType != type) {
+            mStatisticType = type;
 
-        if (mStatisticType == AppConstants.STAT_PLACE_GROUP_BY_CONT) {
-            queryByGroup();
-        }
-        else {
             queryTotal();
         }
     }
@@ -97,62 +94,16 @@ public class StatisticPlaceViewModel extends BaseViewModel {
         });
     }
 
-    private void queryByGroup() {
-        getGroups()
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribeOn(Schedulers.io())
-                .subscribe(new Observer<List<StatContinentItem>>() {
-                    @Override
-                    public void onSubscribe(Disposable d) {
-                        addDisposable(d);
-                    }
-
-                    @Override
-                    public void onNext(List<StatContinentItem> list) {
-                        groupsObserver.setValue(list);
-                    }
-
-                    @Override
-                    public void onError(Throwable e) {
-                        e.printStackTrace();
-                    }
-
-                    @Override
-                    public void onComplete() {
-
-                    }
-                });
-    }
-
-    private Observable<List<StatContinentItem>> getGroups() {
-        return Observable.create(e -> {
-            List<StatisticPlaceItem> list = getPlaceItems();
-            List<StatContinentItem> groups = new ArrayList<>();
-
-            Map<String, List<StatCountryItem>> groupMap = new HashMap<>();
-            for (StatisticPlaceItem placeItem:list) {
-                String continent = placeItem.getContinent();
-                if (groupMap.get(continent) == null) {
-                    groupMap.put(continent, new ArrayList<>());
-                }
-                StatCountryItem countryItem = new StatCountryItem();
-                countryItem.setBean(placeItem);
-                groupMap.get(continent).add(countryItem);
-            }
-            for (String continent:groupMap.keySet()) {
-                StatContinentItem group = new StatContinentItem();
-                group.setContinent(continent);
-                group.setChildItemList(groupMap.get(continent));
-                group.setCount(group.getChildItemList().size());
-                groups.add(group);
-            }
-            e.onNext(groups);
-        });
-    }
-
     public List<StatisticPlaceItem> getPlaceItems() {
         List<StatisticPlaceItem> list = new ArrayList<>();
-        List<Leg> legs = getDaoSession().getLegDao().loadAll();
+        QueryBuilder<Leg> builder = getDaoSession().getLegDao().queryBuilder();
+        if (mStatisticType == AppConstants.STAT_LOCAL_FINAL) {
+            builder.where(LegDao.Properties.Type.eq(LegType.FINAL.ordinal()));
+        }
+        else {
+            builder.where(LegDao.Properties.Index.eq(0));
+        }
+        List<Leg> legs = builder.build().list();
 
         Map<String, StatisticPlaceItem> placeMap = new HashMap<>();
 
@@ -162,16 +113,13 @@ public class StatisticPlaceViewModel extends BaseViewModel {
                 lp = leg.getPlaceList().get(0);
             }
             if (lp != null) {
-                String key = lp.getCountry();
-                if ("中国".equals(key)) {
-                    continue;
-                }
+                String key = lp.getCity();
                 StatisticPlaceItem item = placeMap.get(key);
                 if (item == null) {
                     item = new StatisticPlaceItem();
-                    item.setPlace(lp.getCountry());
+                    item.setPlace(lp.getCity());
                     item.setContinent(lp.getContinent());
-                    item.setImgPath(ImageProvider.getCountryFlagPath(lp.getCountry()));
+                    item.setImgPath(ImageProvider.getLegImagePath(leg));
                     list.add(item);
                     placeMap.put(key, item);
                 }
@@ -195,8 +143,8 @@ public class StatisticPlaceViewModel extends BaseViewModel {
         return list;
     }
 
-    public void findCountrySeasons(String country) {
-        getCountrySeasons(country)
+    public void findCitySeasons(String city) {
+        getCitySeasons(city)
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribeOn(Schedulers.io())
                 .subscribe(new Observer<List<PlaceSeason>>() {
@@ -222,11 +170,11 @@ public class StatisticPlaceViewModel extends BaseViewModel {
                 });
     }
 
-    private Observable<List<PlaceSeason>> getCountrySeasons(String country) {
+    private Observable<List<PlaceSeason>> getCitySeasons(String city) {
         return Observable.create(e -> {
             List<PlaceSeason> list = new ArrayList<>();
             List<LegPlaces> places = getDaoSession().getLegPlacesDao().queryBuilder()
-                    .where(LegPlacesDao.Properties.Country.eq(country))
+                    .where(LegPlacesDao.Properties.City.eq(city))
                     .build().list();
 
             Map<Long, PlaceSeason> seasonMap = new HashMap<>();
@@ -235,7 +183,7 @@ public class StatisticPlaceViewModel extends BaseViewModel {
                 PlaceSeason ps = seasonMap.get(seasonId);
                 if (ps == null) {
                     ps = new PlaceSeason();
-                    ps.setPlace(country);
+                    ps.setPlace(city);
                     ps.setSeason(legPlaces.getLeg().getSeason());
                     ps.setLegs(new ArrayList<>());
                     list.add(ps);

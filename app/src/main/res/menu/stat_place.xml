@@ -1,6 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
+    <item android:id="@+id/menu_local"
+        android:title="Local"
+        android:icon="@drawable/ic_location_on_white_24dp"
+        app:showAsAction="ifRoom"/>
     <item android:id="@+id/menu_group_mode"
         android:title="Group by continent"
         app:showAsAction="never"/>

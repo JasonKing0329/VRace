@@ -58,6 +58,7 @@
             android:screenOrientation="portrait"/>
         <activity android:name=".page.LegActivity"
             android:theme="@style/OverStatusBarTheme"
+            android:windowSoftInputMode="stateAlwaysHidden"
             android:screenOrientation="portrait"/>
         <activity android:name=".page.StatisticPlaceActivity"
             android:screenOrientation="portrait"/>
@@ -72,6 +73,8 @@
         <activity android:name=".page.TeamActivity"
             android:screenOrientation="portrait"
             android:launchMode="singleInstance"/>
+        <activity android:name=".page.StatisticLocalActivity"
+            android:screenOrientation="portrait"/>
     </application>
 
 </manifest>

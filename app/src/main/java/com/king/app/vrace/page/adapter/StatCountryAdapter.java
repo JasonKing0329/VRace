@@ -64,10 +64,10 @@ public class StatCountryAdapter extends AbstractExpandableAdapterItem {
         mItem.setItemPosition(position);
 
         tvSeasons.setText(mItem.getBean().getSeasons());
-        tvCountry.setText(mItem.getBean().getCountry() + "(" + mItem.getBean().getCount() + ")");
+        tvCountry.setText(mItem.getBean().getPlace() + "(" + mItem.getBean().getCount() + ")");
 
         GlideApp.with(ivFlag.getContext())
-                .load(mItem.getBean().getFlagPath())
+                .load(mItem.getBean().getImgPath())
                 .error(R.drawable.ic_default_leg)
                 .into(ivFlag);
     }

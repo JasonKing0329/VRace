@@ -8,24 +8,24 @@ package com.king.app.vrace.viewmodel.bean;
  */
 public class StatisticPlaceItem {
 
-    private String country;
+    private String place;
 
     private int count;
 
     private String seasons;
 
-    private String flagPath;
+    private String imgPath;
 
     private String continent;
 
     private long lastSeasonId;
 
-    public String getCountry() {
-        return country;
+    public String getPlace() {
+        return place;
     }
 
-    public void setCountry(String country) {
-        this.country = country;
+    public void setPlace(String place) {
+        this.place = place;
     }
 
     public int getCount() {
@@ -44,12 +44,12 @@ public class StatisticPlaceItem {
         this.seasons = seasons;
     }
 
-    public String getFlagPath() {
-        return flagPath;
+    public String getImgPath() {
+        return imgPath;
     }
 
-    public void setFlagPath(String flagPath) {
-        this.flagPath = flagPath;
+    public void setImgPath(String imgPath) {
+        this.imgPath = imgPath;
     }
 
     public long getLastSeasonId() {
