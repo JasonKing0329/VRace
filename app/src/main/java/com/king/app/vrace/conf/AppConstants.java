@@ -8,6 +8,10 @@ package com.king.app.vrace.conf;
  */
 public class AppConstants {
 
+    public static final int DATABASE_VIRTUAL = 0;
+
+    public static final int DATABASE_REAL = 1;
+
     public static final int STAT_PLACE_GROUP_NONE = 0;
 
     public static final int STAT_PLACE_GROUP_BY_CONT = 1;

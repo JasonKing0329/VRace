@@ -4,6 +4,7 @@ import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 
 import com.king.app.vrace.base.RaceApplication;
+import com.king.app.vrace.conf.AppConstants;
 
 /**
  * 描述:
@@ -79,6 +80,14 @@ public class SettingProperty {
 
     public static int getStatisticPlaceType() {
         return getInt("statistic_place_type");
+    }
+
+    public static int getDatabaseType() {
+        try {
+            return Integer.parseInt(getString("pref_database_type"));
+        } catch (Exception e) {
+            return AppConstants.DATABASE_VIRTUAL;
+        }
     }
 
 }

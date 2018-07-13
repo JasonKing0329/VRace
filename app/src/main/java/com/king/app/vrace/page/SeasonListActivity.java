@@ -14,6 +14,7 @@ import com.king.app.vrace.base.RaceApplication;
 import com.king.app.vrace.databinding.ActivitySeasonListBinding;
 import com.king.app.vrace.model.entity.Season;
 import com.king.app.vrace.page.adapter.SeasonListAdapter;
+import com.king.app.vrace.utils.DebugLog;
 import com.king.app.vrace.utils.ScreenUtils;
 import com.king.app.vrace.view.dialog.DraggableDialogFragment;
 import com.king.app.vrace.view.dialog.content.LoadFromSelector;
@@ -29,6 +30,8 @@ import java.util.List;
  * @date: 2018/6/21 20:31
  */
 public class SeasonListActivity extends MvvmActivity<ActivitySeasonListBinding, SeasonListViewModel> {
+
+    private final int REQUEST_SETTING = 211;
 
     private SeasonListAdapter adapter;
 
@@ -82,6 +85,9 @@ public class SeasonListActivity extends MvvmActivity<ActivitySeasonListBinding, 
                 case R.id.menu_load_from:
                     loadFromHistory();
                     break;
+                case R.id.menu_setting:
+                    goToSetting();
+                    break;
             }
         });
 
@@ -119,6 +125,10 @@ public class SeasonListActivity extends MvvmActivity<ActivitySeasonListBinding, 
                 return true;
             }
         });
+    }
+
+    private void goToSetting() {
+        startActivityForResult(new Intent(this, SettingsActivity.class), REQUEST_SETTING);
     }
 
     private void saveAsHistory() {
@@ -211,5 +221,16 @@ public class SeasonListActivity extends MvvmActivity<ActivitySeasonListBinding, 
             dialogFragment.setTitle("Edit S" + season.getIndex());
         }
         dialogFragment.show(getSupportFragmentManager(), "SeasonEditor");
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == REQUEST_SETTING) {
+            if (mModel.isDatabaseChanged()) {
+                RaceApplication.getInstance().reCreateGreenDao();
+                initData();
+            }
+        }
     }
 }

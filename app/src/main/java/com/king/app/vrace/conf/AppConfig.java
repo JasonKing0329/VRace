@@ -9,6 +9,7 @@ import android.os.Environment;
  */
 public class AppConfig {
     public static final String DB_NAME = "race.db";
+    public static final String DB_CBS_NAME = "race_cbs.db";
 
     public static final String SDCARD = Environment.getExternalStorageDirectory().getPath();
 

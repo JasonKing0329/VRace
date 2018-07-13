@@ -60,7 +60,23 @@ public class FileUtil {
         }
     }
 
-    public static boolean replaceDatabase(File source) {
+    public static boolean replaceDatabases(File folder) {
+        if (folder == null || !folder.exists()) {
+            return false;
+        }
+
+        if (folder.isDirectory()) {
+            File[] files = folder.listFiles();
+            for (File file:files) {
+                replaceDatabase(file, file.getName());
+            }
+        }
+        else {
+            replaceDatabase(folder, folder.getName());
+        }
+        return true;
+    }
+    public static boolean replaceDatabase(File source, String fileName) {
         if (source == null || !source.exists()) {
             return false;
         }
@@ -69,14 +85,14 @@ public class FileUtil {
         String dbPath = RaceApplication.getInstance().getFilesDir().getParent() + "/databases";
         File targetFolder = new File(dbPath);
         if (targetFolder.exists()) {
-            File[] files = targetFolder.listFiles();
-            for (File f:files) {
-                f.delete();
+            File file = new File(dbPath + "/" + fileName);
+            if (file.exists()) {
+                file.delete();
             }
         }
         try {
             InputStream in = new FileInputStream(source);
-            File file = new File(dbPath + "/" + AppConfig.DB_NAME);
+            File file = new File(dbPath + "/" + fileName);
             OutputStream fileOut = new FileOutputStream(file);
             byte[] buffer = new byte[1024];
             int length;

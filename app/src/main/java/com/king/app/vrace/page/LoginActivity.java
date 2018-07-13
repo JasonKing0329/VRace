@@ -25,7 +25,6 @@ public class LoginActivity extends MvvmActivity<ActivityLoginBinding, LoginViewM
 
     @Override
     protected void initView() {
-        SettingProperty.setEnableFingerPrint(true);
         mBinding.setModel(mModel);
         mModel.fingerprintObserver.observe(this, aBoolean -> {
             fingerPrint = new FingerPrintController(LoginActivity.this);

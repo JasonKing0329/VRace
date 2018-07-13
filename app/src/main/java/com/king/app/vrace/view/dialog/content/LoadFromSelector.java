@@ -73,7 +73,7 @@ public class LoadFromSelector extends DraggableContentFragment<FragmentDialogLoa
                     .setMessage("This operation will replace database of application with selected database, continue?")
                     .setPositiveText(getString(R.string.ok))
                     .setPositiveListener((dialogInterface, i) -> {
-                        FileUtil.replaceDatabase(file);
+                        FileUtil.replaceDatabases(file);
                         dismissAllowingStateLoss();
                         if (onDatabaseChangedListener != null) {
                             onDatabaseChangedListener.onDatabaseChanged();

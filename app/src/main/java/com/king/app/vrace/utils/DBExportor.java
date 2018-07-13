@@ -29,20 +29,28 @@ public class DBExportor {
 
 	public static void exportAsHistory() {
 
-		String dbPath = RaceApplication.getInstance().getFilesDir().getParent() + "/databases/" + AppConfig.DB_NAME;
-
 		Calendar calendar = Calendar.getInstance();
 		StringBuffer target = new StringBuffer();
-		target.append(AppConfig.HISTORY_BASE).append("/race_");
+		target.append(AppConfig.HISTORY_BASE).append("/");
 		target.append(calendar.get(Calendar.YEAR)).append("_");
 		target.append(calendar.get(Calendar.MONTH) + 1).append("_");
 		target.append(calendar.get(Calendar.DAY_OF_MONTH)).append("_");
 		target.append(calendar.get(Calendar.HOUR_OF_DAY)).append("_");
 		target.append(calendar.get(Calendar.MINUTE)).append("_");
 		target.append(calendar.get(Calendar.SECOND));
-		target.append(".db");
+		File folder = new File(target.toString());
+		if (!folder.exists()) {
+			folder.mkdir();
+		}
+
+		String raceTarget = folder.getPath() + "/" + AppConfig.DB_NAME;
+		String raceCbsTarget = folder.getPath() + "/" + AppConfig.DB_CBS_NAME;
+		String dbPath = RaceApplication.getInstance().getFilesDir().getParent() + "/databases/" + AppConfig.DB_NAME;
+		String dbCbsPath = RaceApplication.getInstance().getFilesDir().getParent() + "/databases/" + AppConfig.DB_CBS_NAME;
+
 		try {
-			copyFile(new File(dbPath), new File(target.toString()));
+			copyFile(new File(dbPath), new File(raceTarget));
+			copyFile(new File(dbCbsPath), new File(raceCbsTarget));
 		} catch (IOException e) {
 			e.printStackTrace();
 		}

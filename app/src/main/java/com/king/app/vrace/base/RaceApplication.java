@@ -5,8 +5,10 @@ import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 
 import com.king.app.vrace.conf.AppConfig;
+import com.king.app.vrace.conf.AppConstants;
 import com.king.app.vrace.model.entity.DaoMaster;
 import com.king.app.vrace.model.entity.DaoSession;
+import com.king.app.vrace.model.setting.SettingProperty;
 import com.king.app.vrace.utils.DebugLog;
 
 import org.greenrobot.greendao.database.Database;
@@ -41,7 +43,12 @@ public class RaceApplication extends Application {
      * 需要由外部调用，如果在onCreate里直接初始化会创建新的数据库
      */
     public void createGreenDao() {
-        helper = new RHelper(getApplicationContext(), AppConfig.DB_NAME);
+        if (SettingProperty.getDatabaseType() == AppConstants.DATABASE_REAL) {
+            helper = new RHelper(getApplicationContext(), AppConfig.DB_CBS_NAME);
+        }
+        else {
+            helper = new RHelper(getApplicationContext(), AppConfig.DB_NAME);
+        }
         database = helper.getWritableDb();
         daoSession = new DaoMaster(database).newSession();
 

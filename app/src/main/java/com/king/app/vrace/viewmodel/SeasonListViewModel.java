@@ -9,6 +9,7 @@ import com.king.app.vrace.model.entity.LegDao;
 import com.king.app.vrace.model.entity.Season;
 import com.king.app.vrace.model.entity.SeasonDao;
 import com.king.app.vrace.model.entity.TeamSeasonDao;
+import com.king.app.vrace.model.setting.SettingProperty;
 import com.king.app.vrace.utils.DBExportor;
 
 import java.util.HashMap;
@@ -38,9 +39,12 @@ public class SeasonListViewModel extends BaseViewModel {
 
     private Map<Long, Boolean> mCheckMap;
 
+    private int mDatabaseType;
+
     public SeasonListViewModel(@NonNull Application application) {
         super(application);
         mCheckMap = new HashMap<>();
+        mDatabaseType = SettingProperty.getDatabaseType();
     }
 
     public void loadSeasons() {
@@ -171,5 +175,14 @@ public class SeasonListViewModel extends BaseViewModel {
 
                     }
                 });
+    }
+
+    public boolean isDatabaseChanged() {
+        int type = SettingProperty.getDatabaseType();
+        if (mDatabaseType != type) {
+            mDatabaseType = type;
+            return true;
+        }
+        return false;
     }
 }
