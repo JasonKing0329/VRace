@@ -2,7 +2,9 @@ package com.king.app.vrace.page.adapter;
 
 import android.graphics.Color;
 
+import com.king.app.vrace.conf.AppConstants;
 import com.king.app.vrace.model.entity.LegTeam;
+import com.king.app.vrace.model.setting.SettingProperty;
 import com.king.app.vrace.view.widget.RankChartAdapter;
 import com.king.app.vrace.viewmodel.bean.TeamChartBean;
 
@@ -30,8 +32,15 @@ public class TeamChartAdapter extends RankChartAdapter {
     @Override
     public String getXAxisName(int position) {
         String place = mChartBean.getLegList().get(position).getPlaceList().get(0).getCountry();
-        if (place.equals("中国")) {
-            place = mChartBean.getLegList().get(position).getPlaceList().get(0).getCity();
+        if (SettingProperty.getDatabaseType() == AppConstants.DATABASE_REAL) {
+            if (place.equals("美国")) {
+                place = mChartBean.getLegList().get(position).getPlaceList().get(0).getCity();
+            }
+        }
+        else {
+            if (place.equals("中国")) {
+                place = mChartBean.getLegList().get(position).getPlaceList().get(0).getCity();
+            }
         }
         return "L" + mChartBean.getLegList().get(position).getIndex() + "\n"
                 + place;

@@ -24,4 +24,12 @@
         <item>起跑赛段（含任务）</item>
         <item>起跑赛段（淘汰）</item>
     </string-array>
+    <string-array name="continents">
+        <item>亚洲</item>
+        <item>北美洲</item>
+        <item>南美洲</item>
+        <item>欧洲</item>
+        <item>非洲</item>
+        <item>大洋洲</item>
+    </string-array>
 </resources>

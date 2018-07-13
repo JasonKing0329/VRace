@@ -7,10 +7,13 @@ import android.widget.AdapterView;
 
 import com.king.app.vrace.R;
 import com.king.app.vrace.base.IFragmentHolder;
+import com.king.app.vrace.conf.AppConstants;
+import com.king.app.vrace.conf.LegType;
 import com.king.app.vrace.databinding.FragmentEditorLegBinding;
 import com.king.app.vrace.model.entity.Leg;
 import com.king.app.vrace.model.entity.LegPlaces;
 import com.king.app.vrace.model.entity.LegPlacesDao;
+import com.king.app.vrace.model.setting.SettingProperty;
 import com.king.app.vrace.view.dialog.DraggableContentFragment;
 import com.king.app.vrace.viewmodel.SeasonViewModel;
 
@@ -51,19 +54,19 @@ public class LegEditor extends DraggableContentFragment<FragmentEditorLegBinding
             mBinding.etDesc.setText(mLeg.getDescription());
             mBinding.spType.setSelection(mLeg.getType());
             if (mLeg.getPlaceList().size() > 0) {
-                mBinding.etContinent1.setText(mLeg.getPlaceList().get(0).getContinent());
+                mBinding.spContinent1.setSelection(getContinentSelection(mLeg.getPlaceList().get(0).getContinent(), getContinents()));
                 mBinding.etCountry1.setText(mLeg.getPlaceList().get(0).getCountry());
                 mBinding.etCity1.setText(mLeg.getPlaceList().get(0).getCity());
             }
             if (mLeg.getPlaceList().size() > 1) {
                 mBinding.llPlace2.setVisibility(View.VISIBLE);
-                mBinding.etContinent2.setText(mLeg.getPlaceList().get(1).getContinent());
+                mBinding.spContinent2.setSelection(getContinentSelection(mLeg.getPlaceList().get(1).getContinent(), getContinents()));
                 mBinding.etCountry2.setText(mLeg.getPlaceList().get(1).getCountry());
                 mBinding.etCity2.setText(mLeg.getPlaceList().get(1).getCity());
             }
             if (mLeg.getPlaceList().size() > 2) {
                 mBinding.llPlace3.setVisibility(View.VISIBLE);
-                mBinding.etContinent3.setText(mLeg.getPlaceList().get(2).getContinent());
+                mBinding.spContinent3.setSelection(getContinentSelection(mLeg.getPlaceList().get(2).getContinent(), getContinents()));
                 mBinding.etCountry3.setText(mLeg.getPlaceList().get(2).getCountry());
                 mBinding.etCity3.setText(mLeg.getPlaceList().get(2).getCity());
             }
@@ -76,6 +79,22 @@ public class LegEditor extends DraggableContentFragment<FragmentEditorLegBinding
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                 mLeg.setType(position);
+                switch (LegType.values()[position]) {
+                    case FINAL:
+                        mBinding.etPlayers.setText("3");
+                    case START_LINE:
+                    case START_LINE_EL:
+                    case START_LINE_TASK:
+                        if (AppConstants.DATABASE_REAL == SettingProperty.getDatabaseType()) {
+                            mBinding.spContinent1.setSelection(1);
+                            mBinding.etCountry1.setText("美国");
+                        }
+                        else {
+                            mBinding.spContinent1.setSelection(0);
+                            mBinding.etCountry1.setText("中国");
+                        }
+                        break;
+                }
             }
 
             @Override
@@ -91,6 +110,21 @@ public class LegEditor extends DraggableContentFragment<FragmentEditorLegBinding
             mBinding.llPlace3.setVisibility(View.GONE);
             mBinding.ivRemove2.setVisibility(View.VISIBLE);
         });
+    }
+    
+    private String[] getContinents() {
+        return getResources().getStringArray(R.array.continents);
+    }
+
+    private int getContinentSelection(String continent, String[] continents) {
+        int selection = 0;
+        for (int i = 0; i < continents.length; i ++) {
+            if (continents[i].equals(continent)) {
+                selection = i;
+                break;
+            }
+        }
+        return selection;
     }
 
     private void addPlace() {
@@ -128,11 +162,7 @@ public class LegEditor extends DraggableContentFragment<FragmentEditorLegBinding
             return;
         }
         List<LegPlaces> places = new ArrayList<>();
-        String continent1 = mBinding.etContinent1.getText().toString();
-        if (TextUtils.isEmpty(continent1)) {
-            showMessageShort("Empty continent");
-            return;
-        }
+        String continent1 = getContinents()[mBinding.spContinent1.getSelectedItemPosition()];
         // country must not be null while city can be null
         String country1 = mBinding.etCountry1.getText().toString();
         if (TextUtils.isEmpty(country1)) {
@@ -147,11 +177,7 @@ public class LegEditor extends DraggableContentFragment<FragmentEditorLegBinding
         place.setSeq(1);
         places.add(place);
         if (mBinding.llPlace2.getVisibility() == View.VISIBLE) {
-            String continent = mBinding.etContinent2.getText().toString();
-            if (TextUtils.isEmpty(continent)) {
-                showMessageShort("Empty continent");
-                return;
-            }
+            String continent = getContinents()[mBinding.spContinent2.getSelectedItemPosition()];
             String country = mBinding.etCountry2.getText().toString();
             if (TextUtils.isEmpty(country)) {
                 showMessageShort("Empty country");
@@ -166,7 +192,7 @@ public class LegEditor extends DraggableContentFragment<FragmentEditorLegBinding
             places.add(place);
         }
         if (mBinding.llPlace3.getVisibility() == View.VISIBLE) {
-            String continent = mBinding.etContinent3.getText().toString();
+            String continent = getContinents()[mBinding.spContinent3.getSelectedItemPosition()];
             if (TextUtils.isEmpty(continent)) {
                 showMessageShort("Empty continent");
                 return;

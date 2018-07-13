@@ -5,9 +5,11 @@ import android.view.View;
 import com.king.app.vrace.GlideApp;
 import com.king.app.vrace.R;
 import com.king.app.vrace.base.BaseBindingAdapter;
+import com.king.app.vrace.conf.AppConstants;
 import com.king.app.vrace.conf.SeasonType;
 import com.king.app.vrace.databinding.AdapterSeasonBinding;
 import com.king.app.vrace.model.entity.Season;
+import com.king.app.vrace.model.setting.SettingProperty;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -88,20 +90,39 @@ public class SeasonListAdapter extends BaseBindingAdapter<AdapterSeasonBinding, 
     }
 
     private int getDefaultCover(int index, int type) {
-        if (index <= 7) {
-            return R.drawable.ic_default5;
-        }
-        else if (index <= 15) {
-            return R.drawable.ic_default4;
-        }
-        else if (index <= 21) {
-            return R.drawable.ic_default1;
-        }
-        else if (index <= 29) {
-            return R.drawable.ic_default3;
+        if (SettingProperty.getDatabaseType() == AppConstants.DATABASE_REAL) {
+            if (index <= 11) {
+                return R.drawable.ic_default5;
+            }
+            else if (index <= 18) {
+                return R.drawable.ic_default4;
+            }
+            else if (index <= 24) {
+                return R.drawable.ic_default1;
+            }
+            else if (index <= 29) {
+                return R.drawable.ic_default3;
+            }
+            else {
+                return R.drawable.ic_default2;
+            }
         }
         else {
-            return R.drawable.ic_default2;
+            if (index <= 7) {
+                return R.drawable.ic_default5;
+            }
+            else if (index <= 15) {
+                return R.drawable.ic_default4;
+            }
+            else if (index <= 21) {
+                return R.drawable.ic_default1;
+            }
+            else if (index <= 29) {
+                return R.drawable.ic_default3;
+            }
+            else {
+                return R.drawable.ic_default2;
+            }
         }
     }
 }

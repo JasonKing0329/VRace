@@ -163,8 +163,15 @@ public class StatisticPlaceViewModel extends BaseViewModel {
             }
             if (lp != null) {
                 String key = lp.getCountry();
-                if ("中国".equals(key)) {
-                    continue;
+                if (SettingProperty.getDatabaseType() == AppConstants.DATABASE_REAL) {
+                    if ("美国".equals(key)) {
+                        continue;
+                    }
+                }
+                else {
+                    if ("中国".equals(key)) {
+                        continue;
+                    }
                 }
                 StatisticPlaceItem item = placeMap.get(key);
                 if (item == null) {

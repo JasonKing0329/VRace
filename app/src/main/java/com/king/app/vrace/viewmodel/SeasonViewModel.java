@@ -286,6 +286,7 @@ public class SeasonViewModel extends BaseViewModel {
                     item.setPlayers(leg.getPlayerNumber() + " teams");
                 }
                 StringBuffer place = new StringBuffer();
+                // 第0个为主要国家/城市（决定封面的国家/城市）
                 if (leg.getPlaceList().size() > 0) {
                     place.append(leg.getPlaceList().get(0).getCountry());
                     if (!TextUtils.isEmpty(leg.getPlaceList().get(0).getCity())) {
