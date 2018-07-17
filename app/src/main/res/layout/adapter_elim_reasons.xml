@@ -30,6 +30,17 @@
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintEnd_toEndOf="parent"/>
 
+        <ImageView
+            android:id="@+id/iv_detail"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:padding="10dp"
+            android:src="@drawable/ic_remove_red_eye_grey_700_24dp"
+            android:background="?android:attr/selectableItemBackgroundBorderless"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintEnd_toStartOf="@id/iv_add"/>
+
         <TextView
             android:id="@+id/tv_name"
             android:layout_width="0dp"
@@ -41,7 +52,7 @@
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toEndOf="@+id/cb_check"
             app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintEnd_toStartOf="@id/iv_add"/>
+            app:layout_constraintEnd_toStartOf="@id/iv_detail"/>
 
     </android.support.constraint.ConstraintLayout>
 </layout>

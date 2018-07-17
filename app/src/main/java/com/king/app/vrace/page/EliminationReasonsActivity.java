@@ -10,9 +10,13 @@ import com.king.app.vrace.base.MvvmActivity;
 import com.king.app.vrace.base.RaceApplication;
 import com.king.app.vrace.databinding.ActivityElimReasonsBinding;
 import com.king.app.vrace.model.entity.EliminationReason;
+import com.king.app.vrace.model.entity.TeamElimination;
 import com.king.app.vrace.page.adapter.EliminationReasonListAdapter;
+import com.king.app.vrace.view.dialog.AlertDialogFragment;
 import com.king.app.vrace.view.dialog.SimpleDialogs;
 import com.king.app.vrace.viewmodel.EliminationReasonViewModel;
+import com.king.app.vrace.viewmodel.bean.EliminationItem;
+import com.king.app.vrace.viewmodel.bean.StatisticWinnerItem;
 
 import java.util.List;
 
@@ -118,6 +122,7 @@ public class EliminationReasonsActivity extends MvvmActivity<ActivityElimReasons
             adapter.notifyDataSetChanged();
             mModel.loadReasons();
         });
+        mModel.popupObserver.observe(this, array -> popupItem(array));
 
         mModel.loadReasons();
     }
@@ -127,26 +132,50 @@ public class EliminationReasonsActivity extends MvvmActivity<ActivityElimReasons
                 (dialog, which) -> mModel.deleteReasons(), null);
     }
 
-    private void showReasons(List<EliminationReason> reasons) {
+    private void showReasons(List<EliminationItem> reasons) {
         if (adapter == null) {
             adapter = new EliminationReasonListAdapter();
             adapter.setList(reasons);
             adapter.setCheckMap(mModel.getCheckMap());
             adapter.setOnItemClickListener((view, position, data) -> {
                 if (isEditMode) {
-                    editReason(data, null);
+                    editReason(data.getBean(), null);
                 }
                 else {
-                    onSelectRelationship(data);
+                    onSelectRelationship(data.getBean());
                 }
             });
-            adapter.setOnAddSubReasonListener(parent -> editReason(null, parent));
+            adapter.setOnReasonListener(new EliminationReasonListAdapter.OnReasonListener() {
+                @Override
+                public void onClickAdd(EliminationReason parent) {
+                    editReason(null, parent);
+                }
+
+                @Override
+                public void onClickDetail(EliminationReason item) {
+                    mModel.convertToTextList(item);
+                }
+            });
             mBinding.rvReasons.setAdapter(adapter);
         }
         else {
             adapter.setList(reasons);
             adapter.notifyDataSetChanged();
         }
+    }
+
+    private void popupItem(String[] texts) {
+        new AlertDialogFragment()
+                .setTitle(null)
+                .setItems(texts, (dialog, which) -> goToLeg(mModel.getSelectedEliminateTeam(which)))
+                .show(getSupportFragmentManager(), "AlertDialogFragment");
+    }
+
+    private void goToLeg(TeamElimination item) {
+        Intent intent = new Intent();
+        intent.setClass(this, LegActivity.class);
+        intent.putExtra(LegActivity.EXTRA_LEG_ID, item.getLegId());
+        startActivity(intent);
     }
 
     private void onSelectRelationship(EliminationReason data) {

@@ -7,6 +7,7 @@ import com.king.app.vrace.base.BaseBindingAdapter;
 import com.king.app.vrace.databinding.AdapterElimReasonsBinding;
 import com.king.app.vrace.model.entity.EliminationReason;
 import com.king.app.vrace.utils.ScreenUtils;
+import com.king.app.vrace.viewmodel.bean.EliminationItem;
 
 import java.util.Map;
 
@@ -16,13 +17,13 @@ import java.util.Map;
  * @author：Jing Yang
  * @date: 2018/6/21 20:16
  */
-public class EliminationReasonListAdapter extends BaseBindingAdapter<AdapterElimReasonsBinding, EliminationReason> {
+public class EliminationReasonListAdapter extends BaseBindingAdapter<AdapterElimReasonsBinding, EliminationItem> {
 
     private Map<Long, Boolean> checkMap;
 
     private boolean isSelectMode;
 
-    private OnAddSubReasonListener onAddSubReasonListener;
+    private OnReasonListener onReasonListener;
 
     @Override
     protected int getItemLayoutRes() {
@@ -30,27 +31,33 @@ public class EliminationReasonListAdapter extends BaseBindingAdapter<AdapterElim
     }
 
     @Override
-    protected void onBindItem(AdapterElimReasonsBinding binding, int position, EliminationReason bean) {
+    protected void onBindItem(AdapterElimReasonsBinding binding, int position, EliminationItem bean) {
 
-        binding.tvName.setText(bean.getName());
-        int paddingLeft = getPaddingLeft(bean);
+        binding.tvName.setText(bean.getName() + "(" + bean.getNumber() + ")");
+        int paddingLeft = getPaddingLeft(bean.getBean());
         binding.tvName.setPadding(paddingLeft, 0, ScreenUtils.dp2px(16), 0);
 
         binding.cbCheck.setVisibility(isSelectMode ? View.VISIBLE:View.GONE);
         if (isSelectMode) {
-            if (checkMap.get(bean.getId()) == null) {
+            if (checkMap.get(bean.getBean().getId()) == null) {
                 binding.cbCheck.setChecked(false);
             }
             else {
-                binding.cbCheck.setChecked(checkMap.get(bean.getId()));
+                binding.cbCheck.setChecked(checkMap.get(bean.getBean().getId()));
             }
         }
 
-        if (bean.getParent() == null) {
+        binding.ivDetail.setOnClickListener(view -> {
+            if (onReasonListener != null) {
+                onReasonListener.onClickDetail(bean.getBean());
+            }
+        });
+
+        if (bean.getBean().getParent() == null) {
             binding.ivAdd.setVisibility(View.VISIBLE);
             binding.ivAdd.setOnClickListener(view -> {
-                if (onAddSubReasonListener != null) {
-                    onAddSubReasonListener.onClickAdd(bean);
+                if (onReasonListener != null) {
+                    onReasonListener.onClickAdd(bean.getBean());
                 }
             });
         }
@@ -59,8 +66,8 @@ public class EliminationReasonListAdapter extends BaseBindingAdapter<AdapterElim
         }
     }
 
-    public void setOnAddSubReasonListener(OnAddSubReasonListener onAddSubReasonListener) {
-        this.onAddSubReasonListener = onAddSubReasonListener;
+    public void setOnReasonListener(OnReasonListener onReasonListener) {
+        this.onReasonListener = onReasonListener;
     }
 
     private int getPaddingLeft(EliminationReason bean) {
@@ -76,7 +83,7 @@ public class EliminationReasonListAdapter extends BaseBindingAdapter<AdapterElim
     @Override
     protected void onClickItem(View v, int position) {
         if (isSelectMode) {
-            long id = list.get(position).getId();
+            long id = list.get(position).getBean().getId();
             if (checkMap.get(id) == null) {
                 checkMap.put(id, true);
             }
@@ -98,7 +105,8 @@ public class EliminationReasonListAdapter extends BaseBindingAdapter<AdapterElim
         isSelectMode = selectMode;
     }
 
-    public interface OnAddSubReasonListener {
+    public interface OnReasonListener {
         void onClickAdd(EliminationReason parent);
+        void onClickDetail(EliminationReason parent);
     }
 }
