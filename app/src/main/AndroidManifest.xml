@@ -92,6 +92,9 @@
             android:name=".page.StatisticLocalActivity"
             android:screenOrientation="portrait" />
         <activity
+            android:name=".page.EliminationReasonsActivity"
+            android:screenOrientation="portrait" />
+        <activity
             android:name=".page.SettingsActivity"
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme"

@@ -15,6 +15,7 @@ import com.king.app.vrace.base.MvvmActivity;
 import com.king.app.vrace.conf.LegSpecialType;
 import com.king.app.vrace.databinding.ActivityLegBinding;
 import com.king.app.vrace.model.ImageProvider;
+import com.king.app.vrace.model.entity.EliminationReason;
 import com.king.app.vrace.model.entity.Leg;
 import com.king.app.vrace.model.entity.LegSpecial;
 import com.king.app.vrace.model.entity.LegTeam;
@@ -40,6 +41,7 @@ public class LegActivity extends MvvmActivity<ActivityLegBinding, LegViewModel> 
     public static final String EXTRA_LEG_ID = "leg_id";
 
     public static final int REQUEST_SPECIAL = 1201;
+    public static final int REQUEST_ELIM_REASON = 1202;
 
     private LegTeamAdapter teamAdapter;
 
@@ -137,6 +139,11 @@ public class LegActivity extends MvvmActivity<ActivityLegBinding, LegViewModel> 
             pageAdapter.setList(items);
             pageAdapter.setOnEditRankItemListener(new RankAdapter.OnEditRankItemListener() {
                 @Override
+                public void onAddReason(LegTeam legTeam, int position) {
+                    addElimReason(legTeam);
+                }
+
+                @Override
                 public void onEditRankItem(LegTeam legTeam, int position) {
                     editRankDesc(legTeam, position);
                 }
@@ -145,6 +152,16 @@ public class LegActivity extends MvvmActivity<ActivityLegBinding, LegViewModel> 
                 public void onLongClickItem(LegTeam bean, int position) {
                     showConfirmCancelMessage("Delete this item?"
                             , (dialog, which) -> mModel.deleteItem(bean)
+                            , null);
+                }
+
+                @Override
+                public void onLongClickEliminationReason(LegTeam legTeam, EliminationReason bean, int position) {
+                    showConfirmCancelMessage("Delete this reason?"
+                            , (dialog, which) -> {
+                                mModel.deleteEliminateReason(legTeam, bean);
+                                pageAdapter.notifyItemChanged(position);
+                            }
                             , null);
                 }
             });
@@ -181,6 +198,12 @@ public class LegActivity extends MvvmActivity<ActivityLegBinding, LegViewModel> 
         startActivityForResult(intent, REQUEST_SPECIAL);
     }
 
+    private void addElimReason(LegTeam legTeam) {
+        mModel.rememberTeamToEliminate(legTeam);
+        Intent intent = new Intent(this, EliminationReasonsActivity.class);
+        startActivityForResult(intent, REQUEST_ELIM_REASON);
+    }
+
     private void editLegDesc(Leg leg, int position) {
         SimpleDialogs dialogs = new SimpleDialogs();
         dialogs.openInputDialog(this, "Description", leg.getDescription(), text -> {
@@ -206,6 +229,13 @@ public class LegActivity extends MvvmActivity<ActivityLegBinding, LegViewModel> 
             if (resultCode == RESULT_OK) {
                 int type = data.getIntExtra(LegSpecialActivity.RESP_SPEACIAL_TYPE, -1);
                 mModel.addSpecialForLeg(type);
+                pageAdapter.notifyDataSetChanged();
+            }
+        }
+        else if (requestCode == REQUEST_ELIM_REASON) {
+            if (resultCode == RESULT_OK) {
+                long reasonId = data.getLongExtra(EliminationReasonsActivity.RESP_REASON_ID, -1);
+                mModel.addReasonForElimination(reasonId);
                 pageAdapter.notifyDataSetChanged();
             }
         }

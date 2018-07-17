@@ -8,6 +8,8 @@ import com.king.app.vrace.conf.AppConfig;
 import com.king.app.vrace.conf.AppConstants;
 import com.king.app.vrace.model.entity.DaoMaster;
 import com.king.app.vrace.model.entity.DaoSession;
+import com.king.app.vrace.model.entity.EliminationReasonDao;
+import com.king.app.vrace.model.entity.TeamEliminationDao;
 import com.king.app.vrace.model.setting.SettingProperty;
 import com.king.app.vrace.utils.DebugLog;
 
@@ -87,6 +89,8 @@ public class RaceApplication extends Application {
             switch (oldVersion) {
                 case 1:
                 case 2:
+                    EliminationReasonDao.createTable(db, true);
+                    TeamEliminationDao.createTable(db, true);
                     break;
             }
         }

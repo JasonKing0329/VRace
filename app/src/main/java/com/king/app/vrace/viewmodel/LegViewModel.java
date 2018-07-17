@@ -9,6 +9,7 @@ import android.text.TextUtils;
 import com.king.app.vrace.R;
 import com.king.app.vrace.base.BaseViewModel;
 import com.king.app.vrace.conf.LegType;
+import com.king.app.vrace.model.entity.EliminationReason;
 import com.king.app.vrace.model.entity.Leg;
 import com.king.app.vrace.model.entity.LegDao;
 import com.king.app.vrace.model.entity.LegSpecial;
@@ -16,6 +17,8 @@ import com.king.app.vrace.model.entity.LegSpecialDao;
 import com.king.app.vrace.model.entity.LegTeam;
 import com.king.app.vrace.model.entity.LegTeamDao;
 import com.king.app.vrace.model.entity.Team;
+import com.king.app.vrace.model.entity.TeamElimination;
+import com.king.app.vrace.model.entity.TeamEliminationDao;
 import com.king.app.vrace.model.entity.TeamSeason;
 import com.king.app.vrace.model.entity.TeamSeasonDao;
 
@@ -48,6 +51,8 @@ public class LegViewModel extends BaseViewModel {
     private List<Object> mPageList;
 
     private Leg mLeg;
+
+    private LegTeam mTeamToEliminate;
 
     public LegViewModel(@NonNull Application application) {
         super(application);
@@ -284,6 +289,9 @@ public class LegViewModel extends BaseViewModel {
 
     public void deleteItem(LegTeam bean) {
         if (bean != null && bean.getId() != null) {
+            if (bean.getEliminated()) {
+                rememberTeamToEliminate(null);
+            }
             bean.delete();
             getDaoSession().getLegTeamDao().detachAll();
             long legId = mLeg.getId();
@@ -315,5 +323,31 @@ public class LegViewModel extends BaseViewModel {
         getDaoSession().getLegDao().detachAll();
         mLeg.resetSpecialList();
         mLeg.refresh();
+    }
+
+    public void rememberTeamToEliminate(LegTeam legTeam) {
+        mTeamToEliminate = legTeam;
+    }
+
+    public void addReasonForElimination(long reasonId) {
+        if (mTeamToEliminate != null) {
+            TeamElimination te = new TeamElimination();
+            te.setLegId(mLeg.getId());
+            te.setSeasonId(mLeg.getSeasonId());
+            te.setTeamId(mTeamToEliminate.getTeamId());
+            te.setReasonId(reasonId);
+            getDaoSession().getTeamEliminationDao().insert(te);
+            getDaoSession().getTeamEliminationDao().detachAll();
+        }
+    }
+
+    public void deleteEliminateReason(LegTeam legTeam, EliminationReason bean) {
+        getDaoSession().getTeamEliminationDao().queryBuilder()
+                .where(TeamEliminationDao.Properties.LegId.eq(legTeam.getLegId()))
+                .where(TeamEliminationDao.Properties.TeamId.eq(legTeam.getTeamId()))
+                .where(TeamEliminationDao.Properties.ReasonId.eq(bean.getId()))
+                .buildDelete()
+                .executeDeleteWithoutDetachingEntities();
+        getDaoSession().getTeamEliminationDao().detachAll();
     }
 }

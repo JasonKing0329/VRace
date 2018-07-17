@@ -19,7 +19,7 @@ import java.util.Map;
  * <p/>作者：景阳
  * <p/>创建时间: 2017/12/20 19:32
  */
-public abstract class SimpleTagAdapter<T> extends BaseFlowAdapter<T> implements View.OnClickListener {
+public abstract class SimpleTagAdapter<T> extends BaseFlowAdapter<T> implements View.OnClickListener, View.OnLongClickListener {
 
     /**
      * 多选记录
@@ -53,6 +53,8 @@ public abstract class SimpleTagAdapter<T> extends BaseFlowAdapter<T> implements 
 
     private OnItemSelectListener onItemSelectListener;
 
+    private OnItemLongClickListener onItemLongClickListener;
+
     public SimpleTagAdapter() {
         mCheckMap = new HashMap<>();
     }
@@ -66,6 +68,7 @@ public abstract class SimpleTagAdapter<T> extends BaseFlowAdapter<T> implements 
         TextView textView = view.findViewById(R.id.tv_tag);
         textView.setText(getText(data.get(position)));
         textView.setOnClickListener(this);
+        textView.setOnLongClickListener(this);
         textView.setTag(position);
         // 不可选
         if (isDisabled(data.get(position))) {
@@ -228,8 +231,22 @@ public abstract class SimpleTagAdapter<T> extends BaseFlowAdapter<T> implements 
         }
     }
 
+    @Override
+    public boolean onLongClick(View v) {
+
+        int position = (Integer) v.getTag();
+        if (onItemLongClickListener != null) {
+            onItemLongClickListener.onLongClickItem(data.get(position));
+        }
+        return true;
+    }
+
     public void setOnItemSelectListener(OnItemSelectListener onItemSelectListener) {
         this.onItemSelectListener = onItemSelectListener;
+    }
+
+    public void setOnItemLongClickListener(OnItemLongClickListener onItemLongClickListener) {
+        this.onItemLongClickListener = onItemLongClickListener;
     }
 
     /**
@@ -264,5 +281,9 @@ public abstract class SimpleTagAdapter<T> extends BaseFlowAdapter<T> implements 
         void onSelectItem(T data);
 
         void onUnSelectItem(T t);
+    }
+
+    public interface OnItemLongClickListener<T> {
+        void onLongClickItem(T data);
     }
 }

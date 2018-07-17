@@ -10,13 +10,22 @@ import android.widget.TextView;
 
 import com.king.app.vrace.R;
 import com.king.app.vrace.base.BaseBindingAdapter;
+import com.king.app.vrace.base.RaceApplication;
 import com.king.app.vrace.conf.AppConstants;
 import com.king.app.vrace.conf.GenderType;
 import com.king.app.vrace.databinding.AdapterLegTeamRankBinding;
+import com.king.app.vrace.model.entity.EliminationReason;
 import com.king.app.vrace.model.entity.LegTeam;
+import com.king.app.vrace.model.entity.PersonTag;
 import com.king.app.vrace.model.entity.Team;
+import com.king.app.vrace.model.entity.TeamElimination;
+import com.king.app.vrace.model.entity.TeamEliminationDao;
 import com.king.app.vrace.model.setting.SettingProperty;
+import com.king.app.vrace.page.adapter.SimpleTagAdapter;
 import com.king.app.vrace.utils.ColorUtil;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Desc:
@@ -62,6 +71,21 @@ public class RankAdapter implements View.OnClickListener {
         binding.getRoot().setSelected(position == selection);
         binding.tvDesc.setText(bean.getDescription());
 
+        binding.flowTags.removeAllViews();
+        if (bean.getEliminated()) {
+            binding.ivAdd.setVisibility(View.VISIBLE);
+            binding.ivAdd.setOnClickListener(v -> {
+                if (onEditRankItemListener != null) {
+                    onEditRankItemListener.onAddReason(bean, position);
+                }
+            });
+            showReasons(binding, bean, position);
+        }
+        else {
+            binding.ivAdd.setVisibility(View.GONE);
+            binding.flowTags.setVisibility(View.GONE);
+        }
+
         binding.getRoot().setTag(position);
         binding.getRoot().setOnClickListener(this);
 
@@ -76,6 +100,47 @@ public class RankAdapter implements View.OnClickListener {
             }
             return true;
         });
+    }
+
+    private void showReasons(AdapterLegTeamRankBinding binding, LegTeam bean, int position) {
+        List<EliminationReason> list = new ArrayList<>();
+        List<TeamElimination> te = RaceApplication.getInstance().getDaoSession().getTeamEliminationDao()
+                .queryBuilder()
+                .where(TeamEliminationDao.Properties.LegId.eq(bean.getLegId()))
+                .where(TeamEliminationDao.Properties.TeamId.eq(bean.getTeamId()))
+                .build().list();
+        for (TeamElimination elimination:te) {
+            list.add(elimination.getReason());
+        }
+
+        SimpleTagAdapter<EliminationReason> adapter = new SimpleTagAdapter<EliminationReason>() {
+            @Override
+            protected String getText(EliminationReason data) {
+                return data.getName();
+            }
+
+            @Override
+            protected long getId(EliminationReason data) {
+                return data.getId();
+            }
+
+            @Override
+            protected boolean isDisabled(EliminationReason item) {
+                return false;
+            }
+        };
+        adapter.setOnItemLongClickListener(new SimpleTagAdapter.OnItemLongClickListener<EliminationReason>() {
+            @Override
+            public void onLongClickItem(EliminationReason data) {
+                if (onEditRankItemListener != null) {
+                    onEditRankItemListener.onLongClickEliminationReason(bean, data, position);
+                }
+            }
+        });
+        adapter.setData(list);
+        adapter.setTagColor(binding.flowTags.getResources().getColor(R.color.divider));
+        adapter.setTextColor(binding.flowTags.getResources().getColor(R.color.text_sub));
+        adapter.bindFlowLayout(binding.flowTags);
     }
 
     private void updateRank(TextView view, LegTeam bean) {
@@ -140,8 +205,12 @@ public class RankAdapter implements View.OnClickListener {
     }
 
     public interface OnEditRankItemListener {
+        void onAddReason(LegTeam legTeam, int position);
+
         void onEditRankItem(LegTeam legTeam, int position);
 
         void onLongClickItem(LegTeam bean, int position);
+
+        void onLongClickEliminationReason(LegTeam legTeam, EliminationReason bean, int position);
     }
 }
