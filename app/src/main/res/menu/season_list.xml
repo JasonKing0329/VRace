@@ -25,8 +25,8 @@
         android:title="Edit"
         android:icon="@drawable/ic_edit_white_24dp"
         app:showAsAction="ifRoom"/>
-    <item android:id="@+id/menu_elimnate_reason"
-        android:title="Settings"
+    <item android:id="@+id/menu_eliminate_reason"
+        android:title="Eliminations"
         app:showAsAction="never"/>
     <item android:id="@+id/menu_save"
         android:title="Save"

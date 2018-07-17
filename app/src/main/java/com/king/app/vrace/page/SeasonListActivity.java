@@ -88,6 +88,9 @@ public class SeasonListActivity extends MvvmActivity<ActivitySeasonListBinding, 
                 case R.id.menu_setting:
                     goToSetting();
                     break;
+                case R.id.menu_eliminate_reason:
+                    goToElimination();
+                    break;
             }
         });
 
@@ -157,6 +160,10 @@ public class SeasonListActivity extends MvvmActivity<ActivitySeasonListBinding, 
 
     private void goToWinnerPage() {
         startActivity(new Intent(this, StatisticWinnerActivity.class));
+    }
+
+    private void goToElimination() {
+        startActivity(new Intent(this, EliminationReasonsActivity.class));
     }
 
     @Override

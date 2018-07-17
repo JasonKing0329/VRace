@@ -28,11 +28,14 @@ import java.util.List;
  */
 public class EliminationReasonsActivity extends MvvmActivity<ActivityElimReasonsBinding, EliminationReasonViewModel> {
 
+    public static final String EXTRA_SELECTION_MODE = "selection_mode";
     public static final String RESP_REASON_ID = "reason_id";
 
     private EliminationReasonListAdapter adapter;
 
     private boolean isEditMode;
+
+    private boolean isSelectionMode;
 
     @Override
     protected int getContentView() {
@@ -115,6 +118,9 @@ public class EliminationReasonsActivity extends MvvmActivity<ActivityElimReasons
 
     @Override
     protected void initData() {
+
+        isSelectionMode = getIntent().getBooleanExtra(EXTRA_SELECTION_MODE, false);
+
         mModel.reasonsObserver.observe(this, reasons -> showReasons(reasons));
         mModel.deleteObserver.observe(this, deleted -> {
             mBinding.actionbar.cancelConfirmStatus();
@@ -142,7 +148,9 @@ public class EliminationReasonsActivity extends MvvmActivity<ActivityElimReasons
                     editReason(data.getBean(), null);
                 }
                 else {
-                    onSelectRelationship(data.getBean());
+                    if (isSelectionMode) {
+                        onSelectRelationship(data.getBean());
+                    }
                 }
             });
             adapter.setOnReasonListener(new EliminationReasonListAdapter.OnReasonListener() {

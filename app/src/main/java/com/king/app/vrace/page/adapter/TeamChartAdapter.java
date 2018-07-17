@@ -4,6 +4,7 @@ import android.graphics.Color;
 
 import com.king.app.vrace.conf.AppConstants;
 import com.king.app.vrace.model.entity.LegTeam;
+import com.king.app.vrace.model.entity.Team;
 import com.king.app.vrace.model.setting.SettingProperty;
 import com.king.app.vrace.view.widget.RankChartAdapter;
 import com.king.app.vrace.viewmodel.bean.TeamChartBean;
@@ -95,7 +96,13 @@ public class TeamChartAdapter extends RankChartAdapter {
     @Override
     public String getText(int lineIndex, int xIndex) {
         if (xIndex == getXAxisCount() - 1) {
-            return mChartBean.getTeamList().get(lineIndex).getCode();
+            if (AppConstants.DATABASE_REAL == SettingProperty.getDatabaseType()) {
+                Team team = mChartBean.getTeamList().get(lineIndex);
+                return team.getPlayerList().get(0).getName() + "&" + team.getPlayerList().get(1).getName();
+            }
+            else {
+                return mChartBean.getTeamList().get(lineIndex).getCode();
+            }
         }
         return null;
     }

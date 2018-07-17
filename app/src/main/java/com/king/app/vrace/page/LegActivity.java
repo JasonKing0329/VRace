@@ -201,6 +201,7 @@ public class LegActivity extends MvvmActivity<ActivityLegBinding, LegViewModel> 
     private void addElimReason(LegTeam legTeam) {
         mModel.rememberTeamToEliminate(legTeam);
         Intent intent = new Intent(this, EliminationReasonsActivity.class);
+        intent.putExtra(EliminationReasonsActivity.EXTRA_SELECTION_MODE, true);
         startActivityForResult(intent, REQUEST_ELIM_REASON);
     }
 

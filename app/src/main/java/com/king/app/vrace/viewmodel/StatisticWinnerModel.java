@@ -345,7 +345,7 @@ public class StatisticWinnerModel extends BaseViewModel {
         for (int n = 0; n < list.size(); n ++) {
             String teamCode;
             if (AppConstants.DATABASE_REAL == SettingProperty.getDatabaseType()) {
-                teamCode = list.get(n).getTeam().getPlayerList().get(0).getName() + "&\n" + list.get(n).getTeam().getPlayerList().get(1).getName();
+                teamCode = list.get(n).getTeam().getPlayerList().get(0).getName() + "&" + list.get(n).getTeam().getPlayerList().get(1).getName();
             }
             else {
                 teamCode = list.get(n).getTeam().getCode();
