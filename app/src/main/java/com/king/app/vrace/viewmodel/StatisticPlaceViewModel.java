@@ -157,11 +157,7 @@ public class StatisticPlaceViewModel extends BaseViewModel {
         Map<String, StatisticPlaceItem> placeMap = new HashMap<>();
 
         for (Leg leg:legs) {
-            LegPlaces lp = null;
-            if (leg.getPlaceList().size() > 0) {
-                lp = leg.getPlaceList().get(0);
-            }
-            if (lp != null) {
+            for (LegPlaces lp:leg.getPlaceList()) {
                 String key = lp.getCountry();
                 if (SettingProperty.getDatabaseType() == AppConstants.DATABASE_REAL) {
                     if ("美国".equals(key)) {

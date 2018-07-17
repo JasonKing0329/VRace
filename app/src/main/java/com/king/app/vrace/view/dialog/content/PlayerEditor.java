@@ -1,8 +1,11 @@
 package com.king.app.vrace.view.dialog.content;
 
+import android.arch.lifecycle.Observer;
 import android.arch.lifecycle.ViewModelProviders;
+import android.support.annotation.Nullable;
 import android.view.View;
 import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 
 import com.king.app.vrace.R;
 import com.king.app.vrace.base.IFragmentHolder;
@@ -17,6 +20,7 @@ import com.king.app.vrace.viewmodel.PlayerListViewModel;
 
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.List;
 
 /**
  * Desc:
@@ -88,6 +92,18 @@ public class PlayerEditor extends DraggableContentFragment<FragmentEditorPlayerB
         mBinding.btnBirthday.setOnClickListener(v -> selectBirthday());
 
         mBinding.tvConfirm.setOnClickListener(v -> onConfirm());
+
+        listViewModel.provincesObserver.observe(this, list -> {
+            ArrayAdapter<String> adapter = new ArrayAdapter<>(getActivity(), android.R.layout.simple_dropdown_item_1line, list);
+            mBinding.etProvince.setAdapter(adapter);
+        });
+
+        listViewModel.citiesObserver.observe(this, list -> {
+            ArrayAdapter<String> adapter = new ArrayAdapter<>(getActivity(), android.R.layout.simple_dropdown_item_1line, list);
+            mBinding.etCity.setAdapter(adapter);
+        });
+
+        listViewModel.loadAutoComplete();
     }
 
     private void selectBirthday() {

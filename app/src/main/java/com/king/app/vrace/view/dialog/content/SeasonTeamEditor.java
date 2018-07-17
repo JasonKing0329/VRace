@@ -15,6 +15,7 @@ import com.king.app.vrace.databinding.FragmentEditorSeasonTeamBinding;
 import com.king.app.vrace.model.entity.Team;
 import com.king.app.vrace.model.entity.TeamDao;
 import com.king.app.vrace.model.entity.TeamSeason;
+import com.king.app.vrace.model.setting.SettingProperty;
 import com.king.app.vrace.page.TeamListActivity;
 import com.king.app.vrace.utils.ColorUtil;
 import com.king.app.vrace.view.dialog.DraggableContentFragment;
@@ -119,7 +120,12 @@ public class SeasonTeamEditor extends DraggableContentFragment<FragmentEditorSea
 
     private void updateTeamGroup() {
         mBinding.groupTeam.setVisibility(View.VISIBLE);
-        mBinding.tvName.setText(mTeam.getCode());
+        if (AppConstants.DATABASE_REAL == SettingProperty.getDatabaseType()) {
+            mBinding.tvName.setText(mTeam.getPlayerList().get(0).getName() + "&\n" + mTeam.getPlayerList().get(1).getName());
+        }
+        else {
+            mBinding.tvName.setText(mTeam.getCode());
+        }
         if (mTeam.getSpecialColor() != 0) {
             GradientDrawable drawable = (GradientDrawable) mBinding.tvName.getBackground();
             drawable.setColor(mTeam.getSpecialColor());

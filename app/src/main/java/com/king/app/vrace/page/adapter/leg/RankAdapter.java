@@ -15,6 +15,7 @@ import com.king.app.vrace.conf.GenderType;
 import com.king.app.vrace.databinding.AdapterLegTeamRankBinding;
 import com.king.app.vrace.model.entity.LegTeam;
 import com.king.app.vrace.model.entity.Team;
+import com.king.app.vrace.model.setting.SettingProperty;
 import com.king.app.vrace.utils.ColorUtil;
 
 /**
@@ -47,7 +48,12 @@ public class RankAdapter implements View.OnClickListener {
         updateRank(binding.tvRank, bean);
         if (bean.getTeamId() != 0) {
             binding.tvTeam.setVisibility(View.VISIBLE);
-            binding.tvTeam.setText(bean.getTeam().getCode() + "\n" + AppConstants.getGenderText(GenderType.values()[bean.getTeam().getGenderType()]));
+            if (AppConstants.DATABASE_REAL == SettingProperty.getDatabaseType()) {
+                binding.tvTeam.setText(bean.getTeam().getPlayerList().get(0).getName() + "&\n" + bean.getTeam().getPlayerList().get(1).getName());
+            }
+            else {
+                binding.tvTeam.setText(bean.getTeam().getCode() + "\n" + AppConstants.getGenderText(GenderType.values()[bean.getTeam().getGenderType()]));
+            }
             updateNameBg(binding.tvTeam, bean.getTeam());
         }
         else {

@@ -22,6 +22,7 @@ import com.king.app.vrace.model.entity.Season;
 import com.king.app.vrace.model.entity.SeasonDao;
 import com.king.app.vrace.model.entity.TeamSeason;
 import com.king.app.vrace.model.entity.TeamSeasonDao;
+import com.king.app.vrace.model.setting.SettingProperty;
 import com.king.app.vrace.utils.PlaceUtil;
 import com.king.app.vrace.viewmodel.bean.LegItem;
 import com.king.app.vrace.viewmodel.bean.SeasonTeamItem;
@@ -139,7 +140,14 @@ public class SeasonViewModel extends BaseViewModel {
                 SeasonTeamItem item = new SeasonTeamItem();
                 item.setEpSeq(String.valueOf(team.getEpisodeSeq()));
                 item.setBean(team);
-                String name = team.getTeam().getCode();
+                String teamCode;
+                if (AppConstants.DATABASE_REAL == SettingProperty.getDatabaseType()) {
+                    teamCode = team.getTeam().getPlayerList().get(0).getName() + "&\n" + team.getTeam().getPlayerList().get(1).getName();
+                }
+                else {
+                    teamCode = team.getTeam().getCode();
+                }
+                String name = teamCode;
                 // all star team has more than 1 season
                 if (team.getTeam().getSeasonList().size() > 1) {
                     name = "";
@@ -151,7 +159,7 @@ public class SeasonViewModel extends BaseViewModel {
                     if (name.startsWith(",")) {
                         name = name.substring(1);
                     }
-                    name = name + "\n" + team.getTeam().getCode();
+                    name = name + "\n" + teamCode;
                 }
                 item.setName(name);
                 item.setGender(AppConstants.getGenderText(GenderType.values()[team.getTeam().getGenderType()]));

@@ -9,6 +9,7 @@ import com.king.app.vrace.conf.AppConstants;
 import com.king.app.vrace.conf.GenderType;
 import com.king.app.vrace.databinding.AdapterLegTeamBinding;
 import com.king.app.vrace.model.entity.Team;
+import com.king.app.vrace.model.setting.SettingProperty;
 import com.king.app.vrace.utils.ColorUtil;
 
 /**
@@ -26,8 +27,17 @@ public class LegTeamAdapter extends BaseBindingAdapter<AdapterLegTeamBinding, Te
 
     @Override
     protected void onBindItem(AdapterLegTeamBinding binding, int position, Team bean) {
-        binding.tvName.setText(bean.getCode());
-        binding.tvGender.setText(AppConstants.getGenderText(GenderType.values()[bean.getGenderType()]));
+
+        if (AppConstants.DATABASE_REAL == SettingProperty.getDatabaseType()) {
+            binding.tvName.setText(bean.getPlayerList().get(0).getName() + "&\n" + bean.getPlayerList().get(1).getName());
+            binding.tvGender.setVisibility(View.GONE);
+        }
+        else {
+            binding.tvName.setText(bean.getCode());
+            binding.tvGender.setText(AppConstants.getGenderText(GenderType.values()[bean.getGenderType()]));
+            binding.tvGender.setVisibility(View.VISIBLE);
+        }
+
         if (bean.getSpecialColor() == 0) {
             binding.tvName.setTextColor(binding.tvName.getResources().getColor(R.color.colorAccent));
             binding.tvGender.setTextColor(binding.tvName.getResources().getColor(R.color.white));

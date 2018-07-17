@@ -268,6 +268,8 @@ public class TeamEditor extends DraggableContentFragment<FragmentEditorTeamBindi
                 case REQUEST_PLAYER1:
                     mPlayer1 = getPlayer(data.getLongExtra(PlayerListActivity.RESP_PLAYER_ID, -1));
                     updatePlayerTextView(mBinding.tvPlayer1, mPlayer1);
+                    mBinding.etProvince.setText(mPlayer1.getProvince());
+                    mBinding.etCity.setText(mPlayer1.getCity());
                     break;
                 case REQUEST_PLAYER2:
                     mPlayer2 = getPlayer(data.getLongExtra(PlayerListActivity.RESP_PLAYER_ID, -1));

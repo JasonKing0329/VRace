@@ -71,12 +71,13 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/sp_gender" />
 
-        <EditText
+        <AutoCompleteTextView
             android:id="@+id/et_province"
             android:layout_width="100dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="10dp"
             android:layout_marginTop="18dp"
+            android:completionThreshold="1"
             app:layout_constraintStart_toEndOf="@+id/tv_title_province"
             app:layout_constraintTop_toBottomOf="@+id/sp_gender" />
 
@@ -91,11 +92,12 @@
             app:layout_constraintStart_toEndOf="@+id/et_province"
             app:layout_constraintTop_toTopOf="@+id/et_province" />
 
-        <EditText
+        <AutoCompleteTextView
             android:id="@+id/et_city"
             android:layout_width="100dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="10dp"
+            android:completionThreshold="1"
             app:layout_constraintStart_toEndOf="@+id/tv_title_city"
             app:layout_constraintTop_toTopOf="@+id/et_province" />
 

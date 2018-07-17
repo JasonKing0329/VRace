@@ -22,6 +22,7 @@ import com.king.app.vrace.model.entity.Relationship;
 import com.king.app.vrace.model.entity.Season;
 import com.king.app.vrace.model.entity.Team;
 import com.king.app.vrace.model.entity.TeamSeason;
+import com.king.app.vrace.model.setting.SettingProperty;
 import com.king.app.vrace.viewmodel.bean.StatisticWinnerItem;
 
 import org.greenrobot.greendao.query.QueryBuilder;
@@ -342,9 +343,16 @@ public class StatisticWinnerModel extends BaseViewModel {
     public String[] convertToTextList(List<LegTeam> list) {
         String[] textList = new String[list.size()];
         for (int n = 0; n < list.size(); n ++) {
+            String teamCode;
+            if (AppConstants.DATABASE_REAL == SettingProperty.getDatabaseType()) {
+                teamCode = list.get(n).getTeam().getPlayerList().get(0).getName() + "&\n" + list.get(n).getTeam().getPlayerList().get(1).getName();
+            }
+            else {
+                teamCode = list.get(n).getTeam().getCode();
+            }
             Season season = list.get(n).getSeason();
             Team team = list.get(n).getTeam();
-            textList[n] = "S" + season.getIndex() + " " + team.getCode() + " ";
+            textList[n] = "S" + season.getIndex() + " " + teamCode + " ";
             if (team.getProvince().equals(team.getCity())) {
                 textList[n] = textList[n] + team.getProvince();
             }

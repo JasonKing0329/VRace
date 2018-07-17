@@ -9,6 +9,7 @@ import android.text.TextUtils;
 import android.view.View;
 
 import com.king.app.vrace.base.BaseViewModel;
+import com.king.app.vrace.conf.AppConstants;
 import com.king.app.vrace.conf.LegType;
 import com.king.app.vrace.model.TeamModel;
 import com.king.app.vrace.model.entity.Leg;
@@ -21,6 +22,7 @@ import com.king.app.vrace.model.entity.SeasonDao;
 import com.king.app.vrace.model.entity.Team;
 import com.king.app.vrace.model.entity.TeamSeason;
 import com.king.app.vrace.model.entity.TeamSeasonDao;
+import com.king.app.vrace.model.setting.SettingProperty;
 import com.king.app.vrace.view.widget.ResultsTableView;
 import com.king.app.vrace.viewmodel.bean.TableData;
 import com.king.app.vrace.viewmodel.bean.TeamChartBean;
@@ -131,7 +133,14 @@ public class SeasonTeamResultsViewModel extends BaseViewModel {
             data.setColumnTeamColor(titleColor);
             data.setTitleBgColor(titleColor);
             for (TeamResults team:teamResults) {
-                data.getTeamList().add(new ResultsTableView.CellData(team.team.getCode(), titleTextColor, 0));
+                String teamCode;
+                if (AppConstants.DATABASE_REAL == SettingProperty.getDatabaseType()) {
+                    teamCode = team.team.getPlayerList().get(0).getName() + "&" + team.team.getPlayerList().get(1).getName();
+                }
+                else {
+                    teamCode = team.team.getCode();
+                }
+                data.getTeamList().add(new ResultsTableView.CellData(teamCode, titleTextColor, 0));
                 data.getRelationshipList().add(new ResultsTableView.CellData(team.team.getRelationship().getName(), titleTextColor, 0));
             }
 

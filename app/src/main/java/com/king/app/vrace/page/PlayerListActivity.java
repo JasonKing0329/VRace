@@ -163,7 +163,7 @@ public class PlayerListActivity extends MvvmActivity<ActivityPlayerListBinding, 
         dialogFragment.setMaxHeight(ScreenUtils.getScreenHeight() * 4 / 5);
         dialogFragment.setContentFragment(editor);
         if (player == null) {
-            dialogFragment.setTitle("New team");
+            dialogFragment.setTitle("New player");
         }
         else {
             dialogFragment.setTitle("Edit " + player.getName());

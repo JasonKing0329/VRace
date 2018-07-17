@@ -16,6 +16,7 @@ import com.king.app.vrace.model.entity.TeamDao;
 import com.king.app.vrace.model.entity.TeamPlayersDao;
 import com.king.app.vrace.model.entity.TeamSeasonDao;
 import com.king.app.vrace.model.entity.TeamTagDao;
+import com.king.app.vrace.model.setting.SettingProperty;
 import com.king.app.vrace.utils.PlaceUtil;
 import com.king.app.vrace.viewmodel.bean.StatProvinceItem;
 import com.king.app.vrace.viewmodel.bean.StatTeamItem;
@@ -30,9 +31,6 @@ import java.util.List;
 import java.util.Map;
 
 import io.reactivex.Observable;
-import io.reactivex.ObservableEmitter;
-import io.reactivex.ObservableOnSubscribe;
-import io.reactivex.ObservableSource;
 import io.reactivex.Observer;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
@@ -168,6 +166,13 @@ public class TeamListViewModel extends BaseViewModel {
             for (Team team:teams) {
                 TeamListItem item = new TeamListItem();
                 item.setBean(team);
+                String teamCode;
+                if (AppConstants.DATABASE_REAL == SettingProperty.getDatabaseType()) {
+                    teamCode = team.getPlayerList().get(0).getName() + "&\n" + team.getPlayerList().get(1).getName();
+                }
+                else {
+                    teamCode = team.getCode();
+                }
                 if (team.getSeasonList().size() > 0) {
                     String seasons = "S" + team.getSeasonList().get(0).getSeason().getIndex();
                     String uniqueSeason = seasons;
@@ -177,17 +182,17 @@ public class TeamListViewModel extends BaseViewModel {
                             seasons = "S" + team.getSeasonList().get(i).getSeason().getIndex() + "," + seasons;
                             TeamListItem multiItem = new TeamListItem();
                             multiItem.setBean(team);
-                            multiItem.setName(seasons + "\n" + team.getCode());
+                            multiItem.setName(seasons + "\n" + teamCode);
                             multiItem.setSeason(team.getSeasonList().get(i).getSeason());
                             parseTeam(team, multiItem);
                             list.add(multiItem);
                         }
                     }
                     item.setSeason(team.getSeasonList().get(0).getSeason());
-                    item.setName(uniqueSeason + "\n" + team.getCode());
+                    item.setName(uniqueSeason + "\n" + teamCode);
                 }
                 else {
-                    item.setName(team.getCode());
+                    item.setName(teamCode);
                 }
                 parseTeam(team, item);
                 list.add(item);
