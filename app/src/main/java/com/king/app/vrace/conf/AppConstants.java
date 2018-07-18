@@ -40,4 +40,7 @@ public class AppConstants {
                 return "男男";
         }
     }
+
+    public static final String CONTESTANTS_URL = "https://en.m.wikipedia.org/wiki/List_of_The_Amazing_Race_(U.S._TV_series)_contestants";
+
 }

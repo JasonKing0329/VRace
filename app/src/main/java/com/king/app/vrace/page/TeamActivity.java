@@ -35,6 +35,8 @@ public class TeamActivity extends MvvmActivity<ActivityTeamBinding, TeamViewMode
         mBinding.rvSeasons.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false));
 
         mBinding.chart.setDrawDashGrid(true);
+
+        mBinding.actionbar.setOnBackListener(() -> onBackPressed());
     }
 
     @Override

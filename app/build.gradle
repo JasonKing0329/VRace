@@ -7,8 +7,8 @@ android {
         applicationId "com.king.app.vrace"
         minSdkVersion 21
         targetSdkVersion 27
-        versionCode 43
-        versionName "2.8.3"
+        versionCode 44
+        versionName "2.9"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
     signingConfigs {
@@ -63,6 +63,12 @@ dependencies {
     implementation "io.reactivex.rxjava2:rxjava:${RXJAVA_VERSION}"
     implementation "io.reactivex.rxjava2:rxandroid:${RXANDROID_VERSION}"
 
+    /*retrofit2*/
+    implementation "com.squareup.retrofit2:retrofit:${RETROFIT_VERSION}"
+    implementation "com.squareup.retrofit2:converter-gson:${RETROFIT_VERSION}"
+    implementation "com.squareup.retrofit2:adapter-rxjava2:${RETROFIT_VERSION}"
+    implementation "com.squareup.okhttp3:logging-interceptor:${OKHTTP_VERSION}"
+
     /*rx permission*/
     implementation "com.tbruyelle.rxpermissions2:rxpermissions:${RXPERMISSION_VERSION}"
     /*green dao*/
@@ -81,4 +87,8 @@ dependencies {
     implementation 'com.github.skydoves:colorpickerview:1.0.8'
     implementation "com.github.danielnilsson9:color-picker-view:1.4.0@aar"
     implementation 'com.zaihuishou:expandablerecycleradapter:1.0.3'
+
+    /*html解析*/
+    implementation 'org.jsoup:jsoup:1.11.3'
+
 }

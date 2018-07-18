@@ -5,13 +5,21 @@ import android.arch.lifecycle.MutableLiveData;
 import android.database.Cursor;
 import android.support.annotation.NonNull;
 
+import com.king.app.vrace.R;
 import com.king.app.vrace.base.BaseViewModel;
+import com.king.app.vrace.conf.AppConfig;
+import com.king.app.vrace.conf.AppConstants;
 import com.king.app.vrace.model.entity.Player;
 import com.king.app.vrace.model.entity.PlayerDao;
 import com.king.app.vrace.model.entity.TeamPlayersDao;
+import com.king.app.vrace.model.html.ContestantsParser;
+import com.king.app.vrace.model.http.RaceClient;
+import com.king.app.vrace.model.setting.SettingProperty;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -20,6 +28,7 @@ import java.util.Map;
 import io.reactivex.Observable;
 import io.reactivex.ObservableEmitter;
 import io.reactivex.ObservableOnSubscribe;
+import io.reactivex.ObservableSource;
 import io.reactivex.Observer;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
@@ -35,6 +44,8 @@ public class PlayerListViewModel extends BaseViewModel {
 
     public MutableLiveData<List<Player>> playersObserver = new MutableLiveData<>();
 
+    public MutableLiveData<List<String>> indexObserver = new MutableLiveData<>();
+
     public MutableLiveData<Boolean> deleteObserver = new MutableLiveData<>();
 
     public MutableLiveData<List<String>> provincesObserver = new MutableLiveData<>();
@@ -43,14 +54,21 @@ public class PlayerListViewModel extends BaseViewModel {
 
     private Map<Long, Boolean> mCheckMap;
 
+    private ContestantsParser contestantsParser;
+
+    private Map<String, Integer> mIndexMap;
+
     public PlayerListViewModel(@NonNull Application application) {
         super(application);
         mCheckMap = new HashMap<>();
+        contestantsParser = new ContestantsParser();
+        mIndexMap = new HashMap<>();
     }
 
     public void loadPlayers() {
         loadingObserver.setValue(true);
         queryPlayers()
+                .flatMap(list -> sortPlayers(list))
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribeOn(Schedulers.io())
                 .subscribe(new Observer<List<Player>>() {
@@ -90,6 +108,33 @@ public class PlayerListViewModel extends BaseViewModel {
             Collections.reverse(list);
             e.onNext(list);
         });
+    }
+
+    private Observable<List<Player>> sortPlayers(List<Player> list) {
+        return Observable.create(e -> {
+            Collections.sort(list, new SeasonComparator());
+
+            List<String> indexList = new ArrayList<>();
+            mIndexMap.clear();
+            String index = "";
+            for (int i = 0; i < list.size(); i ++) {
+                String season = "S" + list.get(i).getDebutSeason().getIndex();
+                if (!season.equals(index)) {
+                    mIndexMap.put(season, i);
+                    index = season;
+                    indexList.add(season);
+                }
+            }
+            if (indexList.size() > 0) {
+                indexObserver.postValue(indexList);
+            }
+
+            e.onNext(list);
+        });
+    }
+
+    public int getIndexPosition(String index) {
+        return mIndexMap.get(index);
     }
 
     public void deletePlayers() {
@@ -197,5 +242,68 @@ public class PlayerListViewModel extends BaseViewModel {
             }
             e.onNext(list);
         });
+    }
+
+    public void downloadPlayers() {
+        if (SettingProperty.getDatabaseType() != AppConstants.DATABASE_REAL) {
+            messageObserver.setValue("Not support");
+            return;
+        }
+        loadingObserver.setValue(true);
+
+        contestantsParser.getFile()
+                .flatMap(file -> {
+                    if (file.exists()) {
+                        return contestantsParser.getFile();
+                    }
+                    else {
+                        return RaceClient.getInstance().getService().getContestantsPage(AppConstants.CONTESTANTS_URL)
+                                .flatMap(responseBody -> contestantsParser.saveFile(responseBody, AppConfig.FILE_HTML_CONTESTANTS));
+                    }
+                })
+                .flatMap(file -> contestantsParser.parse(file))
+                .flatMap(list -> savePlayers(list))
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribeOn(Schedulers.io())
+                .subscribe(new Observer<Boolean>() {
+                    @Override
+                    public void onSubscribe(Disposable d) {
+                        addDisposable(d);
+                    }
+
+                    @Override
+                    public void onNext(Boolean saved) {
+                        loadingObserver.setValue(false);
+                        loadPlayers();
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+                        e.printStackTrace();
+                        loadingObserver.setValue(false);
+                    }
+
+                    @Override
+                    public void onComplete() {
+
+                    }
+                });
+    }
+
+    private ObservableSource<Boolean> savePlayers(List<Player> list) {
+        return observer -> {
+            if (list.size() > 0) {
+                getDaoSession().getPlayerDao().insertInTx(list);
+            }
+            observer.onNext(true);
+        };
+    }
+
+    private class SeasonComparator implements Comparator<Player> {
+
+        @Override
+        public int compare(Player left, Player right) {
+            return right.getDebutSeason().getIndex() - left.getDebutSeason().getIndex();
+        }
     }
 }

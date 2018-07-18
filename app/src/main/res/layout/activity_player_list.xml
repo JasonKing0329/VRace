@@ -21,12 +21,27 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent"/>
+        <com.king.app.vrace.view.widget.FitSideBar
+            android:id="@+id/sidebar"
+            android:layout_width="wrap_content"
+            android:layout_height="0dp"
+            android:background="#9c49ab74"
+            android:gravity="center"
+            android:paddingTop="10dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/actionbar"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:minWidth="30dp"
+            app:textColor="@color/white"
+            app:textColorFocus="@color/colorAccent"
+            app:textSize="12dp"
+            app:textSizeFocus="16dp"/>
         <android.support.v7.widget.RecyclerView
             android:id="@+id/rv_players"
             android:layout_width="0dp"
             android:layout_height="0dp"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintEnd_toStartOf="@id/sidebar"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintTop_toBottomOf="@id/actionbar"
             tools:listitem="@layout/adapter_player"/>

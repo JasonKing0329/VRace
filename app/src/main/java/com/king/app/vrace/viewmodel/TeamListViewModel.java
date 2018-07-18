@@ -167,7 +167,7 @@ public class TeamListViewModel extends BaseViewModel {
                 TeamListItem item = new TeamListItem();
                 item.setBean(team);
                 String teamCode;
-                if (AppConstants.DATABASE_REAL == SettingProperty.getDatabaseType()) {
+                if (AppConstants.DATABASE_REAL == SettingProperty.getDatabaseType() && team.getPlayerList().size() > 0) {
                     teamCode = team.getPlayerList().get(0).getName() + "&\n" + team.getPlayerList().get(1).getName();
                 }
                 else {

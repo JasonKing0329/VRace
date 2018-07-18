@@ -7,15 +7,19 @@ import android.support.v7.widget.LinearLayoutManager;
 import com.king.app.jactionbar.OnConfirmListener;
 import com.king.app.vrace.R;
 import com.king.app.vrace.base.MvvmActivity;
+import com.king.app.vrace.conf.AppConstants;
 import com.king.app.vrace.databinding.ActivityPlayerListBinding;
 import com.king.app.vrace.model.entity.Player;
+import com.king.app.vrace.model.setting.SettingProperty;
 import com.king.app.vrace.page.adapter.PlayerListAdapter;
 import com.king.app.vrace.utils.ScreenUtils;
 import com.king.app.vrace.view.dialog.DraggableDialogFragment;
 import com.king.app.vrace.view.dialog.content.PlayerEditor;
+import com.king.app.vrace.view.widget.FitSideBar;
 import com.king.app.vrace.viewmodel.PlayerListViewModel;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * Desc:
@@ -66,6 +70,9 @@ public class PlayerListActivity extends MvvmActivity<ActivityPlayerListBinding, 
                     mBinding.actionbar.showConfirmStatus(menuId);
                     isEditMode = true;
                     break;
+                case R.id.menu_download:
+                    mModel.downloadPlayers();
+                    break;
             }
         });
 
@@ -103,6 +110,19 @@ public class PlayerListActivity extends MvvmActivity<ActivityPlayerListBinding, 
                 return true;
             }
         });
+
+        mBinding.sidebar.setOnSidebarStatusListener(new FitSideBar.OnSidebarStatusListener() {
+            @Override
+            public void onChangeFinished() {
+
+            }
+
+            @Override
+            public void onSideIndexChanged(String index) {
+                int position = mModel.getIndexPosition(index);
+                mBinding.rvPlayers.scrollToPosition(position);
+            }
+        });
     }
 
     @Override
@@ -118,6 +138,13 @@ public class PlayerListActivity extends MvvmActivity<ActivityPlayerListBinding, 
             adapter.setSelectMode(false);
             adapter.notifyDataSetChanged();
             mModel.loadPlayers();
+        });
+        mModel.indexObserver.observe(this, list -> {
+            mBinding.sidebar.clear();
+            for (String index:list) {
+                mBinding.sidebar.addIndex(index);
+            }
+            mBinding.sidebar.build();
         });
 
         mModel.loadPlayers();
