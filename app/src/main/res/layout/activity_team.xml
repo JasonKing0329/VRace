@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layout xmlns:tools="http://schemas.android.com/tools"
     xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto">
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    tools:context=".page.TeamActivity">
     <data>
         <variable
             name="model"
@@ -142,9 +143,10 @@
                     app:layout_constraintTop_toBottomOf="@+id/tv_team_place"
                     tools:listitem="@layout/adapter_team_result"/>
 
-                <ScrollView
+                <HorizontalScrollView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:scrollbars="none"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
                     android:layout_marginTop="20dp"
@@ -156,7 +158,7 @@
                         android:padding="5dp"
                         app:minXCellWidth="25dp"
                         app:minYCellHeight="20dp"/>
-                </ScrollView>
+                </HorizontalScrollView>
 
             </android.support.constraint.ConstraintLayout>
         </ScrollView>

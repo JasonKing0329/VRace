@@ -191,6 +191,9 @@ public class RankChart extends View {
         canvas.drawLine(startX, startY, getWidth() - getPaddingRight(), startY, mPaint);
         int width = getWidth() - getPaddingRight() - startX;
         int xCount = mAdapter.getXAxisCount();
+        if (xCount == 0) {
+            return;
+        }
         mDegreeX = width / xCount;
         int degree = ScreenUtils.dp2px(2);
 
@@ -226,6 +229,9 @@ public class RankChart extends View {
         canvas.drawLine(startX, startY, startX, getPaddingTop(), mPaint);
         int height = startY - getPaddingTop();
         int yCount = mAdapter.getYAxisCount();
+        if (yCount == 0) {
+            return;
+        }
         mDegreeY = height / yCount;
         int degree = ScreenUtils.dp2px(2);
 
