@@ -34,6 +34,8 @@ import java.util.HashMap;
 import java.util.List;
 
 import io.reactivex.Observable;
+import io.reactivex.ObservableEmitter;
+import io.reactivex.ObservableOnSubscribe;
 import io.reactivex.Observer;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
@@ -69,6 +71,7 @@ public class StatisticWinnerModel extends BaseViewModel {
 
     public void loadData() {
         queryWinners()
+                .flatMap(list -> sortLegTeams(list))
                 .flatMap(list -> combineData(list))
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribeOn(Schedulers.io())
@@ -155,6 +158,16 @@ public class StatisticWinnerModel extends BaseViewModel {
                 }
             }
             e.onNext(list);
+        });
+    }
+
+    private Observable<List<LegTeam>> sortLegTeams(List<LegTeam> list) {
+        return Observable.create(new ObservableOnSubscribe<List<LegTeam>>() {
+            @Override
+            public void subscribe(ObservableEmitter<List<LegTeam>> e) throws Exception {
+                Collections.sort(list, new LegTeamComparator());
+                e.onNext(list);
+            }
         });
     }
 
@@ -429,6 +442,14 @@ public class StatisticWinnerModel extends BaseViewModel {
         @Override
         public int compare(StatisticWinnerItem left, StatisticWinnerItem right) {
             return left.getSortValue() - right.getSortValue();
+        }
+    }
+
+    public class LegTeamComparator implements Comparator<LegTeam> {
+
+        @Override
+        public int compare(LegTeam left, LegTeam right) {
+            return left.getSeason().getIndex()- right.getSeason().getIndex();
         }
     }
 }
