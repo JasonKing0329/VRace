@@ -30,4 +30,6 @@
     <color name="def_chart_color1">#f1303d</color>
     <color name="def_chart_color2">#375BF1</color>
     <color name="def_chart_color3">#34A350</color>
+
+    <color name="orangeE78B39">#e78b39</color>
 </resources>

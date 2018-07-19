@@ -53,10 +53,10 @@ public class TeamListAdapter extends BaseBindingAdapter<AdapterTeamBinding, Team
                 binding.tvLegs.setTextColor(binding.tvLegs.getResources().getColor(R.color.redC93437));
             }
             else if (bean.getResult().getEndPosition() == 2) {
-                binding.tvLegs.setTextColor(binding.tvLegs.getResources().getColor(R.color.green34A350));
+                binding.tvLegs.setTextColor(binding.tvLegs.getResources().getColor(R.color.orangeE78B39));
             }
             else if (bean.getResult().getEndPosition() == 3) {
-                binding.tvLegs.setTextColor(binding.tvLegs.getResources().getColor(R.color.green34A350));
+                binding.tvLegs.setTextColor(binding.tvLegs.getResources().getColor(R.color.orangeE78B39));
             }
             else {
                 binding.tvLegs.setTextColor(binding.tvLegs.getResources().getColor(R.color.text_sub));

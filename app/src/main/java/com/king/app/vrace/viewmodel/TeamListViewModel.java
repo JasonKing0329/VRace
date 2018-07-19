@@ -3,9 +3,7 @@ package com.king.app.vrace.viewmodel;
 import android.app.Application;
 import android.arch.lifecycle.MutableLiveData;
 import android.support.annotation.NonNull;
-import android.text.TextUtils;
 
-import com.king.app.vrace.R;
 import com.king.app.vrace.base.BaseViewModel;
 import com.king.app.vrace.conf.AppConstants;
 import com.king.app.vrace.conf.GenderType;
@@ -17,6 +15,7 @@ import com.king.app.vrace.model.entity.TeamPlayersDao;
 import com.king.app.vrace.model.entity.TeamSeasonDao;
 import com.king.app.vrace.model.entity.TeamTagDao;
 import com.king.app.vrace.model.setting.SettingProperty;
+import com.king.app.vrace.utils.DebugLog;
 import com.king.app.vrace.utils.PlaceUtil;
 import com.king.app.vrace.viewmodel.bean.StatProvinceItem;
 import com.king.app.vrace.viewmodel.bean.StatTeamItem;
@@ -152,8 +151,27 @@ public class TeamListViewModel extends BaseViewModel {
             // 为方便添加，按添加顺序后添加的在前
             if (mSortType == AppConstants.TEAM_SORT_NONE) {
                 Collections.reverse(teams);
+                // load team results
+                // TEAM_SORT_NONE排序没有用到TeamResult，场景也多用于选择team或者刚进来，可以后台加载
+                // 每10条发射一次，避免每次进来等太久
+                for (int i = 0; i < teams.size(); i ++) {
+                    if (teams.get(i).getSeason() != null) {
+                        TeamResult result = teamModel.getTeamSeasonResults(teams.get(i).getBean().getId(), teams.get(i).getSeason().getId());
+                        teams.get(i).setResult(result);
+                    }
+                    if (i % 10 == 0 && i != 0) {
+                        e.onNext(teams);
+                    }
+                }
             }
             else {
+                // 其他排序都要用到TeamResult，必须提前预加载
+                for (int i = 0; i < teams.size(); i ++) {
+                    if (teams.get(i).getSeason() != null) {
+                        TeamResult result = teamModel.getTeamSeasonResults(teams.get(i).getBean().getId(), teams.get(i).getSeason().getId());
+                        teams.get(i).setResult(result);
+                    }
+                }
                 Collections.sort(teams, new TeamComparator());
             }
             e.onNext(teams);
@@ -162,43 +180,48 @@ public class TeamListViewModel extends BaseViewModel {
 
     private Observable<List<TeamListItem>> toViewItems(List<Team> teams) {
         return Observable.create(e -> {
-            List<TeamListItem> list = new ArrayList<>();
-            for (Team team:teams) {
-                TeamListItem item = new TeamListItem();
-                item.setBean(team);
-                String teamCode;
-                if (AppConstants.DATABASE_REAL == SettingProperty.getDatabaseType() && team.getPlayerList().size() > 0) {
-                    teamCode = team.getPlayerList().get(0).getName() + "&\n" + team.getPlayerList().get(1).getName();
-                }
-                else {
-                    teamCode = team.getCode();
-                }
-                if (team.getSeasonList().size() > 0) {
-                    String seasons = "S" + team.getSeasonList().get(0).getSeason().getIndex();
-                    String uniqueSeason = seasons;
-                    // 参与多季度的team单独显示，并显示过往季度
-                    if (team.getSeasonList().size() > 1) {
-                        for (int i = 1; i < team.getSeasonList().size(); i ++) {
-                            seasons = "S" + team.getSeasonList().get(i).getSeason().getIndex() + "," + seasons;
-                            TeamListItem multiItem = new TeamListItem();
-                            multiItem.setBean(team);
-                            multiItem.setName(seasons + "\n" + teamCode);
-                            multiItem.setSeason(team.getSeasonList().get(i).getSeason());
-                            parseTeam(team, multiItem);
-                            list.add(multiItem);
-                        }
-                    }
-                    item.setSeason(team.getSeasonList().get(0).getSeason());
-                    item.setName(uniqueSeason + "\n" + teamCode);
-                }
-                else {
-                    item.setName(teamCode);
-                }
-                parseTeam(team, item);
-                list.add(item);
-            }
+            List<TeamListItem> list = getTeamViewItems(teams);
             e.onNext(list);
         });
+    }
+
+    private List<TeamListItem> getTeamViewItems(List<Team> teams) {
+        List<TeamListItem> list = new ArrayList<>();
+        for (Team team:teams) {
+            TeamListItem item = new TeamListItem();
+            item.setBean(team);
+            String teamCode;
+            if (AppConstants.DATABASE_REAL == SettingProperty.getDatabaseType() && team.getPlayerList().size() > 0) {
+                teamCode = team.getPlayerList().get(0).getName() + "&\n" + team.getPlayerList().get(1).getName();
+            }
+            else {
+                teamCode = team.getCode();
+            }
+            if (team.getSeasonList().size() > 0) {
+                String seasons = "S" + team.getSeasonList().get(0).getSeason().getIndex();
+                String uniqueSeason = seasons;
+                // 参与多季度的team单独显示，并显示过往季度
+                if (team.getSeasonList().size() > 1) {
+                    for (int i = 1; i < team.getSeasonList().size(); i ++) {
+                        seasons = "S" + team.getSeasonList().get(i).getSeason().getIndex() + "," + seasons;
+                        TeamListItem multiItem = new TeamListItem();
+                        multiItem.setBean(team);
+                        multiItem.setName(seasons + "\n" + teamCode);
+                        multiItem.setSeason(team.getSeasonList().get(i).getSeason());
+                        parseTeam(team, multiItem);
+                        list.add(multiItem);
+                    }
+                }
+                item.setSeason(team.getSeasonList().get(0).getSeason());
+                item.setName(uniqueSeason + "\n" + teamCode);
+            }
+            else {
+                item.setName(teamCode);
+            }
+            parseTeam(team, item);
+            list.add(item);
+        }
+        return list;
     }
 
     private void parseTeam(Team team, TeamListItem item) {
@@ -218,11 +241,15 @@ public class TeamListViewModel extends BaseViewModel {
         }
         item.setOccupy(occupy);
 
+        // 遍历中对每个team单独调用teamModel.getTeamSeasonResults太耗时，每一个都需要花5~60ms，因此model里的方法只适合数据较少时调用
         // 计算point及赛冠
-        if (item.getSeason() != null) {
-            TeamResult result = teamModel.getTeamSeasonResults(team.getId(), item.getSeason().getId());
-            item.setResult(result);
-        }
+//        if (item.getSeason() != null) {
+//            TeamResult result = teamModel.getTeamSeasonResults(team.getId(), item.getSeason().getId());
+//            long time = System.currentTimeMillis();
+//            DebugLog.e("parseTeam cost " + (time - lastTime));
+//            lastTime = time;
+//            item.setResult(result);
+//        }
     }
 
     private Observable<List<StatProvinceItem>> toProvinceGroup(List<TeamListItem> list) {
