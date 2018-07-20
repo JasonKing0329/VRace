@@ -14,17 +14,15 @@ import com.king.app.vrace.model.entity.TeamEliminationDao;
 import com.king.app.vrace.model.setting.SettingProperty;
 import com.king.app.vrace.viewmodel.bean.EliminationItem;
 
-import org.greenrobot.greendao.query.QueryBuilder;
-
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
 import io.reactivex.Observable;
-import io.reactivex.ObservableEmitter;
 import io.reactivex.ObservableOnSubscribe;
 import io.reactivex.ObservableSource;
 import io.reactivex.Observer;
@@ -260,6 +258,9 @@ public class EliminationReasonViewModel extends BaseViewModel {
 
     private ObservableSource<String[]> toTexts(List<TeamElimination> list) {
         return observer -> {
+
+            Collections.sort(list, new DetailComparator());
+
             String[] array = new String[list.size()];
             for (int i = 0; i < list.size(); i ++) {
                 TeamElimination te = list.get(i);
@@ -275,5 +276,13 @@ public class EliminationReasonViewModel extends BaseViewModel {
             }
             observer.onNext(array);
         };
+    }
+
+    private class DetailComparator implements Comparator<TeamElimination> {
+
+        @Override
+        public int compare(TeamElimination left, TeamElimination right) {
+            return left.getSeason().getIndex() - right.getSeason().getIndex();
+        }
     }
 }

@@ -17,7 +17,10 @@
         <android.support.constraint.ConstraintLayout
             android:id="@+id/group_item"
             android:layout_width="match_parent"
-            android:layout_height="45dp">
+            android:minHeight="45dp"
+            android:layout_height="wrap_content"
+            android:paddingTop="5dp"
+            android:paddingBottom="5dp">
 
             <TextView
                 android:id="@+id/tv_type"
@@ -42,7 +45,7 @@
             <TextView
                 android:id="@+id/tv_seasons"
                 android:layout_width="0dp"
-                android:layout_height="0dp"
+                android:layout_height="wrap_content"
                 android:text="@{bean.seasons}"
                 android:textColor="@color/text_second"
                 android:textSize="14dp"

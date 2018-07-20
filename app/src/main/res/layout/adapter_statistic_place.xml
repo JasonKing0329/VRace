@@ -17,12 +17,13 @@
         <android.support.constraint.ConstraintLayout
             android:id="@+id/group_item"
             android:layout_width="match_parent"
-            android:layout_height="85dp">
+            android:layout_height="wrap_content"
+            android:minHeight="85dp">
 
             <ImageView
                 android:id="@+id/iv_flag"
                 android:layout_width="140dp"
-                android:layout_height="85dp"
+                android:layout_height="0dp"
                 android:scaleType="centerCrop"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintLeft_toLeftOf="parent"
@@ -45,7 +46,7 @@
             <TextView
                 android:id="@+id/tv_seasons"
                 android:layout_width="0dp"
-                android:layout_height="0dp"
+                android:layout_height="wrap_content"
                 android:layout_marginBottom="8dp"
                 android:layout_marginStart="8dp"
                 android:text="@{bean.seasons}"
