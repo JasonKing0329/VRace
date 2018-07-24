@@ -12,6 +12,14 @@ public class AppConstants {
 
     public static final int DATABASE_REAL = 1;
 
+    public static final int MAP_ITEM_PATH = 0;
+
+    public static final int MAP_ITEM_BG = 1;
+
+    public static final long MAP_ID_WORLD = 1001;
+
+    public static final String MAP_ID_WORLD_NAME = "World Map";
+
     public static final int STAT_PLACE_GROUP_NONE = 0;
 
     public static final int STAT_PLACE_GROUP_BY_CONT = 1;

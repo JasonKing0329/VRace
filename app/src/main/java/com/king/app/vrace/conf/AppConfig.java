@@ -11,6 +11,8 @@ public class AppConfig {
     public static final String DB_NAME = "race.db";
     public static final String DB_CBS_NAME = "race_cbs.db";
 
+    public static final String HTML_COUNTRY_ENG_CHN = "country_eng_chn.html";
+
     public static final String SDCARD = Environment.getExternalStorageDirectory().getPath();
 
     public static final String DEF_CONTENT = SDCARD + "/race";

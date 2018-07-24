@@ -109,4 +109,31 @@ public class FileUtil {
         }
         return true;
     }
+
+    /**
+     * 从assets目录复制的方法
+     * @param htmlFile
+     */
+    public static void copyHtmlFromAssets(String htmlFile) {
+
+        File file = new File(AppConfig.HTML_BASE + "/" + htmlFile);
+        if (!file.exists()) {
+            try {
+                InputStream assetsIn = RaceApplication.getInstance().getAssets().open(htmlFile);
+                OutputStream fileOut = new FileOutputStream(file.getPath());
+                byte[] buffer = new byte[1024];
+                int length;
+                while ((length = assetsIn.read(buffer))>0){
+                    fileOut.write(buffer, 0, length);
+                }
+
+                fileOut.flush();
+                fileOut.close();
+                assetsIn.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
 }

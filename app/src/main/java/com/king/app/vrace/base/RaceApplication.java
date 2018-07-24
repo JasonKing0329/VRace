@@ -9,6 +9,9 @@ import com.king.app.vrace.conf.AppConstants;
 import com.king.app.vrace.model.entity.DaoMaster;
 import com.king.app.vrace.model.entity.DaoSession;
 import com.king.app.vrace.model.entity.EliminationReasonDao;
+import com.king.app.vrace.model.entity.MapBeanDao;
+import com.king.app.vrace.model.entity.MapCountryDao;
+import com.king.app.vrace.model.entity.MapPathDao;
 import com.king.app.vrace.model.entity.TeamEliminationDao;
 import com.king.app.vrace.model.setting.SettingProperty;
 import com.king.app.vrace.utils.DebugLog;
@@ -91,6 +94,10 @@ public class RaceApplication extends Application {
                 case 2:
                     EliminationReasonDao.createTable(db, true);
                     TeamEliminationDao.createTable(db, true);
+                case 3:
+                    MapBeanDao.createTable(db, true);
+                    MapPathDao.createTable(db, true);
+                    MapCountryDao.createTable(db, true);
                     break;
             }
         }

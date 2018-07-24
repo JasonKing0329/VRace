@@ -4,8 +4,13 @@ import android.app.Application;
 import android.arch.lifecycle.MutableLiveData;
 import android.support.annotation.NonNull;
 
+import com.king.app.vrace.R;
 import com.king.app.vrace.base.BaseViewModel;
+import com.king.app.vrace.base.RaceApplication;
+import com.king.app.vrace.conf.AppConstants;
+import com.king.app.vrace.model.MapModel;
 import com.king.app.vrace.model.entity.LegDao;
+import com.king.app.vrace.model.entity.MapBean;
 import com.king.app.vrace.model.entity.Season;
 import com.king.app.vrace.model.entity.SeasonDao;
 import com.king.app.vrace.model.entity.TeamSeasonDao;
@@ -184,5 +189,48 @@ public class SeasonListViewModel extends BaseViewModel {
             return true;
         }
         return false;
+    }
+
+    public void handleDatabaseChange() {
+        loadingObserver.setValue(true);
+        RaceApplication.getInstance().reCreateGreenDao();
+        createWorldMapData()
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribeOn(Schedulers.io())
+                .subscribe(new Observer<Object>() {
+                    @Override
+                    public void onSubscribe(Disposable d) {
+                        addDisposable(d);
+                    }
+
+                    @Override
+                    public void onNext(Object object) {
+                        loadingObserver.setValue(false);
+                        loadSeasons();
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+                        e.printStackTrace();
+                        loadingObserver.setValue(false);
+                    }
+
+                    @Override
+                    public void onComplete() {
+
+                    }
+                });
+    }
+
+    private Observable<Object> createWorldMapData() {
+        MapBean bean = getDaoSession().getMapBeanDao().load(AppConstants.MAP_ID_WORLD);
+        if (bean == null) {
+            MapModel mapModel = new MapModel();
+            return mapModel.createMap(RaceApplication.getInstance().getResources(), R.raw.world_map, AppConstants.MAP_ID_WORLD, AppConstants.MAP_ID_WORLD_NAME)
+                    .flatMap(map -> mapModel.createMapCountry(map));
+        }
+        else {
+            return Observable.create(e -> e.onNext(new Object()));
+        }
     }
 }

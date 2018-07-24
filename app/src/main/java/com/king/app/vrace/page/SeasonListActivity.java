@@ -140,10 +140,7 @@ public class SeasonListActivity extends MvvmActivity<ActivitySeasonListBinding, 
 
     private void loadFromHistory() {
         LoadFromSelector selector = new LoadFromSelector();
-        selector.setOnDatabaseChangedListener(() -> {
-            RaceApplication.getInstance().reCreateGreenDao();
-            initData();
-        });
+        selector.setOnDatabaseChangedListener(() -> mModel.handleDatabaseChange());
         DraggableDialogFragment dialogFragment = new DraggableDialogFragment();
         dialogFragment.setTitle("Load From");
         dialogFragment.setContentFragment(selector);
@@ -235,8 +232,7 @@ public class SeasonListActivity extends MvvmActivity<ActivitySeasonListBinding, 
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == REQUEST_SETTING) {
             if (mModel.isDatabaseChanged()) {
-                RaceApplication.getInstance().reCreateGreenDao();
-                initData();
+                mModel.handleDatabaseChange();
             }
         }
     }

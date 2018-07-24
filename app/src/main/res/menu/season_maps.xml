@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <item android:id="@+id/menu_pre_season"
+        android:title="Table View"
+        android:icon="@drawable/ic_keyboard_arrow_left_white_24dp"
+        app:showAsAction="ifRoom"/>
+    <item android:id="@+id/menu_next_season"
+        android:title="Table View"
+        android:icon="@drawable/ic_keyboard_arrow_right_white_24dp"
+        app:showAsAction="ifRoom"/>
+    <item android:id="@+id/menu_recreate_map"
+        android:title="Re-create map data"
+        app:showAsAction="never"/>
+    <item android:id="@+id/menu_recreate_country"
+        android:title="Re-create country data"
+        app:showAsAction="never"/>
+</menu>

@@ -41,6 +41,7 @@ public class SeasonTeamResultsActivity extends MvvmActivity<ActivitySeasonTeamRe
                     break;
             }
         });
+        mBinding.actionbar.setOnBackListener(() -> finish());
 
         mBinding.chart.setDrawDashGrid(true);
     }

@@ -9,9 +9,13 @@ import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.View;
 
+import com.king.app.vrace.R;
 import com.king.app.vrace.base.BaseViewModel;
 import com.king.app.vrace.base.RaceApplication;
 import com.king.app.vrace.conf.AppConfig;
+import com.king.app.vrace.conf.AppConstants;
+import com.king.app.vrace.model.MapModel;
+import com.king.app.vrace.model.entity.MapBean;
 import com.king.app.vrace.model.setting.SettingProperty;
 import com.king.app.vrace.utils.DBExportor;
 import com.king.app.vrace.utils.FileUtil;
@@ -75,7 +79,6 @@ public class LoginViewModel extends BaseViewModel {
                     public void onNext(Object o) {
                         loadingObserver.setValue(false);
 
-                        RaceApplication.getInstance().createGreenDao();
                         if (SettingProperty.isEnableFingerPrint()) {
                             fingerprintObserver.setValue(true);
                         }
@@ -112,13 +115,17 @@ public class LoginViewModel extends BaseViewModel {
 
             // 检查数据库是否存在
             FileUtil.copyDbFromAssets(AppConfig.DB_NAME);
+            // 检查html是否存在
+            FileUtil.copyHtmlFromAssets(AppConfig.HTML_COUNTRY_ENG_CHN);
 
             // init server url
 //                BaseUrl.getInstance().setBaseUrl(SettingProperty.getServerBaseUrl());
 
+            RaceApplication.getInstance().createGreenDao();
+
             e.onNext(new Object());
-            e.onComplete();
-        });
+        })
+                .flatMap(object -> createWorldMapData());
     }
 
     public TextWatcher getPwdTextWatcher() {
@@ -147,6 +154,18 @@ public class LoginViewModel extends BaseViewModel {
         else {
             loginObserver.setValue(false);
             messageObserver.setValue("密码错误");
+        }
+    }
+
+    private Observable<Object> createWorldMapData() {
+        MapBean bean = getDaoSession().getMapBeanDao().load(AppConstants.MAP_ID_WORLD);
+        if (bean == null) {
+            MapModel mapModel = new MapModel();
+            return mapModel.createMap(RaceApplication.getInstance().getResources(), R.raw.world_map, AppConstants.MAP_ID_WORLD, AppConstants.MAP_ID_WORLD_NAME)
+                    .flatMap(map -> mapModel.createMapCountry(map));
+        }
+        else {
+            return Observable.create(e -> e.onNext(new Object()));
         }
     }
 }

@@ -12,7 +12,6 @@ import com.king.app.vrace.page.adapter.LegAdapter;
 import com.king.app.vrace.utils.ScreenUtils;
 import com.king.app.vrace.view.dialog.DraggableDialogFragment;
 import com.king.app.vrace.view.dialog.content.LegEditor;
-import com.king.app.vrace.view.dialog.content.SeasonTeamResultsDialog;
 import com.king.app.vrace.viewmodel.SeasonViewModel;
 import com.king.app.vrace.viewmodel.bean.LegItem;
 
@@ -68,7 +67,10 @@ public class SeasonActivity extends MvvmActivity<ActivitySeasonBinding, SeasonVi
                     isEditMode = true;
                     break;
                 case R.id.menu_results:
-                    showSeasonResultsDialog();
+                    showSeasonResults();
+                    break;
+                case R.id.menu_map:
+                    showSeasonMap();
                     break;
             }
         });
@@ -109,7 +111,7 @@ public class SeasonActivity extends MvvmActivity<ActivitySeasonBinding, SeasonVi
         });
     }
 
-    private void showSeasonResultsDialog() {
+    private void showSeasonResults() {
         Intent intent = new Intent(this, SeasonTeamResultsActivity.class);
         intent.putExtra(SeasonTeamResultsActivity.EXTRA_SEASON_ID, mModel.getSeason().getId());
         startActivity(intent);
@@ -119,6 +121,12 @@ public class SeasonActivity extends MvvmActivity<ActivitySeasonBinding, SeasonVi
 //        dialogFragment.setTitle("Results");
 //        dialogFragment.setContentFragment(content);
 //        dialogFragment.show(getSupportFragmentManager(), "SeasonTeamResultsDialog");
+    }
+
+    private void showSeasonMap() {
+        Intent intent = new Intent(this, SeasonMapActivity.class);
+        intent.putExtra(SeasonMapActivity.EXTRA_SEASON_ID, mModel.getSeason().getId());
+        startActivity(intent);
     }
 
     private void manageTeams() {

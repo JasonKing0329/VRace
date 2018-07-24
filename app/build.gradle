@@ -7,8 +7,8 @@ android {
         applicationId "com.king.app.vrace"
         minSdkVersion 21
         targetSdkVersion 27
-        versionCode 47
-        versionName "2.9.4"
+        versionCode 48
+        versionName "3.0"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
     signingConfigs {
@@ -31,7 +31,7 @@ android {
     }
 
     greendao {
-        schemaVersion 3
+        schemaVersion 4
     }
 
     dataBinding {
