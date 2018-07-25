@@ -5,11 +5,11 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Path;
+import android.graphics.Point;
 import android.graphics.RectF;
 import android.graphics.Region;
 import android.support.annotation.Nullable;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.View;
@@ -19,7 +19,8 @@ import com.king.app.vrace.utils.DebugLog;
 import java.util.List;
 
 /**
- * Desc:
+ * Desc:显示世界地图以及访问过的国家
+ * 采用svg图片转换为xml读取path并绘制于canvas上
  *
  * @author：Jing Yang
  * @date: 2018/7/23 15:28
@@ -28,6 +29,8 @@ public class WorldMapView extends View {
 
     private Paint paintMap;
     private Paint paintBorder;
+    private Paint paintPoint;
+    private Paint paintLine;
 
     private float scale = 1.0f;
 
@@ -70,6 +73,19 @@ public class WorldMapView extends View {
         paintBorder.setColor(Color.WHITE);
         paintBorder.setStyle(Paint.Style.STROKE);
         paintBorder.setStrokeWidth(1);
+
+        paintPoint = new Paint();
+        paintPoint.setAntiAlias(true);
+        paintPoint.setColor(Color.parseColor("#FF0000"));
+        paintPoint.setStyle(Paint.Style.FILL);
+        paintPoint.setStrokeWidth(3);
+        paintPoint.setStrokeCap(Paint.Cap.ROUND);
+
+        paintLine = new Paint();
+        paintLine.setAntiAlias(true);
+        paintLine.setColor(Color.parseColor("#FF4081"));
+        paintLine.setStyle(Paint.Style.STROKE);
+        paintLine.setStrokeWidth(1);
 
         mDetector = new GestureDetector(getContext(), new GestureDetector.OnGestureListener() {
             @Override
@@ -128,6 +144,11 @@ public class WorldMapView extends View {
 
     }
 
+    /**
+     * 选中/取消选择地点
+     * @param x
+     * @param y
+     */
     private void togglePlace(float x, float y) {
         if (adapter != null && adapter.getMapItems() != null) {
 
@@ -247,13 +268,41 @@ public class WorldMapView extends View {
             List<MapItem> mapItems = adapter.getMapItems();
             if (mapItems != null) {
                 for (MapItem item:mapItems) {
+                    // draw countries
                     drawMapItem(canvas, item);
+                    // draw border of countries
                     drawItemBorder(canvas, item);
                 }
+            }
+            // draw flight line
+            LinePoint linePoint = adapter.getLinePoint();
+            if (linePoint != null) {
+                drawLinePoint(canvas, linePoint);
             }
         }
 
         canvas.restore();
+    }
+
+    private void drawLinePoint(Canvas canvas, LinePoint linePoint) {
+        drawPoints(canvas, linePoint.getPointList());
+        drawLines(canvas, linePoint.getLinePathList());
+    }
+
+    private void drawPoints(Canvas canvas, List<Point> pointList) {
+        if (pointList != null) {
+            for (Point point:pointList) {
+                canvas.drawPoint(point.x, point.y, paintPoint);
+            }
+        }
+    }
+
+    private void drawLines(Canvas canvas, List<Path> linePathList) {
+        if (linePathList != null) {
+            for (Path path:linePathList) {
+                canvas.drawPath(path, paintLine);
+            }
+        }
     }
 
     private void drawMapItem(Canvas canvas, MapItem item) {

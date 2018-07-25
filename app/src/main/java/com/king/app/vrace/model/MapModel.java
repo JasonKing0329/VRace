@@ -1,15 +1,22 @@
 package com.king.app.vrace.model;
 
 import android.content.res.Resources;
+import android.graphics.Path;
+import android.graphics.Point;
 
 import com.king.app.vrace.base.RaceApplication;
 import com.king.app.vrace.conf.AppConfig;
 import com.king.app.vrace.conf.AppConstants;
 import com.king.app.vrace.model.entity.MapBean;
 import com.king.app.vrace.model.entity.MapCountry;
+import com.king.app.vrace.model.entity.MapCountryDao;
 import com.king.app.vrace.model.entity.MapPath;
+import com.king.app.vrace.model.entity.MapPathDao;
+import com.king.app.vrace.utils.DebugLog;
 import com.king.app.vrace.view.widget.map.MapItem;
 import com.king.app.vrace.view.widget.map.PathParser;
+import com.king.app.vrace.viewmodel.bean.LegMapItem;
+import com.king.app.vrace.viewmodel.bean.MapData;
 
 import org.jsoup.Jsoup;
 import org.jsoup.select.Elements;
@@ -51,6 +58,24 @@ public class MapModel {
             }
             e.onNext(list);
         });
+    }
+
+    public MapItem getMapItemByName(String name) {
+        MapItem item = new MapItem();
+        MapPath mp = RaceApplication.getInstance().getDaoSession().getMapPathDao().queryBuilder()
+                .where(MapPathDao.Properties.Place.eq(name))
+                .build().unique();
+        if (mp == null) {
+            return null;
+        }
+        else {
+            item.setBean(mp);
+            if (mp.getType() == AppConstants.MAP_ITEM_BG) {
+                item.setBg(true);
+            }
+            item.setPath(PathParser.createPathFromPathData(mp.getPathValues()));
+        }
+        return item;
     }
 
     public Observable<MapBean> loadWorldMap() {
@@ -151,4 +176,104 @@ public class MapModel {
         } catch (Exception e) {}
         return 0;
     }
+
+    /**
+     * 创建飞行航程（只考虑起点国与终点国，不考虑中转）
+     * 最左与最右区域相互飞行连线需要穿过边界而不是直接连线
+     * @param mapData
+     * @param lastPoint
+     * @param point
+     * @param lastItem
+     * @param item
+     * @return
+     */
+    public Path createFlightPath(MapData mapData, Point lastPoint, Point point, LegMapItem lastItem, LegMapItem item) {
+
+        DebugLog.e("from " + lastItem.getCountryChn() + "  " + lastPoint.x + ", " + lastPoint.y);
+        DebugLog.e("to " + item.getCountryChn() + "  " + point.x + ", " + point.y);
+
+        int mapWidth = mapData.getMap().getWidth();
+        // 以800为例，南美洲为最左，巴西的矩形中心位置为279，取300为最左边界
+        int edgeLeft = mapWidth * 3 / 8;
+        // 以800为例，中国的矩形中心位置为632，取600为最右边界
+        int edgeRight = mapWidth * 6 / 8;
+
+        Path path = new Path();
+        // 从 北美洲/南美洲 飞往 亚洲东部/大洋洲
+        if (lastPoint.x < edgeLeft && point.x > edgeRight) {
+            // 以两张地图拼接的思路，目标点在拼接图的对应位置，做lastPoint到目标point的直线连接
+            Point targetPoint = new Point(point.x - mapWidth, point.y);
+            // 得出连线抵达地图最左边界的y值
+            Point mostLeftPoint = new Point();
+            mostLeftPoint.x = 0;
+            mostLeftPoint.y = (-lastPoint.x) * (targetPoint.y - lastPoint.y) / (targetPoint.x - lastPoint.x) + lastPoint.y;
+            path.moveTo(lastPoint.x, lastPoint.y);
+            path.lineTo(mostLeftPoint.x, mostLeftPoint.y);
+            DebugLog.e("separate from " + lastPoint.x + ", " + lastPoint.y);
+            DebugLog.e("separate to " + mostLeftPoint.x + ", " + mostLeftPoint.y);
+            // 连线穿过地图边界后到达目的地的连线
+            Point mostRightPoint = new Point(mapWidth, mostLeftPoint.y);
+            path.moveTo(mostRightPoint.x, mostRightPoint.y);
+            path.lineTo(point.x, point.y);
+            DebugLog.e("separate from " + mostRightPoint.x + ", " + mostRightPoint.y);
+            DebugLog.e("separate to " + point.x + ", " + point.y);
+            makePathArrow(mostRightPoint.x, mostRightPoint.y, point.x, point.y, 4, 3, path);
+        }
+        // 从 亚洲东部/大洋洲 飞往 北美洲/南美洲
+        else if (lastPoint.x > edgeRight && point.x < edgeLeft) {
+            // 以两张地图拼接的思路，目标点在拼接图的对应位置，做lastPoint到目标point的直线连接
+            Point targetPoint = new Point(point.x + mapWidth, point.y);
+            // 得出连线抵达地图最右边界的y值
+            Point mostRightPoint = new Point();
+            mostRightPoint.x = mapWidth;
+            mostRightPoint.y = (mapWidth - lastPoint.x) * (targetPoint.y - lastPoint.y) / (targetPoint.x - lastPoint.x) + lastPoint.y;
+            path.moveTo(lastPoint.x, lastPoint.y);
+            path.lineTo(mostRightPoint.x, mostRightPoint.y);
+            DebugLog.e("separate from " + lastPoint.x + ", " + lastPoint.y);
+            DebugLog.e("separate to " + mostRightPoint.x + ", " + mostRightPoint.y);
+            // 连线穿过地图边界后到达目的地的连线
+            Point mostLeftPoint = new Point(0, mostRightPoint.y);
+            path.moveTo(mostLeftPoint.x, mostLeftPoint.y);
+            path.lineTo(point.x, point.y);
+            DebugLog.e("separate from " + mostLeftPoint.x + ", " + mostLeftPoint.y);
+            DebugLog.e("separate to " + point.x + ", " + point.y);
+            makePathArrow(mostLeftPoint.x, mostLeftPoint.y, point.x, point.y, 4, 3, path);
+        }
+        // 其他情况直接连线
+        else {
+            path.moveTo(lastPoint.x, lastPoint.y);
+            path.lineTo(point.x, point.y);
+            makePathArrow(lastPoint.x, lastPoint.y, point.x, point.y, 4, 3, path);
+        }
+        return path;
+    }
+
+    /**
+     *
+     * @param fromX start x of line
+     * @param fromY start y of line
+     * @param toX end x of line
+     * @param toY end y of line
+     * @param height the length of arrow
+     * @param bottom the widest distance between to arrow line
+     * @param path
+     */
+    private void makePathArrow(float fromX, float fromY, float toX, float toY,
+                                 int height, int bottom, Path path) {
+
+        float juli = (float) Math.sqrt((toX - fromX) * (toX - fromX)
+                + (toY - fromY) * (toY - fromY));// 获取线段距离
+        float juliX = toX - fromX;// 有正负，不要取绝对值
+        float juliY = toY - fromY;// 有正负，不要取绝对值
+        float dianX = toX - (height / juli * juliX);
+        float dianY = toY - (height / juli * juliY);
+        path.moveTo(toX, toY);// 此点为三边形的起点
+        path.lineTo(dianX + (bottom / juli * juliY), dianY
+                - (bottom / juli * juliX));
+        path.moveTo(toX, toY);// 此点为三边形的起点
+        path.lineTo(dianX - (bottom / juli * juliY), dianY
+                + (bottom / juli * juliX));
+//        path.close(); // 使这些点构成封闭的三边形
+    }
+
 }

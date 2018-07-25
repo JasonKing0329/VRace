@@ -1,6 +1,7 @@
 package com.king.app.vrace.page;
 
 import android.arch.lifecycle.ViewModelProviders;
+import android.text.TextUtils;
 
 import com.king.app.vrace.R;
 import com.king.app.vrace.base.MvvmActivity;
@@ -59,8 +60,12 @@ public class SeasonMapActivity extends MvvmActivity<ActivitySeasonMapBinding, Se
             adapter = new SeasonMapAdapter();
             adapter.setMap(data.getMap());
             adapter.setMapItems(data.getItemList());
+            adapter.setLinePoint(data.getLinePoint());
             mBinding.mapView.setAdapter(adapter);
             mBinding.tvLegs.setText(data.getLegsDesc());
+            if (!TextUtils.isEmpty(data.getErrorInfo())) {
+                showMessageLong(data.getErrorInfo());
+            }
         });
         mModel.seasonObserver.observe(this, season -> mBinding.actionbar.setTitle("Season" + season.getIndex()));
         mModel.loadMap(getIntent().getLongExtra(EXTRA_SEASON_ID, -1));

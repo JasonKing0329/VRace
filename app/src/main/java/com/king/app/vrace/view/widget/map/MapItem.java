@@ -51,4 +51,5 @@ public class MapItem {
     public void setBean(MapPath bean) {
         this.bean = bean;
     }
+
 }
