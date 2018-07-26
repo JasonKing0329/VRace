@@ -269,6 +269,12 @@ public class TeamListViewModel extends BaseViewModel {
                 StatTeamItem sti = new StatTeamItem();
                 sti.setBean(team);
                 item.getChildItemList().add(sti);
+
+                // load result
+                if (team.getSeason() != null) {
+                    TeamResult result = teamModel.getTeamSeasonResults(team.getBean().getId(), team.getSeason().getId());
+                    team.setResult(result);
+                }
             }
 
             // sort children
@@ -362,10 +368,24 @@ public class TeamListViewModel extends BaseViewModel {
 
         @Override
         public int compare(StatTeamItem left, StatTeamItem right) {
+            // 没有result的排到最后
             // 以endPosition升序，第二关键词point升序
-            double vl = left.getBean().getResult().getEndPosition();
-            double vr = right.getBean().getResult().getEndPosition();
-            if (vl == vr) {
+            double vl;
+            if (left.getBean().getResult() == null) {
+                vl = Integer.MAX_VALUE;
+            }
+            else {
+                vl = left.getBean().getResult().getEndPosition();
+            }
+            double vr;
+            if (right.getBean().getResult() == null) {
+                vr = Integer.MAX_VALUE;
+            }
+            else {
+                vr = right.getBean().getResult().getEndPosition();
+            }
+
+            if (vl == vr && vl != Integer.MAX_VALUE) {
                 vl = left.getBean().getResult().getPoint();
                 vr = right.getBean().getResult().getPoint();
                 return compareDouble(vl, vr);

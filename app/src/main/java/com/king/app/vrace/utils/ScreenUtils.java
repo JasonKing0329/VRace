@@ -193,4 +193,11 @@ public class ScreenUtils
 			ViewCompat.requestApplyInsets(mChildView);
 		}
 	}
+
+	public static boolean isTablet() {
+		if (RaceApplication.getInstance().getResources().getConfiguration().smallestScreenWidthDp >= 600) {
+			return true;
+		}
+		return false;
+	}
 }
