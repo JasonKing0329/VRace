@@ -20,6 +20,8 @@ public class StatisticPlaceItem {
 
     private long lastSeasonId;
 
+    private int firstSeasonIndex;
+
     public String getPlace() {
         return place;
     }
@@ -66,5 +68,13 @@ public class StatisticPlaceItem {
 
     public void setContinent(String continent) {
         this.continent = continent;
+    }
+
+    public int getFirstSeasonIndex() {
+        return firstSeasonIndex;
+    }
+
+    public void setFirstSeasonIndex(int firstSeasonIndex) {
+        this.firstSeasonIndex = firstSeasonIndex;
     }
 }

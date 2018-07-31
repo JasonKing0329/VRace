@@ -13,6 +13,7 @@ import com.king.app.vrace.conf.AppConstants;
 import com.king.app.vrace.databinding.ActivityStatisticPlaceBinding;
 import com.king.app.vrace.model.setting.SettingProperty;
 import com.king.app.vrace.page.adapter.StatPlaceAdapter;
+import com.king.app.vrace.page.adapter.StatSeasonPlaceAdapter;
 import com.king.app.vrace.page.adapter.StatisticPlaceAdapter;
 import com.king.app.vrace.utils.ScreenUtils;
 import com.king.app.vrace.view.dialog.AlertDialogFragment;
@@ -33,6 +34,7 @@ public class StatisticPlaceActivity extends MvvmActivity<ActivityStatisticPlaceB
 
     private StatisticPlaceAdapter adapter;
     private StatPlaceAdapter groupAdapter;
+    private StatSeasonPlaceAdapter seasonAdapter;
 
     @Override
     protected int getContentView() {
@@ -54,14 +56,16 @@ public class StatisticPlaceActivity extends MvvmActivity<ActivityStatisticPlaceB
         mBinding.actionbar.setOnMenuItemListener(menuId -> {
             switch (menuId) {
                 case R.id.menu_group_mode:
-                    if (SettingProperty.getStatisticPlaceType() == AppConstants.STAT_PLACE_GROUP_BY_CONT) {
-                        SettingProperty.setStatisticPlaceType(AppConstants.STAT_PLACE_GROUP_NONE);
-                        mModel.statistic(AppConstants.STAT_PLACE_GROUP_NONE);
-                    }
-                    else {
-                        SettingProperty.setStatisticPlaceType(AppConstants.STAT_PLACE_GROUP_BY_CONT);
-                        mModel.statistic(AppConstants.STAT_PLACE_GROUP_BY_CONT);
-                    }
+                    SettingProperty.setStatisticPlaceType(AppConstants.STAT_PLACE_GROUP_BY_CONT);
+                    mModel.statistic(AppConstants.STAT_PLACE_GROUP_BY_CONT);
+                    break;
+                case R.id.menu_order_times:
+                    SettingProperty.setStatisticPlaceType(AppConstants.STAT_PLACE_GROUP_NONE);
+                    mModel.statistic(AppConstants.STAT_PLACE_GROUP_NONE);
+                    break;
+                case R.id.menu_group_season:
+                    SettingProperty.setStatisticPlaceType(AppConstants.STAT_PLACE_GROUP_BY_SEASON);
+                    mModel.statistic(AppConstants.STAT_PLACE_GROUP_BY_SEASON);
                     break;
                 case R.id.menu_local:
                     goToLocalPage();
@@ -87,29 +91,29 @@ public class StatisticPlaceActivity extends MvvmActivity<ActivityStatisticPlaceB
         mModel.placeObserver.observe(this, list -> showPlaces(list));
         mModel.groupsObserver.observe(this, list -> showGroups(list));
         mModel.placeSeasonsObserver.observe(this, list -> showPlaceSeasons(list));
+        mModel.seasonNewPlaceObserver.observe(this, list -> showSeasonNewPlaces(list));
+    }
+
+    private void showSeasonNewPlaces(List<Object> list) {
+        seasonAdapter = new StatSeasonPlaceAdapter();
+        seasonAdapter.setList(list);
+        seasonAdapter.setOnItemClickListener((position, item) -> onSelectCountry(item.getPlace()));
+        mBinding.rvPlaces.setAdapter(seasonAdapter);
     }
 
     private void showGroups(List<StatContinentItem> list) {
         groupAdapter = new StatPlaceAdapter(list);
         groupAdapter.setOnCountryItemClickListener(item -> onSelectCountry(item.getBean().getPlace()));
         mBinding.rvPlaces.setAdapter(groupAdapter);
-        mBinding.actionbar.updateMenuText(R.id.menu_group_mode, "No group");
     }
 
     private void showPlaces(List<StatisticPlaceItem> teams) {
-        if (adapter == null) {
-            adapter = new StatisticPlaceAdapter();
-            adapter.setList(teams);
-            adapter.setOnItemClickListener((view, position, data) -> {
-                onSelectCountry(data.getPlace());
-            });
-            mBinding.rvPlaces.setAdapter(adapter);
-        }
-        else {
-            adapter.setList(teams);
-            adapter.notifyDataSetChanged();
-        }
-        mBinding.actionbar.updateMenuText(R.id.menu_group_mode, "Group by continent");
+        adapter = new StatisticPlaceAdapter();
+        adapter.setList(teams);
+        adapter.setOnItemClickListener((view, position, data) -> {
+            onSelectCountry(data.getPlace());
+        });
+        mBinding.rvPlaces.setAdapter(adapter);
     }
 
     private void showPlaceSeasons(List<PlaceSeason> list) {

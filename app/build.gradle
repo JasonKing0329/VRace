@@ -7,8 +7,8 @@ android {
         applicationId "com.king.app.vrace"
         minSdkVersion 21
         targetSdkVersion 27
-        versionCode 50
-        versionName "3.1.1"
+        versionCode 51
+        versionName "3.1.2"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
     signingConfigs {

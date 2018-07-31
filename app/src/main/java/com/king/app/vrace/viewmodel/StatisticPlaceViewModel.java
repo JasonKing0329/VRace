@@ -21,10 +21,13 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
 import io.reactivex.Observable;
+import io.reactivex.ObservableEmitter;
+import io.reactivex.ObservableOnSubscribe;
 import io.reactivex.Observer;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
@@ -44,6 +47,8 @@ public class StatisticPlaceViewModel extends BaseViewModel {
 
     public MutableLiveData<List<PlaceSeason>> placeSeasonsObserver = new MutableLiveData<>();
 
+    public MutableLiveData<List<Object>> seasonNewPlaceObserver = new MutableLiveData<>();
+
     private int mStatisticType;
 
     public StatisticPlaceViewModel(@NonNull Application application) {
@@ -57,6 +62,9 @@ public class StatisticPlaceViewModel extends BaseViewModel {
 
         if (mStatisticType == AppConstants.STAT_PLACE_GROUP_BY_CONT) {
             queryByGroup();
+        }
+        else if (mStatisticType == AppConstants.STAT_PLACE_GROUP_BY_SEASON) {
+            queryBySeason();
         }
         else {
             queryTotal();
@@ -150,6 +158,63 @@ public class StatisticPlaceViewModel extends BaseViewModel {
         });
     }
 
+    private void queryBySeason() {
+        getSeasonPlaces()
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribeOn(Schedulers.io())
+                .subscribe(new Observer<List<Object>>() {
+                    @Override
+                    public void onSubscribe(Disposable d) {
+                        addDisposable(d);
+                    }
+
+                    @Override
+                    public void onNext(List<Object> list) {
+                        seasonNewPlaceObserver.setValue(list);
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+                        e.printStackTrace();
+                    }
+
+                    @Override
+                    public void onComplete() {
+
+                    }
+                });
+    }
+
+    private Observable<List<Object>> getSeasonPlaces() {
+        return Observable.create(e -> {
+            List<Object> list = new ArrayList<>();
+            List<StatisticPlaceItem> places = getPlaceItems();
+            Map<Integer, List<StatisticPlaceItem>> seasonMap = new HashMap<>();
+            for (StatisticPlaceItem item:places) {
+                if (seasonMap.get(item.getFirstSeasonIndex()) == null) {
+                    seasonMap.put(item.getFirstSeasonIndex(), new ArrayList<>());
+                }
+                seasonMap.get(item.getFirstSeasonIndex()).add(item);
+            }
+
+            List<Integer> seasonList = new ArrayList<>();
+            Iterator<Integer> it = seasonMap.keySet().iterator();
+            while (it.hasNext()) {
+                seasonList.add(it.next());
+            }
+            Collections.sort(seasonList);
+            CountComparator comparator = new CountComparator();
+            for (int season:seasonList) {
+                List<StatisticPlaceItem> children = seasonMap.get(season);
+                Collections.sort(children, comparator);
+                list.add("S" + season + " (" + children.size() + ")");
+                list.addAll(children);
+            }
+
+            e.onNext(list);
+        });
+    }
+
     public List<StatisticPlaceItem> getPlaceItems() {
         List<StatisticPlaceItem> list = new ArrayList<>();
         List<Leg> legs = getDaoSession().getLegDao().loadAll();
@@ -187,6 +252,7 @@ public class StatisticPlaceViewModel extends BaseViewModel {
                 item.setLastSeasonId(leg.getSeasonId());
                 item.setCount(item.getCount() + 1);
                 if (TextUtils.isEmpty(item.getSeasons())) {
+                    item.setFirstSeasonIndex(leg.getSeason().getIndex());
                     item.setSeasons("S" + leg.getSeason().getIndex());
                 }
                 else {

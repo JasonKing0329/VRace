@@ -24,6 +24,8 @@ public class AppConstants {
 
     public static final int STAT_PLACE_GROUP_BY_CONT = 1;
 
+    public static final int STAT_PLACE_GROUP_BY_SEASON = 2;
+
     public static final int STAT_LOCAL_DEPART = 0;
 
     public static final int STAT_LOCAL_FINAL = 1;
