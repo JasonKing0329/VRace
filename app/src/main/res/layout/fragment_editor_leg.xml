@@ -6,80 +6,83 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-        <TextView
-            android:id="@+id/tv_title_index"
-            android:layout_width="wrap_content"
+        <LinearLayout
+            android:id="@+id/ll_index"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="16dp"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
             android:layout_marginStart="16dp"
-            android:layout_marginTop="20dp"
-            android:text="Index"
-            app:layout_constraintLeft_toLeftOf="parent"
+            android:layout_marginTop="0dp"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
-
-        <EditText
-            android:id="@+id/et_index"
-            android:layout_width="60dp"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="16dp"
-            android:layout_marginTop="8dp"
-            android:inputType="number"
-            android:textSize="14dp"
-            app:layout_constraintStart_toEndOf="@+id/tv_title_index"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toTopOf="parent">
+            <TextView
+                android:id="@+id/tv_title_index"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Index" />
+            <Spinner
+                android:id="@+id/sp_index"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="16dp" />
+        </LinearLayout>
 
         <Spinner
             android:id="@+id/sp_type"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginEnd="16dp"
-            android:layout_marginTop="16dp"
-            android:entries="@array/leg_type"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
-
-        <TextView
-            android:id="@+id/tv_title_player"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
             android:layout_marginStart="16dp"
-            android:layout_marginTop="24dp"
-            android:text="Player Number"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/tv_title_index" />
-
-        <EditText
-            android:id="@+id/et_players"
-            android:layout_width="60dp"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="8dp"
             android:layout_marginTop="0dp"
-            android:inputType="number"
-            app:layout_constraintStart_toEndOf="@+id/tv_title_player"
-            app:layout_constraintTop_toBottomOf="@+id/et_index" />
-
-        <TextView
-            android:id="@+id/tv_title_place"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="16dp"
-            android:layout_marginTop="20dp"
-            android:text="Places"
+            android:entries="@array/leg_type"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/tv_title_player" />
+            app:layout_constraintTop_toBottomOf="@+id/ll_index" />
 
-        <ImageView
-            android:id="@+id/iv_add_place"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
-            android:layout_marginStart="8dp"
-            android:layout_marginTop="9dp"
-            android:padding="10dp"
-            android:background="?android:attr/selectableItemBackgroundBorderless"
-            app:layout_constraintStart_toEndOf="@+id/tv_title_place"
-            app:layout_constraintTop_toBottomOf="@+id/tv_title_player"
-            app:srcCompat="@drawable/ic_add_ff4081_24dp" />
+        <LinearLayout
+            android:id="@+id/ll_player"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="0dp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/sp_type">
+            <TextView
+                android:id="@+id/tv_title_player"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Player Number" />
+            <Spinner
+                android:id="@+id/sp_players"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="16dp" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/ll_add_place"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:layout_marginStart="16dp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/ll_player">
+            <TextView
+                android:id="@+id/tv_title_place"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Places" />
+            <ImageView
+                android:id="@+id/iv_add_place"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:layout_marginLeft="8dp"
+                android:padding="10dp"
+                android:background="?android:attr/selectableItemBackgroundBorderless"
+                android:src="@drawable/ic_add_ff4081_24dp" />
+        </LinearLayout>
 
         <LinearLayout
             android:id="@+id/ll_place1"
@@ -91,11 +94,10 @@
             android:gravity="center_vertical"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/iv_add_place">
+            app:layout_constraintTop_toBottomOf="@+id/ll_add_place">
             <Spinner
                 android:id="@+id/sp_continent1"
-                android:layout_width="0dp"
-                android:layout_weight="1"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:entries="@array/continents" />
             <EditText
@@ -134,7 +136,7 @@
             <Spinner
                 android:id="@+id/sp_continent2"
                 android:layout_width="0dp"
-                android:layout_weight="1"
+                android:layout_weight="1.3"
                 android:layout_height="wrap_content"
                 android:entries="@array/continents" />
             <EditText
@@ -172,7 +174,7 @@
             <Spinner
                 android:id="@+id/sp_continent3"
                 android:layout_width="0dp"
-                android:layout_weight="1"
+                android:layout_weight="1.3"
                 android:layout_height="wrap_content"
                 android:entries="@array/continents" />
             <EditText

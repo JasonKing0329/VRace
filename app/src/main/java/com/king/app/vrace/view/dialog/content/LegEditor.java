@@ -4,6 +4,7 @@ import android.arch.lifecycle.ViewModelProviders;
 import android.text.TextUtils;
 import android.view.View;
 import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 
 import com.king.app.vrace.R;
 import com.king.app.vrace.base.IFragmentHolder;
@@ -48,9 +49,9 @@ public class LegEditor extends DraggableContentFragment<FragmentEditorLegBinding
     protected void initView() {
         seasonViewModel = ViewModelProviders.of(getActivity()).get(SeasonViewModel.class);
 
+        initIndexes();
+        initPlayers();
         if (mLeg != null) {
-            mBinding.etIndex.setText(String.valueOf(mLeg.getIndex()));
-            mBinding.etPlayers.setText(String.valueOf(mLeg.getPlayerNumber()));
             mBinding.etDesc.setText(mLeg.getDescription());
             mBinding.spType.setSelection(mLeg.getType());
             if (mLeg.getPlaceList().size() > 0) {
@@ -81,7 +82,7 @@ public class LegEditor extends DraggableContentFragment<FragmentEditorLegBinding
                 mLeg.setType(position);
                 switch (LegType.values()[position]) {
                     case FINAL:
-                        mBinding.etPlayers.setText("3");
+                        setPlayers(3);
                     case START_LINE:
                     case START_LINE_EL:
                     case START_LINE_TASK:
@@ -111,7 +112,43 @@ public class LegEditor extends DraggableContentFragment<FragmentEditorLegBinding
             mBinding.ivRemove2.setVisibility(View.VISIBLE);
         });
     }
-    
+
+    private void initIndexes() {
+        int legs = seasonViewModel.getSeason().getLeg();
+        String[] arrays = new String[legs + 1];
+        for (int i = 0; i < legs + 1; i ++) {
+            arrays[i] = String.valueOf(i);
+        }
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(getActivity(), android.R.layout.simple_spinner_dropdown_item, arrays);
+        mBinding.spIndex.setAdapter(adapter);
+
+        if (mLeg != null) {
+            mBinding.spIndex.setSelection(mLeg.getIndex());
+        }
+    }
+
+    private void initPlayers() {
+        int teams = seasonViewModel.getSeason().getTeam();
+        String[] arrays = new String[teams - 2];
+        for (int i = 0; i < teams - 2; i ++) {
+            arrays[i] = String.valueOf(i + 3);
+        }
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(getActivity(), android.R.layout.simple_spinner_dropdown_item, arrays);
+        mBinding.spPlayers.setAdapter(adapter);
+
+        if (mLeg != null) {
+            setPlayers(mLeg.getPlayerNumber());
+        }
+    }
+
+    private void setPlayers(int players) {
+        mBinding.spPlayers.setSelection(players - 3);
+    }
+
+    private int getPlayers() {
+        return mBinding.spPlayers.getSelectedItemPosition() + 3;
+    }
+
     private String[] getContinents() {
         return getResources().getStringArray(R.array.continents);
     }
@@ -150,13 +187,13 @@ public class LegEditor extends DraggableContentFragment<FragmentEditorLegBinding
 
     private void onConfirm() {
         try {
-            mLeg.setIndex(Integer.parseInt(mBinding.etIndex.getText().toString()));
+            mLeg.setIndex(mBinding.spIndex.getSelectedItemPosition());
         } catch (Exception e) {
             showMessageShort("Wrong index");
             return;
         }
         try {
-            mLeg.setPlayerNumber(Integer.parseInt(mBinding.etPlayers.getText().toString()));
+            mLeg.setPlayerNumber(getPlayers());
         } catch (Exception e) {
             showMessageShort("Wrong player number");
             return;
