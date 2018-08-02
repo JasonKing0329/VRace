@@ -138,7 +138,11 @@ public class StatisticPlaceActivity extends MvvmActivity<ActivityStatisticPlaceB
     }
 
     private void onSelectCountry(String country) {
-        mModel.findCountrySeasons(country);
+        Intent intent = new Intent();
+        intent.setClass(this, CountryActivity.class);
+        intent.putExtra(CountryActivity.EXTRA_NAME, country);
+        startActivity(intent);
+//        mModel.findCountrySeasons(country);
     }
 
 }

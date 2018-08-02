@@ -42,6 +42,16 @@ public class ImageProvider {
         return result;
     }
 
+    public static String getCountryImagePath(String country) {
+        String extras[] = new String[]{".jpg", ".jpeg", ".png", ".bmp", ".gif"};
+        String result = null;
+        File file = getRandomFile(AppConfig.IMG_COUNTRY_BASE, country);
+        if (file != null) {
+            result = file.getPath();
+        }
+        return result;
+    }
+
     public static String getLegImagePath(Leg leg) {
         String path = null;
         if (leg.getPlaceList().size() > 0) {

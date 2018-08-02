@@ -100,6 +100,10 @@
             android:name=".page.EliminationReasonsActivity"
             android:screenOrientation="portrait" />
         <activity
+            android:name=".page.CountryActivity"
+            android:screenOrientation="portrait"
+            android:theme="@style/OverStatusBarTheme" />
+        <activity
             android:name=".page.SettingsActivity"
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme"
