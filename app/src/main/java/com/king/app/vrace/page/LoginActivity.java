@@ -97,6 +97,9 @@ public class LoginActivity extends MvvmActivity<ActivityLoginBinding, LoginViewM
     }
 
     private void startHome() {
+
+        startService(new Intent(LoginActivity.this, BackgroundService.class));
+
         Intent intent = new Intent(this, SeasonListActivity.class);
         startActivity(intent);
         finish();
