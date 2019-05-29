@@ -30,6 +30,8 @@ public class AppConfig {
 
     public static final String FILE_HTML_CONTESTANTS = HTML_BASE + "/contestants.html";
 
+    public static final String FILE_NO_MEDIA = ".nomedia";
+
     public static final String[] DIRS = new String[] {
             DEF_CONTENT, EXPORT_BASE, HISTORY_BASE, HTML_BASE, IMG_BASE, IMG_FLAG_BASE, IMG_COUNTRY_BASE, IMG_CITY_BASE
     };
@@ -53,10 +55,10 @@ public class AppConfig {
                 createNoMedia(f);
             }
         }
-        File nomediaFile = new File(file.getPath() + "/.nomedia");
+        File nomediaFile = new File(file.getPath() + "/" + FILE_NO_MEDIA);
         if (!nomediaFile.exists()) {
             try {
-                new File(file.getPath(), ".nomedia").createNewFile();
+                new File(file.getPath(), FILE_NO_MEDIA).createNewFile();
             } catch (IOException e) {
                 e.printStackTrace();
             }

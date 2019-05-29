@@ -7,6 +7,7 @@ import com.king.app.vrace.model.entity.Leg;
 import com.king.app.vrace.model.entity.LegPlaces;
 
 import java.io.File;
+import java.io.FileFilter;
 import java.util.Random;
 
 /**
@@ -43,7 +44,6 @@ public class ImageProvider {
     }
 
     public static String getCountryImagePath(String country) {
-        String extras[] = new String[]{".jpg", ".jpeg", ".png", ".bmp", ".gif"};
         String result = null;
         File file = getRandomFile(AppConfig.IMG_COUNTRY_BASE, country);
         if (file != null) {
@@ -76,11 +76,25 @@ public class ImageProvider {
         // check folder
         File folder = new File(parent + "/" + name);
         if (folder.exists()) {
-            File files[] = folder.listFiles();
+            File files[] = folder.listFiles(new ImageFilter());
             if (files.length > 0) {
                 target = files[Math.abs(new Random().nextInt()) % files.length];
             }
         }
         return target;
+    }
+
+    public static class ImageFilter implements FileFilter {
+
+        @Override
+        public boolean accept(File file) {
+            String extras[] = new String[]{".jpg", ".jpeg", ".png", ".bmp", ".gif"};
+            for (String extra:extras) {
+                if (file.getName().endsWith(extra)) {
+                    return true;
+                }
+            }
+            return false;
+        }
     }
 }
