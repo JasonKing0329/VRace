@@ -63,45 +63,30 @@ public class SeasonTeamActivity extends MvvmActivity<ActivitySeasonTeamsBinding,
                     }
                     break;
                 case R.id.menu_edit:
-                    mBinding.actionbar.showConfirmStatus(menuId);
+                    mBinding.actionbar.showConfirmStatus(menuId, true, "Cancel");
                     isEditMode = true;
                     break;
             }
         });
 
-        mBinding.actionbar.setOnConfirmListener(new OnConfirmListener() {
-            @Override
-            public boolean disableInstantDismissConfirm() {
-                return false;
+        mBinding.actionbar.setOnConfirmListener(actionId -> {
+            switch (actionId) {
+                case R.id.menu_delete:
+                    warningDelete();
+                    return false;
             }
-
-            @Override
-            public boolean disableInstantDismissCancel() {
-                return false;
+            isEditMode = false;
+            return true;
+        });
+        mBinding.actionbar.setOnCancelListener(actionId -> {
+            switch (actionId) {
+                case R.id.menu_delete:
+                    adapter.setSelectMode(false);
+                    adapter.notifyDataSetChanged();
+                    break;
             }
-
-            @Override
-            public boolean onConfirm(int actionId) {
-                switch (actionId) {
-                    case R.id.menu_delete:
-                        warningDelete();
-                        return false;
-                }
-                isEditMode = false;
-                return true;
-            }
-
-            @Override
-            public boolean onCancel(int actionId) {
-                switch (actionId) {
-                    case R.id.menu_delete:
-                        adapter.setSelectMode(false);
-                        adapter.notifyDataSetChanged();
-                        break;
-                }
-                isEditMode = false;
-                return true;
-            }
+            isEditMode = false;
+            return true;
         });
     }
 
